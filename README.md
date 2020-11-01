@@ -1,6 +1,9 @@
 # A linux gaming guide
 
-This is some kind of guide/compilation of things, that I got to do/learn about while on my journey of gaming on linux. I am putting it here so it can be useful to others! If you want to see something added here, or to correct something where I am wrong, you are welcome to open an issue or a PR !
+This is some kind of guide/compilation of things, that I got to do/learn about while on my journey of gaming on linux. I am putting it here so it can be useful to others! 
+
+- If you want to see something added here, or to correct something where I am wrong, you are welcome to open an issue or a PR ! 
+- Benchmarks are welcome: I haven't benchmarked yet any of the changes I am suggesting. If you happen to do be
 
 ## Linux distribution
 
@@ -22,19 +25,19 @@ You can compile your own latest one with some "better" compiler optimizations if
 
 ```shell
 git clone https://github.com/doitsujin/dxvk.git
-
 cd dxvk
-
-export CFLAGS="-march=native -O3 -pipe"
-export CXXFLAGS="${CFLAGS}"
-
 # Build new DLLS
 ./package-release.sh master ~/.local/share/lutris/runtime/dxvk/ --no-package
 ```
-And if you feel even more adventurous, you can replace the above `CFLAGS` export with this set of flags:
-```shell
-export CFLAGS="-march=native -O3 -pipe -flto -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
+To use more aggressive compiler optimisations, one can edit `build-win32.txt` and `build-win64.txt` and change the following before running the `./package-release.sh` script:
 ```
+c_args=['-march=native', '-O3', '-pipe', '-flto', '-floop-strip-mine', '-fno-semantic-interposition', '-fipa-pta', '-fdevirtualize-at-ltrans']
+cpp_args=['-march=native', '-O3', '-pipe', '-flto', '-floop-strip-mine', '-fno-semantic-interposition', '-fipa-pta', '-fdevirtualize-at-ltrans']
+c_link_args = ['-flto', '-static', '-static-libgcc']
+cpp_link_args = ['-flto', '-static', '-static-libgcc', '-static-libstdc++']
+```
+These may improve performance or not, the best is to test with and without and see for oneself. If regressions happen, first try removing the `-flto` option, then change the `-O3` to `-O2`, then remove `-march=native`. And if after all this it still doesn't work, just go back to the original settings.
+
 Then you go in Lutris and tell it to use this version of dxvk: "Configure" > "Runner Options" > "DXVK Version" and put `dxvk-master`
 
 ## GPU
@@ -87,6 +90,7 @@ export CFLAGS="-march=native -O3 -pipe -flto -floop-strip-mine -fno-semantic-int
 export CXXFLAGS="${CFLAGS}"
 export LDFLAGS="-flto"
 ```
+These may improve performance or not, the best is to test with and without and see for oneself. If regressions happen, or it doesn't succeed in the compile step. First try removing the `-flto` option, then change the `-O3` to `-O2`, then remove `-march=native`. And if after all this it still doesn't work, just go back to the original settings (aka without the `export` lines).
 
 After running the lines above, you get the driver installed in `$HOME/radv-master`. Now, to use it for Overwatch (or any other game), you go to "Configure" > "System Options" > Environment variables and add the following line:
 
@@ -106,7 +110,7 @@ One can actually go even further in the compiler optimisations, by using this so
 
 For what will follow, I suppose that the fist clone step has already been done, and the source code is in the `mesa` folder.
 
-**Profiling Generation step :** 
+**Step 1: Profiling data generation** 
 
 ```shell
 cd path/to/mesa
@@ -145,7 +149,7 @@ where you should manually replace `$HOME` by your home path `/home/Joe` and `$OT
 cp path/to/game/executable/pgo-generate ~/pgo-generate
 ```
 
-**Final step: Uset hte profiling data**
+**Step 2: Use the profiling data**
 
 We expect that profiling data is in the folder `~/pgo-generate`
 ```shell
@@ -196,7 +200,7 @@ For a less efforts solution, you can look up Xanmod kernel, Liquorix, Linux-zen.
 
 ## Game mode
 
-It's a small program that puts your computer in performance mode when you start your game, it's available in most distro's repositories and I believe it helps in giving consistent FPS. Lutris uses it automatically if it's detected, otherwise you need to go, for Overwatch, "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it). Link here: https://github.com/FeralInteractive/gamemode.
+It's a small program that puts your computer in performance mode when you start your game, it's available in most distro's repositories and I believe it helps in giving consistent FPS. Lutris uses it automatically if it's detected, otherwise you need to go, for any game in Lutris, to "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it). Link here: https://github.com/FeralInteractive/gamemode.
 
 You can check whether or not gamemode is running with the command `gamemoded -s`. For GNOME users, there's a status indicator shell extension that show a notification and a tray icon when gamemode is running: https://extensions.gnome.org/extension/1852/gamemode/
 
@@ -212,9 +216,9 @@ I use only X11 for now, and works nicely. Wayland is not as good as X11 for now,
 
 ## Performance overlays
 
-Two possibilities:
+Performance overlays are small "widgets" that stack on top of your game view and show performance statistics (framerate, temperatures, frame times, CPU/RAM usages... etc). Two possibilities:
 
-* MangoHud: It is available in the repositories of most linux distros, to activate it, you only need to add the environment variable `MANGOHUD=1`, the stats you want to see in `MANGOHUD_CONFIG`. More information here: https://github.com/flightlessmango/MangoHud.  Can be configured via a GUI with GOverlay - https://github.com/benjamimgois/goverlay
+* MangoHud: It is available in the repositories of most linux distros, to activate it, you only need to add the environment variable `MANGOHUD=1`, and the stats you want to see in `MANGOHUD_CONFIG`. The interesting part of MangoHud is that it can also bechmark games: Record the entirety of the frame times, calculate frametime percentiles...etc Ideal to do benchmarks with. More information here: https://github.com/flightlessmango/MangoHud. It can be configured via a GUI with GOverlay - https://github.com/benjamimgois/goverlay
 * DXVK has its own HUD and can be enabled by setting the variable `DXVK_HUD`, the possible values are explained in [its repository](https://github.com/doitsujin/dxvk)
 
 ## OBS/Streaming
@@ -241,4 +245,4 @@ The compositor is the part of your DE that adds desktop transparency effects and
 
 #### Misc
 * Background YT videos: If you have youtube music in the background, try to switch to an empty tab and not leave the tab on the video. I noticed that like this the video doesn't get rendered and helps freeing your GPU or CPU (depending on who is doing the decoding).
-* KDE file indexer : If you're using KDE, you may consider disabling the file indexer. This is either done in the KDE settings or with balooctl disable (requires a reboot).
+* KDE file indexer : If you're using KDE, you may consider disabling the file indexer. This is either done in the KDE settings or with `balooctl disable` (requires a reboot).
