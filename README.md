@@ -214,7 +214,7 @@ I use only X11 for now, and works nicely. Wayland is not as good as X11 for now,
 
 Two possibilities:
 
-* MangoHud: It is available in the repositories of most linux distros, to activate it, you only need to add the environment variable `MANGOHUD=1`, the stats you want to see in `MANGOHUD_CONFIG`. More information here: https://github.com/flightlessmango/MangoHud
+* MangoHud: It is available in the repositories of most linux distros, to activate it, you only need to add the environment variable `MANGOHUD=1`, the stats you want to see in `MANGOHUD_CONFIG`. More information here: https://github.com/flightlessmango/MangoHud.  Can can be configured via a GUI with GOverlay - https://github.com/benjamimgois/goverlay
 * DXVK has its own HUD and can be enabled by setting the variable `DXVK_HUD`, the possible values are explained in [its repository](https://github.com/doitsujin/dxvk)
 
 ## OBS/Streaming
