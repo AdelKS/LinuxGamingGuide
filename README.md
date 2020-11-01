@@ -59,7 +59,7 @@ A nice documentation is given by, once again, Arch's documentation: https://wiki
 
 If you are running RADV and with a mesa version prior to 20.2, you should consider trying out ACO as it makes shader compilation (which happens on the CPU) way faster : go to "Configure" > "System Options" > Toggle ACO.
 
-Your distro ships the latest stable version, you can go more bleeding edge to get the latest additions, but keep in mind that regressions often come with it. On Ubuntu there's a [PPA](https://launchpad.net/~oibaf/+archive/ubuntu/graphics-drivers) that gives out the latest mesa. Otherwise you can compile only RADV by hand with the extra bonus of using "agressive" compiler optimisations (`-march=native`, `-O3`, and LTO and PGO) and use it for any Vulkan game, in a per game basis:
+Your distro ships the latest stable version, you can go more bleeding edge to get the latest additions, but keep in mind that regressions often come with it. On Ubuntu there's a [PPA](https://launchpad.net/~oibaf/+archive/ubuntu/graphics-drivers) that gives out the latest mesa, and another [PPA](https://launchpad.net/~kisak/+archive/ubuntu/kisak-mesa) that's less bleeding edge/more stable . Otherwise you can compile only RADV by hand with the extra bonus of using "agressive" compiler optimisations (`-march=native`, `-O3`, and LTO and PGO) and use it for any Vulkan game, in a per game basis:
 
 ```shell
 git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git
