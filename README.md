@@ -1,9 +1,6 @@
 # A linux gaming guide
 
-This is some kind of guide/compilation of things, that I got to do/learn about while on my journey of gaming on linux. I am putting it here so it can be useful to others! 
-
-- If you want to see something added here, or to correct something where I am wrong, you are welcome to open an issue or a PR ! 
-- Benchmarks are welcome: I haven't benchmarked yet any of the changes I am suggesting. If you happen to do be
+This is some kind of guide/compilation of things, that I got to do/learn about while on my journey of gaming on linux. I am putting it here so it can be useful to others! If you want to see something added here, or to correct something where I am wrong, you are welcome to open an issue or a PR ! 
 
 ## Linux distribution
 
@@ -243,6 +240,21 @@ where `com.obsproject.Studio` is the name of the `obs-studio` executable, instal
 
 The compositor is the part of your DE that adds desktop transparency effects and animations. In games, this can result in a noticeable loss in fps and added input lag. Some DEs properly detect the fullscreen application and disable compositing for that window, others don't. Gnome, if recent enough, disables the compisitor for fullscreen apps. Luckily, apparently, Lutris has a system option called Disable desktop effects which will disable compositing when you launch the game and restore it when you close it.
 
-#### Misc
+## Benchmarks
+
+Benchmarks are welcome: I haven't benchmarked yet any of the changes I am suggesting. If you happen to do some you are welcome to PR them. I sugggest to use MangoHud and upload the results to its corresponding website (https://flightlessmango.com), more information [here](https://github.com/flightlessmango/MangoHud), before uploading the results make sure to include as many information as possible to be able to "reproduce"
+  - hardware: CPU, GPU, RAM (with timings)
+  - Software: version of the distro, Kernel (if linux-tkg, the modified options in `customization.cfg`), Wine (if wine-tkg, the modified options too), DXVK, Mesa/AMDVLK/Nvidia, compilation process (if manually compiled)
+  - Game: how to reproduce the measured benchmarks: Fsync/Esync ? is it a benchmark tool ingame ? a saved play ? Can it be shared so other can benchmark against the same thing with different hardware/software ?
+I propose that the PR only links to the benchmark in the [flightlessmango.com](https://flightlessmango.com]) in markdown file with the name of the game in a `benchmarks` folder. If the website can't contain all the needed information asked above, add it to the Markdown.
+
+Benchmarks can for example try to test the following changes:
+- Fysnc/Esync on vs Fsync/Esync off
+- Different wine versions
+- Kernel schedulers: on CPU intensive games, mainly high refresh rate (300fps?), low graphics settings. So the game would be CPU bound.
+- Compiler optimisations: Wine, DXVK, Kernel, Mesa.
+
+
+## Misc
 * Background YT videos: If you have youtube music in the background, try to switch to an empty tab and not leave the tab on the video. I noticed that like this the video doesn't get rendered and helps freeing your GPU or CPU (depending on who is doing the decoding).
 * KDE file indexer : If you're using KDE, you may consider disabling the file indexer. This is either done in the KDE settings or with `balooctl disable` (requires a reboot).
