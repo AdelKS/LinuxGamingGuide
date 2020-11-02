@@ -246,6 +246,7 @@ Benchmarks are welcome: I haven't benchmarked yet any of the changes I am sugges
   - hardware: CPU, GPU, RAM (with timings)
   - Software: version of the distro, Kernel (if linux-tkg, the modified options in `customization.cfg`), Wine (if wine-tkg, the modified options too), DXVK, Mesa/AMDVLK/Nvidia, compilation process (if manually compiled)
   - Game: how to reproduce the measured benchmarks: Fsync/Esync ? is it a benchmark tool ingame ? a saved play ? Can it be shared so other can benchmark against the same thing with different hardware/software ?
+
 I propose that the PR only links to the benchmark in the [flightlessmango.com](https://flightlessmango.com]) in markdown file with the name of the game in a `benchmarks` folder. If the website can't contain all the needed information asked above, add it to the Markdown.
 
 Benchmarks can for example try to test the following changes:
