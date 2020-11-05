@@ -254,6 +254,53 @@ pacmd load-module module-loopback source="game_sink.monitor" sink="alsa_output.u
 ```
 Then, all what's left is to do is to open `pavucontrol` (google how to install it if you don't have it) and select `Game-Sink` for where `obs-studio` picks its audio from. And select `Game-Sink` for where the game outputs its audio to.
 
+## Mic noise suppression
+
+You have cherry blue mechanical keyboard, your friends and teammates keep on complaining/sending death threats about you being too noisy with your keyboard ? Fear no more.
+
+**A bit of history:** People from Mozilla made some research to apply neural networks to noise suppression from audio feeds, they [published](https://jmvalin.ca/demo/rnnoise/) everything about it, including the code. Another person, "Werman", picked up their work and made it work as a [PulseAudio plugin](https://github.com/werman/noise-suppression-for-voice).
+
+**How to:** 
+All this is explained in [Werman's Git repository](https://github.com/werman/noise-suppression-for-voice). I will put it back here.
+
+1- Clone, build and install the plugin
+```shell
+git clone https://github.com/werman/noise-suppression-for-voice.git noise-suppression
+cd noise-suppression
+cmake -Bbuild-x64 -H. -DCMAKE_BUILD_TYPE=Release
+cd build-x64
+make
+sudo make install
+```
+2- At each login, one needs to do this: create a virtual mic, instance the denoiser module and make it output to the virtual mic, and be fed from the actual mic. This can be saved in a bash script so it can be easilly run.
+
+For Stereo mics
+```shell
+#!/bin/bash
+
+pacmd load-module module-null-sink sink_name=denoised_mic_stereo sink_properties=device.description=Denoised-Mic-Stereo rate=48000
+
+pacmd load-module module-ladspa-sink sink_name=denoiser_stereo sink_properties=device.description=Denoiser-Stereo sink_master=denoised_mic_stereo label=noise_suppressor_stereo plugin=librnnoise_ladspa control=50
+
+pacmd load-module module-loopback source="alsa_input.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.multichannel-input" sink=denoiser_stereo channels=2 source_dont_move=true sink_dont_move=true
+```
+
+For mono mics
+```shell
+#!/bin/bash
+
+pacmd load-module module-null-sink sink_name=denoised_mic_mono sink_properties=device.description=Denoised-Mic-Mono rate=48000
+
+pacmd load-module module-ladspa-sink sink_name=denoiser_mono sink_properties=device.description=Denoiser-Mono sink_master=denoised_mic_mono label=noise_suppressor_mono plugin=librnnoise_ladspa control=50
+
+pacmd load-module module-loopback source="alsa_input.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.multichannel-input" sink=denoiser_mono channels=1 source_dont_move=true sink_dont_move=true
+```
+
+Where `alsa_input.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.multichannel-input` is the name of my mic input. You can obtain the name of your mic input with:
+```shell
+pactl list sources short
+```
+
 ## Compositor / desktop effects
 
 The compositor is the part of your DE that adds desktop transparency effects and animations. In games, this can result in a noticeable loss in fps and added input lag. Some DEs properly detect the fullscreen application and disable compositing for that window, others don't. Gnome, if recent enough, disables the compisitor for fullscreen apps. Luckily, apparently, Lutris has a system option called Disable desktop effects which will disable compositing when you launch the game and restore it when you close it.
