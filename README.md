@@ -252,7 +252,7 @@ For example, for me I have a SteelSeries Arctis PRO with the Game DAC (with cabl
 ```shell
 pacmd load-module module-loopback source="game_sink.monitor" sink="alsa_output.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.iec958-stereo"
 ```
-Then, all what's left is to do is to open `pavucontrol` (google how to install it if you don't have it) and select `Game-Sink` for where `obs-studio` picks its audio from.
+Then, all what's left is to do is to open `pavucontrol` (google how to install it if you don't have it) and select `Game-Sink` for where `obs-studio` picks its audio from. And select `Game-Sink` for where the game outputs its audio to.
 
 ## Compositor / desktop effects
 
