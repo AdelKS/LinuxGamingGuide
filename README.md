@@ -218,9 +218,11 @@ Performance overlays are small "widgets" that stack on top of your game view and
 * MangoHud: It is available in the repositories of most linux distros, to activate it, you only need to add the environment variable `MANGOHUD=1`, and the stats you want to see in `MANGOHUD_CONFIG`. The interesting part of MangoHud is that it can also bechmark games: Record the entirety of the frame times, calculate frametime percentiles...etc Ideal to do benchmarks with. More information here: https://github.com/flightlessmango/MangoHud. It can be configured via a GUI with GOverlay - https://github.com/benjamimgois/goverlay
 * DXVK has its own HUD and can be enabled by setting the variable `DXVK_HUD`, the possible values are explained in [its repository](https://github.com/doitsujin/dxvk)
 
-## OBS/Streaming
+## Streaming - Saving replays
 
-Works nicely with X11 on AMD GPUs, especially LXDE (when compared to Gnome) I feel no added input lag with LXDE. The video quality is actually better than Windows, since you can use VAAPI-FFMPEG on Linux, and it has a better video quality than the AMD thingy on windows. Nvidia has been reported to work nicely on linux and on windows with their new NVENC thing.
+### OBS
+
+[OBS](https://obsproject.com/) is the famous open source streaming software, it works nicely with X11 on AMD GPUs, especially LXDE (when compared to Gnome) I feel no added input lag with LXDE. The video quality is actually better than Windows, since you can use VAAPI-FFMPEG on Linux, and it has a better video quality than the AMD thingy on windows. Nvidia has been reported to work nicely on linux and on windows with their new NVENC thing.
 
 On Gnome, an experimental feature can be enabled: 
 ```shell
@@ -239,6 +241,10 @@ where `com.obsproject.Studio` is the name of the `obs-studio` executable, instal
 **Some open Issues I have been having**
 - __Network Error on Twitch:__ Lately I've been getting network error on twitch when I switch between video sources (Desktop to Overwatch), I couldn't get help on it and I still can't figure out what the issue is... If you have any ideas please reach out!
 - __Decoding crashes__: Viewers on windows reporting that their decoder is crashing when watching my stream, I have no idea why. I think it's an FFMPEG-VAAPI thing.
+
+### Replay sorcery
+
+[Replay sorcery](https://github.com/matanui159/ReplaySorcery) is a tool to save small replays of your gaming sessions, without the need to be streaming. It saves a "video" of your play for the past `x` seconds in RAM: it is saved as sequence of JPEG images (small footprint on the computer's ressources). And these images are only converted to a video when you want to actually save a replay (more ressource heavy). I haven't given it a try, if you want to add hints and tips about it, please feel free to PR something or open an issue!
 
 ### Stream only the game sounds
 
