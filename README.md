@@ -209,7 +209,7 @@ https://github.com/Frogging-Family/wine-tkg-git
 
 ## X11/Wayland
 
-I use only X11 for now, and works nicely. Wayland is not as good as X11 for now, for gaming (the desktop smoothness is better than x11 though, with AMD GPUs), except if you want to try a custom wine with Wayland patches: https://github.com/varmd/wine-wayland. I am unable to run Overwatch with it yet.
+I use only X11 for now, and works nicely. Wayland is not as good as X11 for now, for gaming (the desktop smoothness is better than x11 though, with AMD GPUs), except if you want to try a custom wine with Wayland patches: https://github.com/varmd/wine-wayland. I am unable to run Overwatch with it yet. In terms of input lag LXDE seems to be better for me than Gnome. Feel free to try for yourself!
 
 ## Performance overlays
 
@@ -220,7 +220,7 @@ Performance overlays are small "widgets" that stack on top of your game view and
 
 ## OBS/Streaming
 
-Works nicely with X11 on AMD GPUs, actually better than Windows, since you can use VAAPI-FFMPEG on Linux, and it has a better video quality than the AMD thingy on windows. Nvidia has been reported to work nicely on linux and on windows with their new NVENC thing.
+Works nicely with X11 on AMD GPUs, especially LXDE (when compared to Gnome) I feel no added input lag with LXDE. The video quality is actually better than Windows, since you can use VAAPI-FFMPEG on Linux, and it has a better video quality than the AMD thingy on windows. Nvidia has been reported to work nicely on linux and on windows with their new NVENC thing.
 
 On Gnome, an experimental feature can be enabled: 
 ```shell
@@ -235,6 +235,10 @@ Then it can be run with an environment variable, `OBS_USE_EGL=1`:
 OBS_USE_EGL=1 com.obsproject.Studio
 ```
 where `com.obsproject.Studio` is the name of the `obs-studio` executable, installed through flatpak, it may have another name in your specific distro.
+
+**Some open Issues I have been having**
+- __Network Error on Twitch:__ Lately I've been getting network error on twitch when I switch between video sources (Desktop to Overwatch), I couldn't get help on it and I still can't figure out what the issue is... If you have any ideas please reach out!
+- __Decoding crashes__: Viewers on windows reporting that their decoder is crashing when watching my stream, I have no idea why. I think it's an FFMPEG-VAAPI thing.
 
 ### Stream only the game sounds
 
