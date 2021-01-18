@@ -12,7 +12,7 @@ if ! [ -d /dev/cpuset/theUgly ]; then
 fi
 
 echo "Setting 0-7 as the ugly cpu set"
-/bin/echo 0-7 > /dev/cpuset/theUgly/cpuset.cpus
+/bin/echo 0-3,8-11 > /dev/cpuset/theUgly/cpuset.cpus
 
 echo "Giving the Ugly memory node 0"
 /bin/echo 0 > /dev/cpuset/theUgly/cpuset.mems
@@ -33,7 +33,7 @@ if ! [ -d /dev/cpuset/theGood ]; then
 fi
 
 echo "Setting 8-15 as the Good cpu set"
-/bin/echo 8-15 > /dev/cpuset/theGood/cpuset.cpus
+/bin/echo 4-7,12-15 > /dev/cpuset/theGood/cpuset.cpus
 
 echo "Giving the Good memory node 0"
 /bin/echo 0 > /dev/cpuset/theGood/cpuset.mems

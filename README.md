@@ -219,7 +219,19 @@ Something really nice: give an entire CCX (or CCD for Zen3, if you have more tha
 
 [cpuset](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cpusets.html) is a linux mechanism to create groups of cores (a cpu set) to which you can assign processes, at runtime. One can use it to create two cpu sets: one for your game, another for all the rest. Have a read at the doc to understand how things work. I may update things here to explain further.
 
-[I made a script](./scripts/tasks_redirect.sh) that does so for a Ryzen 3700X, that has 8 cores, 16 threads: logical cores 0-7 or assigned to a set that I called `theUgly`, which are associated to 4 physical cores (with SMT) in CCX0. Cores 8-15 are assigned to `theGood` in CCX1. Then it redirects `lutris` to the `theGood` cpuset, `lutris` will then launch wine and the game in the same cpuset automatically. You can edit the script to fit with your current CPU, after having a look at what `lstopo` outputs and at the cpuset documentation. Created cpu sets can be removed if they get redirected to the main cpuset that contains all cores, [I made that script too](./scripts/reverse_tasks_redirect.sh), for my own CPU.
+[I made a script](./scripts/tasks_redirect.sh) that does so for a Ryzen 3700X, that has 8 cores, 16 threads: logical cores 0-3,8-11 (given in the `P#` in the `lstopo` result) or assigned to a set that I called `theUgly`, which are associated to 4 physical cores (with SMT) in CCX0. Cores 4-7,12-15 are assigned to `theGood` in CCX1. Then it redirects `lutris` to the `theGood` cpuset, `lutris` will then launch wine and the game in the same cpuset automatically. You can edit the script to fit with your current CPU, after having a look at what `lstopo` outputs and at the cpuset documentation. Created cpu sets can be removed if they get redirected to the main cpuset that contains all cores, [I made that script too](./scripts/reverse_tasks_redirect.sh), for my own CPU.
+
+**important:** core IDs should be carefully chosen so the cpu sets are separated by CCX/CCD and not just make a non hardware aware split (a recent AMD BIOS update changed the core naming scheme to fit with what Intel does), one way to verify it is, after doing the splitting, to call `lstopo` in both cpusets and verify. A way to do so is to move one shell to the new group, as root:
+
+```shell
+/bin/echo $$ >> /dev/cpuset/theGood/tasks
+lstopo
+```
+![Ryzen 3700X topology](./images/cgroup2.png)
+
+Then also open another shell, and do `lstopo`, you should get separate results:
+
+![Ryzen 3700X topology](./images/cgroup1.png)
 
 ## Game mode
 
