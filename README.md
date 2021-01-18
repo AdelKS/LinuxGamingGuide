@@ -195,6 +195,32 @@ Otherwise, this is something not many touch, but using a self-compiled one can b
 
 For a less efforts solution, you can look up Xanmod kernel, Liquorix, Linux-zen. That provide precompiled binaries.
 
+## AMD Ryzen: the `cpuset` trick
+
+#### A small intro to CPU cache
+The cache is the closest memory to the CPU, and data from RAM needs to go through the cache first before being processed by the CPU. The CPU doesn't read from RAM directly. This cache memory is very small (at maximum few hundred megabytes as of current CPUs) and this leads to some wait time in the CPU: when some data needs to be processed but isn't already in cache (a "cache miss"), it needs to be loaded in RAM. When the cache is "full", because it will always be, some "old" data in cache is synced back in RAM then deleted to give some space to the new needed data. This takes time.
+
+There is usually 3 levels of cache memory in our CPUs: L1, L2, and L3. In Ryzen, the L1 and L2 are few hundred kilobytes and the L3 a (few) dozen megabytes. Each core has its own L1 and L2 cache, the L3 is shared: in zen/zen+/zen2 it is shared among each 4 cores (called a CCX). and CCX'es are groupped two by two in what is called CCDs. In zen 3, the L3 cache is shared  among the cores of an entire CCD, 8 cores. There's [this anandtech article](https://www.anandtech.com/show/16214/amd-zen-3-ryzen-deep-dive-review-5950x-5900x-5800x-and-5700x-tested/4) that gives a through analysis of cache topology in Zen 2 vs Zen 3:
+
+![Zen3_vs_Zen2](./images/Zen3_vs_Zen2.jpg)
+
+One can obtain the cache topology if his current machine by running the following command:
+```shell
+$ lstopo
+```
+
+The lstopo of my Ryzen 3700X gives this
+![Ryzen 3700X topology](./images/Ryzen-3700X-cache-topology.png)
+
+#### What can we do with this information ?
+Something really nice: give an entire CCX (or CCD for Zen3, if you have more than one CCD) to your game, and make (nearly) everything else run in the other CCX(s)/CCD(s). With this, as far as I can hypothesize, one reduces the amount of L3 cache misses for the game, since it doesn't share it with no other app. I benchmarked this but my method wasn't clean enough, I need to do it again. The really nice thing with this, that you can notice easily, is that if you run a heavy linux kernel compilation on the other CCX(s)/CCD(s) your game is not affected at all: my test made overwatch average frame rate go from 80fps (without cpu sets) to 230fps (a cpu set reserved for Overwatch, the compilation happenning on the other one). You can test for yourself. Using this trick also downplays the role a scheduler has on your games, since the game is alone and very few other things run with it on the same cores (like wine and the kernel). 
+
+#### Using `cpuset`
+
+[cpuset](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cpusets.html) is a linux mechanism to create groups of cores (a cpu set) to which you can assign processes, at runtime. One can use it to create two cpu sets: one for your game, another for all the rest. Have a read at the doc to understand how things work. I may update things here to explain further.
+
+[I made a script](./scripts/tasks_redirect.sh) that does so for a Ryzen 3700X, that has 8 cores, 16 threads: logical cores 0-7 or assigned to a set that I called `theUgly`, which are associated to 4 physical cores (with SMT) in CCX0. Cores 8-15 are assigned to `theGood` in CCX1. Then it redirects `lutris` to the `theGood` cpuset, `lutris` will then launch wine and the game in the same cpuset automatically. You can edit the script to fit with your current CPU, after having a look at what `lstopo` outputs and at the cpuset documentation. Created cpu sets can be removed if they get redirected to the main cpuset that contains all cores, [I made that script too](./scripts/reverse_tasks_redirect.sh), for my own CPU.
+
 ## Game mode
 
 It's a small program that puts your computer in performance mode when you start your game, it's available in most distro's repositories and I believe it helps in giving consistent FPS. Lutris uses it automatically if it's detected, otherwise you need to go, for any game in Lutris, to "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it). Link here: https://github.com/FeralInteractive/gamemode.
@@ -223,6 +249,12 @@ Performance overlays are small "widgets" that stack on top of your game view and
 ### OBS
 
 [OBS](https://obsproject.com/) is the famous open source streaming software, it works nicely with X11 on AMD GPUs, especially LXDE (when compared to Gnome) I feel no added input lag with LXDE. The video quality is actually better than Windows, since you can use VAAPI-FFMPEG on Linux, and it has a better video quality than the AMD thingy on windows. Nvidia has been reported to work nicely on linux and on windows with their new NVENC thing.
+
+#### Using `cpuset` with software encoder on Ryzen CPUs
+
+If you can't use your own GPU for encoding or prefer to use a software encoder, it's a very good idea to se the `cpuset` trick explained above to not affect your game's performance by running OBS in a different CCX/CCD. I tried it and it makes a huge difference.
+
+#### Gnome
 
 On Gnome, an experimental feature can be enabled: 
 ```shell
