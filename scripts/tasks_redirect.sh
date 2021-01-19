@@ -11,7 +11,7 @@ if ! [ -d /dev/cpuset/theUgly ]; then
   mkdir /dev/cpuset/theUgly
 fi
 
-echo "Setting 0-7 as the ugly cpu set"
+echo "Assigning CCX0's cores to the ugly cpu set"
 /bin/echo 0-3,8-11 > /dev/cpuset/theUgly/cpuset.cpus
 
 echo "Giving the Ugly memory node 0"
@@ -32,7 +32,7 @@ if ! [ -d /dev/cpuset/theGood ]; then
   mkdir /dev/cpuset/theGood
 fi
 
-echo "Setting 8-15 as the Good cpu set"
+echo "Assigning CCX1's cores to the Good cpu set"
 /bin/echo 4-7,12-15 > /dev/cpuset/theGood/cpuset.cpus
 
 echo "Giving the Good memory node 0"
