@@ -39,7 +39,7 @@ echo "Giving the Good memory node 0"
 /bin/echo 0 > /dev/cpuset/theGood/cpuset.mems
 
 echo "Making the Good cpu exlusive"
-/bin/echo 1 > /dev/cpuset/theUgly/cpuset.cpu_exclusive
+/bin/echo 1 > /dev/cpuset/theGood/cpuset.cpu_exclusive
 
 read -p "Redirect Lutris to theGood ? y/n: "
 if [ "$REPLY" = "y" ];then
