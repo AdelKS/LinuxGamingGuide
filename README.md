@@ -2,7 +2,48 @@
 
 This is some kind of guide/compilation of things, that I got to do/learn about while on my journey of gaming on linux. I am putting it here so it can be useful to others! If you want to see something added here, or to correct something where I am wrong, you are welcome to open an issue or a PR ! 
 
-## Linux distribution
+## Table of Content
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [A linux gaming guide](#a-linux-gaming-guide)
+  - [Table of Content](#table-of-content)
+  - [ Linux distribution](#a-iddistroa-linux-distribution)
+  - [Lutris](#lutris)
+  - [DXVK](#dxvk)
+  - [GPU](#gpu)
+    - [Nvidia](#nvidia)
+    - [AMD](#amd)
+      - [Mesa / RADV](#mesa-radv)
+        - [Profile Guided Optimisations](#profile-guided-optimisations)
+  - [Kernel](#kernel)
+    - [Game mode](#game-mode)
+    - [AMD Ryzen: the `cpuset` trick](#amd-ryzen-the-cpuset-trick)
+      - [A small intro to CPU cache](#a-small-intro-to-cpu-cache)
+      - [What can we do with this information ?](#what-can-we-do-with-this-information)
+      - [Using `cpuset`](#using-cpuset)
+      - [Benchmark](#benchmark)
+  - [Wine](#wine)
+  - [X11/Wayland](#x11wayland)
+  - [Performance overlays](#performance-overlays)
+  - [Streaming - Saving replays](#streaming-saving-replays)
+    - [OBS](#obs)
+      - [Using `cpuset` with software encoder on Ryzen CPUs](#using-cpuset-with-software-encoder-on-ryzen-cpus)
+      - [Gnome](#gnome)
+    - [Replay sorcery](#replay-sorcery)
+    - [Stream only the game sounds](#stream-only-the-game-sounds)
+  - [Mic noise suppression](#mic-noise-suppression)
+  - [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt)
+  - [Compositor / desktop effects](#compositor-desktop-effects)
+  - [Benchmarks](#benchmarks)
+  - [Misc](#misc)
+
+<!-- /code_chunk_output -->
+
+
+## <a id="distro"></a> Linux distribution
 
 I have seen many reddit posts asking which linux distributions is "best" for gaming. My thoughts on the matter is that, to get the best performance, one simply needs the latest updates. All linux distributions provide the sames packages and provide updates. Some provide them faster than others. So any distribution that updates its packages the soonest after upstream (aka the original developpers), is good in my opinion. Some distributions can take longer, sometimes 6 months after, for big projects (which is acceptable too, since one would get the updates without the initial bugs).
 
@@ -42,7 +83,17 @@ Then you go in Lutris and tell it to use this version of dxvk: "Configure" > "Ru
 1. Update to the latest possible driver for your GPU
 2. If you are hesitating between AMD and Nvidia for your next GPU buy. As far as Linux is concerned: AMD all the way, because they are way more supported since they give out an open source driver.
 
-## AMD GPU
+### Nvidia
+
+The least one can do is redirect to Arch's documentation about it: https://wiki.archlinux.org/index.php/NVIDIA
+
+If you didn't install the proprietary driver your computer is likely to be running an open source driver called `nouveau`, but you wouldn't want that to play games with that as it works based off reverse engineering and doesn't offer much performance.
+
+Once you have the proprietary driver installed, open `nvidia-settings`, make sure you have set your main monitor to its maximum refresh rate and have 'Force Full Composition Pipeline' disabled (advanced settings).
+
+Also, in Lutris, you can disable the size limit of the NVidia shader cache by adding `__GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1` to the environement variables.
+
+### AMD
 A nice documentation is given by, once again, Arch's documentation: https://wiki.archlinux.org/index.php/AMDGPU
 
 * "Very old" GPUs: the opensource driver is `radeon` and you only have that as an option, along with AMD's closed source driver I believe. But you are out of luck for running DXVK, since both driver's don't implement Vulkan.
@@ -52,7 +103,7 @@ A nice documentation is given by, once again, Arch's documentation: https://wiki
   * amdvlk: AMD's official open source Vulkan-only driver, I suppose the rest (OpenGL) is left to mesa. link here: https://github.com/GPUOpen-Drivers/AMDVLK
   * amdgpu PRO: AMD's official closed source driver, that has its own Vulkan and OpenGL implementation. 
 
-### Mesa / RADV
+#### Mesa / RADV
 
 If you are running RADV and with a mesa version prior to 20.2, you should consider trying out ACO as it makes shader compilation (which happens on the CPU) way faster : go to "Configure" > "System Options" > Toggle ACO.
 
@@ -101,7 +152,7 @@ locate radeon_icd.i686.json
 ```
 If the games crashes after doing all this, you can either try other git commits (you will need some git knowledge) or revert to the stable driver by simply removing the `VK_ICD_FILENAMES` environment variable. And if you don't wanna hear about bleeding edge mesa anymore you can simply remove the `mesa` folder along with `$HOME/radv-master`.
 
-#### Profile Guided Optimisations
+##### Profile Guided Optimisations
 
 One can actually go even further in the compiler optimisations, by using this so called [Profile Guided Optimisations](https://en.wikipedia.org/wiki/Profile-guided_optimization). The idea behind is to produce a first version of the driver, with performance counters added in (that slow it down qute a bit). Use the driver in real life use-cases to retrieve useful statistics. Then use those statistics to compile a final, improved version, of the driver.
 
@@ -176,17 +227,6 @@ Where `Joe` in `-fprofile-use=/home/Joe/pgo-generate` should be changed to your 
 VK_ICD_FILENAMES=$HOME/radv-master-pgogen/share/vulkan/icd.d/radeon_icd.x86_64.json:$OTHER_PATH/radeon_icd.i686.json
 ```
 where you should manually replace `$HOME` by your home path `/home/Joe` and `$OTHER_PATH` by where `radeon_icd.i686.json` actually is, you can find it out by following the explanations above.
-
-#### Nvidia
-
-The least one can do is redirect to Arch's documentation about it: https://wiki.archlinux.org/index.php/NVIDIA
-
-If you didn't install the proprietary driver your computer is likely to be running an open source driver called `nouveau`, but you wouldn't want that to play games with that as it works based off reverse engineering and doesn't offer much performance.
-
-Once you have the proprietary driver installed, open `nvidia-settings`, make sure you have set your main monitor to its maximum refresh rate and have 'Force Full Composition Pipeline' disabled (advanced settings).
-
-Also, in Lutris, you can disable the size limit of the NVidia shader cache by adding `__GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1` to the environement variables.
-
 ## Kernel
 
 First, try to get the latest kernel your distro ships, it often comes with performance improvements (it contains the base updates for the amd gpu driver for example).
@@ -195,7 +235,14 @@ Otherwise, this is something not many touch, but using a self-compiled one can b
 
 For a less efforts solution, you can look up Xanmod kernel, Liquorix, Linux-zen. That provide precompiled binaries.
 
-## AMD Ryzen: the `cpuset` trick
+### Game mode
+
+It's a small program that puts your computer in performance mode: as far as I know it puts the frequency scaling algorithm to `performance` and changes the scheduling priority of the game. It's available in most distro's repositories and I believe it helps in giving consistent FPS. Lutris uses it automatically if it's detected, otherwise you need to go, for any game in Lutris, to "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it). Link here: https://github.com/FeralInteractive/gamemode.
+
+You can check whether or not gamemode is running with the command `gamemoded -s`. For GNOME users, there's a status indicator shell extension that show a notification and a tray icon when gamemode is running: https://extensions.gnome.org/extension/1852/gamemode/
+
+
+### AMD Ryzen: the `cpuset` trick
 
 #### A small intro to CPU cache
 The cache is the closest memory to the CPU, and data from RAM needs to go through the cache first before being processed by the CPU. The CPU doesn't read from RAM directly. This cache memory is very small (at maximum few hundred megabytes as of current CPUs) and this leads to some wait time in the CPU: when some data needs to be processed but isn't already in cache (a "cache miss"), it needs to be loaded in RAM. When the cache is "full", because it will always be, some "old" data in cache is synced back in RAM then deleted to give some space to the new needed data. This takes time.
@@ -210,11 +257,11 @@ $ lstopo
 ```
 
 The lstopo of my Ryzen 3700X gives this
+
 ![Ryzen 3700X topology](./images/Ryzen-3700X-cache-topology.png)
 
 #### What can we do with this information ?
-Something really nice: give an entire CCX (or CCD for Zen3, if you have more than one CCD) to your game, and make (nearly) everything else run in the other CCX(s)/CCD(s). With this, as far as I can hypothesize, one reduces the amount of L3 cache misses for the game, since it doesn't share it with no other app. I benchmarked this but my method wasn't clean enough, I need to do it again. The really nice thing with this, that you can notice easily, is that if you run a heavy linux kernel compilation on the other CCX(s)/CCD(s) your game is not affected at all: my test made overwatch average frame rate go from 80fps (without cpu sets) to 230fps (a cpu set reserved for Overwatch, the compilation happenning on the other one). You can test for yourself. Using this trick also downplays the role a scheduler has on your games, since the game is alone and very few other things run with it on the same cores (like wine and the kernel). 
-
+Something really nice: give an entire CCX (or CCD for Zen3, if you have more than one CCD) to your game, and make (nearly) everything else run in the other CCX(s)/CCD(s). With this, as far as I can hypothesize, one reduces the amount of L3 cache misses for the game, since it doesn't share it with no other app. The really nice thing with this, that you can notice easily, is that if you run a heavy linux kernel compilation on the other CCX(s)/CCD(s) your game is less affected: you can test for yourself. I think that using this trick also downplays the role a scheduler has on your games, since the game is alone and very few other things run with it on the same cores (like wine and the kernel).
 #### Using `cpuset`
 
 [cpuset](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cpusets.html) is a linux mechanism to create groups of cores (a cpu set) to which you can assign processes, at runtime. One can use it to create two cpu sets: one for your game, another for all the rest. Have a read at the doc to understand how things work. I may update things here to explain further.
@@ -233,12 +280,10 @@ Then also open another shell, and do `lstopo`, you should get separate results:
 
 ![Ryzen 3700X topology](./images/cgroup1.png)
 
-## Game mode
-
-It's a small program that puts your computer in performance mode when you start your game, it's available in most distro's repositories and I believe it helps in giving consistent FPS. Lutris uses it automatically if it's detected, otherwise you need to go, for any game in Lutris, to "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it). Link here: https://github.com/FeralInteractive/gamemode.
-
-You can check whether or not gamemode is running with the command `gamemoded -s`. For GNOME users, there's a status indicator shell extension that show a notification and a tray icon when gamemode is running: https://extensions.gnome.org/extension/1852/gamemode/
-
+#### Benchmark
+I did [this benchmark](#overwatch-cpuset) on Overwatch, the conclusions are the following:
+- After a fresh restart, I already have a small number of processes (around 300), and most of them are sleeping, which means that Overwatch basically already has the entirety of the CPU for itself. Doing the cpuset trick reduced the performance: I think it's because Overwatch works optimally in more than 4 cores.
+- Playing while doing another heavy workload, like stream with software encoding, works better with the cpuset trick.
 ## Wine
 
 Wine can have quite the impact on Overwatch, both positive and negative. Latest wine from Lutris works fine. You can give a try to wine-tkg here, it offers quite the amount of performance patches and, for overwatch, improve the game's performance. It also can be compiled with more agressive optimisations, though usually they brake the games... Link here : 
@@ -365,17 +410,21 @@ The compositor is the part of your DE that adds desktop transparency effects and
 
 ## Benchmarks
 
-Benchmarks are welcome: I haven't benchmarked yet any of the changes I am suggesting. If you happen to do some you are welcome to PR them. I sugggest to use MangoHud and upload the results to its corresponding website (https://flightlessmango.com), more information [here](https://github.com/flightlessmango/MangoHud), before uploading the results make sure to include as many information as possible to be able to "reproduce"
+Benchmarks are welcome: If you happen to do some you are welcome to PR them. I sugggest to use MangoHud and upload the results to its corresponding website (https://flightlessmango.com), more information [here](https://github.com/flightlessmango/MangoHud), before uploading the results make sure to include as many information as possible to be able to "reproduce"
   - hardware: CPU, GPU, RAM (with timings)
   - Software: version of the distro, Kernel (if linux-tkg, the modified options in `customization.cfg`), Wine (if wine-tkg, the modified options too), DXVK, Mesa/AMDVLK/Nvidia, compilation process (if manually compiled)
   - Game: how to reproduce the measured benchmarks: Fsync/Esync ? is it a benchmark tool ingame ? a saved play ? Can it be shared so other can benchmark against the same thing with different hardware/software ?
 
-I propose that the PR only links to the benchmark in the [flightlessmango.com](https://flightlessmango.com]) in markdown file with the name of the game in a `benchmarks` folder. If the website can't contain all the needed information asked above, add it to the Markdown.
+**Benchmarks done:**
 
-Benchmarks can for example try to test the following changes:
+- [`cpuset` trick](#amd-ryzen-the-cpuset-trick)
+  - Overwatch
+    - [Benchmark 1](https://flightlessmango.com/games/15751/logs/1343): `cpuset` on vs off, with both ccx separation and smt separation.
+
+**Possible benchmarks:**
 - Fysnc/Esync on vs Fsync/Esync off
 - Different wine versions
-- Kernel schedulers: on CPU intensive games, mainly high refresh rate (300fps?), low graphics settings. So the game would be CPU bound.
+- Kernel schedulers (CFS, PDS, BMQ, MuQSS) in various conditions.
 - Compiler optimisations: Wine, DXVK, Kernel, Mesa.
 
 
