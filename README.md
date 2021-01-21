@@ -122,7 +122,7 @@ meson .. \
     -D b_lto=true \
     -D b_pgo=off \
     -D buildtype=release \
-    -D platforms=drm,x11,wayland \
+    -D platforms=x11,wayland \
     -D dri-drivers= \
     -D gallium-drivers= \
     -D vulkan-drivers=amd \
