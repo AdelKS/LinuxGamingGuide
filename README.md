@@ -26,6 +26,8 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
       - [Using `cpuset`](#using-cpuset)
       - [Benchmark](#benchmark)
   - [Wine](#wine)
+    - [Environment variables](#environment-variables)
+    - [Wine-tkg: compiler optimisations](#wine-tkg-compiler-optimisations)
   - [X11/Wayland](#x11wayland)
   - [Performance overlays](#performance-overlays)
   - [Streaming - Saving replays](#streaming-saving-replays)
