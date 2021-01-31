@@ -286,8 +286,30 @@ I did [this benchmark](#overwatch-cpuset) on Overwatch, the conclusions are the 
 - Playing while doing another heavy workload, like stream with software encoding, works better with the cpuset trick.
 ## Wine
 
-Wine can have quite the impact on Overwatch, both positive and negative. Latest wine from Lutris works fine. You can give a try to wine-tkg here, it offers quite the amount of performance patches and, for overwatch, improve the game's performance. It also can be compiled with more agressive optimisations, though usually they brake the games... Link here : 
-https://github.com/Frogging-Family/wine-tkg-git
+Wine can have quite the impact on games, both positive and negative. Latest wine from Lutris works fine. You can give a try to [wine-tkg](https://github.com/Frogging-Family/wine-tkg-git), it offers quite the amount of performance patches and, for overwatch, improve the game's performance.
+
+### Environment variables
+
+Some [wine environment variables](https://wiki.winehq.org/Wine-Staging_Environment_Variables#Shared_Memory) can be set that can help with performance, given that they can break games, they can be added on a per-game basis as usual in Lutris. The variables are the following:
+
+```shell
+STAGING_SHARED_MEMORY=1
+STAGING_WRITECOPY=1
+```
+
+### Wine-tkg: compiler optimisations
+
+On top of the config variables that can be toggled in `customization.cfg` in wine-tkg, I run wine-tkg with the following compiler optimisations, that can be added in the `wine-tkg-profiles/advanced-customization.cfg` file, `AVX` instruction set seems to cause problems for me:
+
+```shell
+_GCC_FLAGS="-O3 -march=native -mno-avx -pipe -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
+# Custom LD flags to use instead of system-wide makepkg flags set in /etc/makepkg.conf. Default is "-pipe -O2 -ftree-vectorize".
+_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
+# Same as _GCC_FLAGS but for cross-compiled binaries.
+_CROSS_FLAGS="-O3 -march=native -mno-avx -pipe -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
+# Same as _LD_FLAGS but for cross-compiled binaries.
+_CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
+```
 
 
 ## X11/Wayland
