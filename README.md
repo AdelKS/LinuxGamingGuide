@@ -10,19 +10,19 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
 
 - [A linux gaming guide](#a-linux-gaming-guide)
   - [Table of Content](#table-of-content)
-  - [ Linux distribution](#a-iddistroa-linux-distribution)
+  - [Linux distribution](#linux-distribution)
   - [Lutris](#lutris)
   - [DXVK](#dxvk)
   - [GPU](#gpu)
     - [Nvidia](#nvidia)
     - [AMD](#amd)
-      - [Mesa / RADV](#mesa-radv)
+      - [Mesa / RADV](#mesa--radv)
         - [Profile Guided Optimisations](#profile-guided-optimisations)
   - [Kernel](#kernel)
     - [Game mode](#game-mode)
     - [AMD Ryzen: the `cpuset` trick](#amd-ryzen-the-cpuset-trick)
       - [A small intro to CPU cache](#a-small-intro-to-cpu-cache)
-      - [What can we do with this information ?](#what-can-we-do-with-this-information)
+      - [What can we do with this information ?](#what-can-we-do-with-this-information-)
       - [Using `cpuset`](#using-cpuset)
       - [Benchmark](#benchmark)
   - [Wine](#wine)
@@ -30,7 +30,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Wine-tkg: compiler optimisations](#wine-tkg-compiler-optimisations)
   - [X11/Wayland](#x11wayland)
   - [Performance overlays](#performance-overlays)
-  - [Streaming - Saving replays](#streaming-saving-replays)
+  - [Streaming - Saving replays](#streaming---saving-replays)
     - [OBS](#obs)
       - [Using `cpuset` with software encoder on Ryzen CPUs](#using-cpuset-with-software-encoder-on-ryzen-cpus)
       - [Gnome](#gnome)
@@ -38,14 +38,14 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Stream only the game sounds](#stream-only-the-game-sounds)
   - [Mic noise suppression](#mic-noise-suppression)
   - [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt)
-  - [Compositor / desktop effects](#compositor-desktop-effects)
+  - [Compositor / desktop effects](#compositor--desktop-effects)
   - [Benchmarks](#benchmarks)
   - [Misc](#misc)
 
 <!-- /code_chunk_output -->
 
 
-## <a id="distro"></a> Linux distribution
+## Linux distribution
 
 I have seen many reddit posts asking which linux distributions is "best" for gaming. My thoughts on the matter is that, to get the best performance, one simply needs the latest updates. All linux distributions provide the sames packages and provide updates. Some provide them faster than others. So any distribution that updates its packages the soonest after upstream (aka the original developpers), is good in my opinion. Some distributions can take longer, sometimes 6 months after, for big projects (which is acceptable too, since one would get the updates without the initial bugs).
 
