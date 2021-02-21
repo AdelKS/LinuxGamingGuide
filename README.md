@@ -71,8 +71,8 @@ cd dxvk
 ```
 To use more aggressive compiler optimisations, one can edit `build-win32.txt` and `build-win64.txt` and change the following before running the `./package-release.sh` script:
 ```
-c_args=['-march=native', '-O3', '-pipe', '-flto', '-floop-strip-mine', '-fno-semantic-interposition', '-fipa-pta', '-fdevirtualize-at-ltrans']
-cpp_args=['-march=native', '-O3', '-pipe', '-flto', '-floop-strip-mine', '-fno-semantic-interposition', '-fipa-pta', '-fdevirtualize-at-ltrans']
+c_args=['-march=native', '-O3', '-pipe', '-flto', '-fgraphite-identity', '-floop-nest-optimize', '-floop-strip-mine', '-fno-semantic-interposition', '-fipa-pta', '-fdevirtualize-at-ltrans']
+cpp_args=['-march=native', '-O3', '-pipe', '-flto', '-fgraphite-identity', '-floop-nest-optimize', '-floop-strip-mine', '-fno-semantic-interposition', '-fipa-pta', '-fdevirtualize-at-ltrans']
 c_link_args = ['-flto', '-static', '-static-libgcc']
 cpp_link_args = ['-flto', '-static', '-static-libgcc', '-static-libstdc++']
 ```
@@ -136,7 +136,7 @@ ninja install
 ```
 And here again, if you feel even more adventurous, you can go for this set of compiler flags:
 ```shell
-export CFLAGS="-march=native -O3 -pipe -flto -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
+export CFLAGS="-march=native -O3 -pipe -flto -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
 export CXXFLAGS="${CFLAGS}"
 export LDFLAGS="-flto"
 ```
@@ -166,7 +166,7 @@ For what will follow, I suppose that the fist clone step has already been done, 
 cd path/to/mesa
 git clean -f -d -x
 mkdir build && cd build
-export CFLAGS="-march=native -O3 -pipe -flto -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans -fprofile-generate=pgo-generate"
+export CFLAGS="-march=native -O3 -pipe -flto -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans -fprofile-generate=pgo-generate"
 export LDFLAGS="-flto -fprofile-generate=pgo-generate"
 export CXXFLAGS="${CFLAGS}"
 meson .. \
@@ -203,7 +203,7 @@ cp path/to/game/executable/pgo-generate ~/pgo-generate
 
 We expect that profiling data is in the folder `~/pgo-generate`
 ```shell
-export CFLAGS="-march=native -O3 -pipe -flto -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans -fprofile-use=/home/Joe/pgo-generate -fprofile-partial-training"
+export CFLAGS="-march=native -O3 -pipe -flto -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans -fprofile-use=/home/Joe/pgo-generate -fprofile-partial-training"
 export LDFLAGS="-flto -fprofile-use=/home/Joe/pgo-generate"
 export CXXFLAGS="${CFLAGS}"
 meson .. \
@@ -304,11 +304,11 @@ STAGING_WRITECOPY=1
 On top of the config variables that can be toggled in `customization.cfg` in wine-tkg, I run wine-tkg with the following compiler optimisations, that can be added in the `wine-tkg-profiles/advanced-customization.cfg` file, `AVX` instruction set seems to cause problems for me:
 
 ```shell
-_GCC_FLAGS="-O3 -march=native -mno-avx -pipe -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
+_GCC_FLAGS="-O3 -march=native -mno-avx -pipe -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
 # Custom LD flags to use instead of system-wide makepkg flags set in /etc/makepkg.conf. Default is "-pipe -O2 -ftree-vectorize".
 _LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 # Same as _GCC_FLAGS but for cross-compiled binaries.
-_CROSS_FLAGS="-O3 -march=native -mno-avx -pipe -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
+_CROSS_FLAGS="-O3 -march=native -mno-avx -pipe -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
 # Same as _LD_FLAGS but for cross-compiled binaries.
 _CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 ```
