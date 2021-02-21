@@ -16,13 +16,15 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [GPU](#gpu)
     - [Nvidia](#nvidia)
     - [AMD](#amd)
-      - [Mesa / RADV](#mesa--radv)
+      - [Mesa / RADV](#mesa-radv)
         - [Profile Guided Optimisations](#profile-guided-optimisations)
   - [Kernel](#kernel)
+    - [Command line options](#command-line-options)
+    - [Custom/self compiled kernels](#customself-compiled-kernels)
     - [Game mode](#game-mode)
     - [AMD Ryzen: the `cpuset` trick](#amd-ryzen-the-cpuset-trick)
       - [A small intro to CPU cache](#a-small-intro-to-cpu-cache)
-      - [What can we do with this information ?](#what-can-we-do-with-this-information-)
+      - [What can we do with this information ?](#what-can-we-do-with-this-information)
       - [Using `cpuset`](#using-cpuset)
       - [Benchmark](#benchmark)
   - [Wine](#wine)
@@ -30,7 +32,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Wine-tkg: compiler optimisations](#wine-tkg-compiler-optimisations)
   - [X11/Wayland](#x11wayland)
   - [Performance overlays](#performance-overlays)
-  - [Streaming - Saving replays](#streaming---saving-replays)
+  - [Streaming - Saving replays](#streaming-saving-replays)
     - [OBS](#obs)
       - [Using `cpuset` with software encoder on Ryzen CPUs](#using-cpuset-with-software-encoder-on-ryzen-cpus)
       - [Gnome](#gnome)
@@ -38,7 +40,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Stream only the game sounds](#stream-only-the-game-sounds)
   - [Mic noise suppression](#mic-noise-suppression)
   - [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt)
-  - [Compositor / desktop effects](#compositor--desktop-effects)
+  - [Compositor / desktop effects](#compositor-desktop-effects)
   - [Benchmarks](#benchmarks)
   - [Misc](#misc)
 
@@ -233,9 +235,24 @@ where you should manually replace `$HOME` by your home path `/home/Joe` and `$OT
 
 First, try to get the latest kernel your distro ships, it often comes with performance improvements (it contains the base updates for the amd gpu driver for example).
 
-Otherwise, this is something not many touch, but using a self-compiled one can bring some small improvements. There is a git project called [linux-tkg](https://github.com/Frogging-Family/linux-tkg), which provides a script that compiles the linux Kernel from sources (takes about ~30mins) with some customization options : the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)) can be changed to other ones (Project C UPDS, PDS, BMQ, MuQSS) and can recieve the so called ["FSYNC"](https://steamcommunity.com/games/221410/announcements/detail/2957094910196249305) patch. Both of these can help getting better performance in games. And also other patches. Linux-tkg needs to be compiled on your own machine (where you can use compiler optimisations such as `-O3` and `-march=native`) with an interactive script and a config file, I worked on the script to install on Ubuntu and Fedora. link here: https://github.com/Frogging-Family/linux-tkg
+### Command line options
 
-For a less efforts solution, you can look up Xanmod kernel, Liquorix, Linux-zen. That provide precompiled binaries.
+As you may know, the kernel has various protection mechanisms from malicious program-execution based attacks, the likes of [Spectre and Meltdown](https://en.wikipedia.org/wiki/Meltdown_(security_vulnerability)). These protections/mitigations come with [an extra overhead on the CPU](https://www.phoronix.com/scan.php?page=article&item=3-years-specmelt&num=9). (Un)fortunately, it is possible to disable ALL these mitigations, at the expense of security. Although if you use X11 then you are just adding an extra cherry on top of how unsecure your setup is haha. Since any running application can catch your keyboard and what's displayed on your monitor.
+
+Okay, how to disable all mitigations ? Fortunately it's super simple: add `mitigations=off` command line to your [kernel parameters](https://wiki.archlinux.org/index.php/Kernel_parameters).
+
+I ran accross another protection that got added in the kernel that disables a certain set of cpu instructions from user space programs (`umip`), instructions from this set is used for example in Overwatch some other games. That protection broke those games then the kernel got [a patch that emulates those instructions](https://github.com/torvalds/linux/commit/1e5db223696afa55e6a038fac638f759e1fdcc01) with a certain overhead with a kernel message like this one:
+```shell
+kernel: umip: Overwatch.exe[5970] ip:140621a9a sp:21dea0: For now, expensive software emulation returns the result.
+```
+You can disable this protection with the following kernel parameter `clearcpuid=514`
+### Custom/self compiled kernels
+
+Using a self-compiled kernel can bring some improvements. There is a git repository called [linux-tkg](https://github.com/Frogging-Family/linux-tkg) that provides a script to compile the linux Kernel from source (takes about ~30mins, but can be stripped down with `modprobed-db`) with some customization options : the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)) can be changed to other ones (Project C UPDS, PDS, BMQ, MuQSS) and can recieve the so called ["Fsync"](https://steamcommunity.com/games/221410/announcements/detail/2957094910196249305) patch along with its ["Futex2"](https://www.phoronix.com/scan.php?page=news_item&px=FUTEX2-2021-Still-WIP) evolution. These changes help getting better performance in games. And also other patches. Linux-tkg needs to be compiled on your own machine, where you can use compiler optimisations such as `-O3` and `-march=native` (and soon LTO + PGO), with an interactive script and a config file, I worked on the script to install on Ubuntu and Fedora. 
+
+More information here: https://github.com/Frogging-Family/linux-tkg
+
+For a less efforts solution, you can look up Xanmod kernel, Liquorix, Linux-zen, Chaotic-AUR (Archlinux). That provide precompiled binaries.
 
 ### Game mode
 
@@ -288,7 +305,7 @@ I did [this benchmark](#overwatch-cpuset) on Overwatch, the conclusions are the 
 - Playing while doing another heavy workload, like stream with software encoding, works better with the cpuset trick.
 ## Wine
 
-Wine can have quite the impact on games, both positive and negative. Latest wine from Lutris works fine. You can give a try to [wine-tkg](https://github.com/Frogging-Family/wine-tkg-git), it offers quite the amount of performance patches and, for overwatch, improve the game's performance.
+Wine can have quite the impact on games, both positive and negative. Latest wine from Lutris works fine. You can give a try to [wine-tkg](https://github.com/Frogging-Family/wine-tkg-git), it offers quite the amount of performance-improving patches (especially `Fsync` + `Futex2`).
 
 ### Environment variables
 
