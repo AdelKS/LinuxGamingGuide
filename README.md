@@ -30,6 +30,9 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Wine](#wine)
     - [Environment variables](#environment-variables)
     - [Wine-tkg: compiler optimisations](#wine-tkg-compiler-optimisations)
+  - [Overclocking](#overclocking)
+    - [CPU and GPU](#cpu-and-gpu)
+    - [RAM](#ram)
   - [X11/Wayland](#x11wayland)
   - [Performance overlays](#performance-overlays)
   - [Streaming - Saving replays](#streaming-saving-replays)
@@ -330,7 +333,14 @@ _CROSS_FLAGS="-O3 -march=native -mno-avx -pipe -fgraphite-identity -floop-nest-o
 _CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 ```
 
+## Overclocking
 
+### CPU and GPU
+Overclocking is possible on Linux, please refer to the Archlinux wiki on [Improving performance](https://wiki.archlinux.org/index.php/Improving_performance#Overclocking) for more information.
+
+### RAM
+
+I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/master/DDR4%20OC%20Guide.md) on the matter.
 ## X11/Wayland
 
 I use only X11 for now, and works nicely. Wayland is not as good as X11 for now, for gaming (the desktop smoothness is better than x11 though, with AMD GPUs), except if you want to try a custom wine with Wayland patches: https://github.com/varmd/wine-wayland. I am unable to run Overwatch with it yet. In terms of input lag LXDE seems to be better for me than Gnome. Feel free to try for yourself!
@@ -470,5 +480,6 @@ Benchmarks are welcome: If you happen to do some you are welcome to PR them. I s
 
 
 ## Misc
+* There is very nice documentation on the [Archlinux wiki about improving performance](https://wiki.archlinux.org/index.php/Improving_performance)
 * Background YT videos: If you have youtube music in the background, try to switch to an empty tab and not leave the tab on the video. I noticed that like this the video doesn't get rendered and helps freeing your GPU or CPU (depending on who is doing the decoding).
 * KDE file indexer : If you're using KDE, you may consider disabling the file indexer. This is either done in the KDE settings or with `balooctl disable` (requires a reboot).
