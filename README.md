@@ -41,7 +41,12 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
       - [Gnome](#gnome)
     - [Replay sorcery](#replay-sorcery)
     - [Stream only the game sounds](#stream-only-the-game-sounds)
-  - [Mic noise suppression](#mic-noise-suppression)
+  - [Sound improvements with PulseAudio](#sound-improvements-with-pulseaudio)
+    - [Improve the sound of your headset](#improve-the-sound-of-your-headset)
+      - [The Graphical way](#the-graphical-way)
+    - [Mic noise suppression](#mic-noise-suppression)
+      - [The Graphical way](#the-graphical-way-1)
+      - [The command line way](#the-command-line-way)
   - [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt)
   - [Compositor / desktop effects](#compositor-desktop-effects)
   - [Benchmarks](#benchmarks)
@@ -404,13 +409,38 @@ pacmd load-module module-loopback source="game_sink.monitor" sink="alsa_output.u
 ```
 Then, all what's left is to do is to open `pavucontrol` (google how to install it if you don't have it) and select `Game-Sink` for where `obs-studio` picks its audio from. And select `Game-Sink` for where the game outputs its audio to.
 
-## Mic noise suppression
+## Sound improvements with PulseAudio
+
+### Improve the sound of your headset
+
+There is a nice Github repository, called [AutoEq](https://github.com/jaakkopasanen/AutoEq), that references the frequency responses of various headsets that have been reviewed by websites like [rtings.com](rtings.com) and others. The frequency responses are made available as `.wav` files in that repository.
+
+A headset with high fidelity should have a flat frequency response, but affordable/real life headsets do not exhibit a flat one. What one can do with those `.wav` files is to use them and correct what is fed to the headset with software and improve the perceived sound. Although, one must know that the frequency response of one's own headset is for sure different from the ones available in [AutoEq](https://github.com/jaakkopasanen/AutoEq). But it may still improve one's audio experience if, let's say, all the headsets from your specific model have a similar frequency response.
+
+#### The Graphical way
+
+Install `pulseeffects` (`pulseeffects-legacy-git` from the AUR if on Archlinux) and enable the "Convolver" plugin for your ouput sound:
+
+![PulseEffects mic noise suppression](./images/headset-auto-eq-gui.png)
+
+You need to download the corresponding `.wav` file to your headset, from the [AutoEq](https://github.com/jaakkopasanen/AutoEq) github repository. For example the files related to my headset are [these ones](https://github.com/jaakkopasanen/AutoEq/tree/master/results/rtings/rtings_harman_over-ear_2018/SteelSeries%20Arctis%20Pro%20GameDAC). There's a 44.1kHz and a 48kHz version for those `.wav` files. Pick the highest frequency your soundcard can handle, or just try both if you are too lazy haha.
+
+*Note:* the `pulseeffects` app must remain open for this to keep on working, except if you enable the "start as a service on login" menu option then log out and back in.
+### Mic noise suppression
 
 You have cherry blue mechanical keyboard, your friends and teammates keep on complaining/sending death threats about you being too noisy with your keyboard ? Fear no more.
 
 **A bit of history:** People from Mozilla made some research to apply neural networks to noise suppression from audio feeds, they [published](https://jmvalin.ca/demo/rnnoise/) everything about it, including the code. Another person, "Werman", picked up their work and made it work as a [PulseAudio plugin](https://github.com/werman/noise-suppression-for-voice).
 
-**How to:** 
+#### The Graphical way
+
+Install `pulseeffects` (`pulseeffects-legacy-git` from the AUR if on Archlinux) and enable the "Noise Reduction" plugin for your mic:
+
+![PulseEffects mic noise suppression](./images/mic-noise-suppression-gui.png)
+
+*Note:* the `pulseeffects` app must remain open for this to keep on working, except if you enable the "start as a service on login" menu option then log out and back in.
+#### The command line way
+
 All this is explained in [Werman's Git repository](https://github.com/werman/noise-suppression-for-voice). I will put it back here.
 
 1- Clone, build and install the plugin
