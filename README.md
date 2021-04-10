@@ -260,7 +260,13 @@ Using a self-compiled kernel can bring some improvements. There is a git reposit
 
 More information here: https://github.com/Frogging-Family/linux-tkg
 
-For a less efforts solution, you can look up Xanmod kernel, Liquorix, Linux-zen, Chaotic-AUR (Archlinux). That provide precompiled binaries.
+To know that your linux-tkg kernel is sucessfully showing futex2 sysfs handles, this command should output `futex2`:
+
+```shell
+ls /sys/kernel | grep futex
+```
+
+For a less efforts solution, you can look up Xanmod kernel, Liquorix, Linux-zen, Chaotic-AUR (Archlinux). That provide precompiled binaries. (`futex2` is afaik not available in them).
 
 ### Game mode
 
@@ -324,6 +330,23 @@ STAGING_SHARED_MEMORY=1
 STAGING_WRITECOPY=1
 ```
 
+and if you have `wine-tkg` built with `fsync` + `futex2`, you need to set _all_ of the following (and wine will fallback to `fsync` if `futex2` doesn't work, then `esync` if `fsync` isn't available)
+```shell
+WINEESYNC=1
+WINEFSYNC=1
+WINEFSYNC_FUTEX2=1
+```
+To know that `esync`, `fsync` or `futex2` is running, if you are running `wine` or `lutris` on the command line you should see one of the following:
+```shell
+esync: up and running
+```
+```shell
+fsync: up and running
+```
+```shell
+futex2: up and running
+```
+One should know that `futex2` should be the fastest. But once again, one should try for one's usecase each of the possibilities.
 ### Wine-tkg: compiler optimisations
 
 On top of the config variables that can be toggled in `customization.cfg` in wine-tkg, I run wine-tkg with the following compiler optimisations, that can be added in the `wine-tkg-profiles/advanced-customization.cfg` file, `AVX` instruction set seems to cause problems for me:
