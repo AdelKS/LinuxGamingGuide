@@ -21,6 +21,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Kernel](#kernel)
     - [Command line options](#command-line-options)
     - [Custom/self compiled kernels](#customself-compiled-kernels)
+      - [Threading synchronisation](#threading-synchronisation)
     - [Game mode](#game-mode)
     - [AMD Ryzen: the `cpuset` trick](#amd-ryzen-the-cpuset-trick)
       - [A small intro to CPU cache](#a-small-intro-to-cpu-cache)
@@ -29,6 +30,10 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
       - [Benchmark](#benchmark)
   - [Wine](#wine)
     - [Environment variables](#environment-variables)
+    - [wine-tkg](#wine-tkg)
+      - [Environment variables](#environment-variables-1)
+        - [`Esync` (+ `Fsync` (+ `Futex2`))](#esync-fsync-futex2)
+        - [`fastsync`](#fastsync)
     - [Wine-tkg: compiler optimisations](#wine-tkg-compiler-optimisations)
   - [Overclocking](#overclocking)
     - [CPU and GPU](#cpu-and-gpu)
@@ -256,9 +261,19 @@ kernel: umip: Overwatch.exe[5970] ip:140621a9a sp:21dea0: For now, expensive sof
 You can disable this protection with the following kernel parameter `clearcpuid=514`
 ### Custom/self compiled kernels
 
-Using a self-compiled kernel can bring some improvements. There is a git repository called [linux-tkg](https://github.com/Frogging-Family/linux-tkg) that provides a script to compile the linux Kernel from source (takes about ~30mins, but can be stripped down with `modprobed-db`) with some customization options : the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)) can be changed to other ones (Project C UPDS, PDS, BMQ, MuQSS) and can recieve the so called ["Fsync"](https://steamcommunity.com/games/221410/announcements/detail/2957094910196249305) patch along with its ["Futex2"](https://www.phoronix.com/scan.php?page=news_item&px=FUTEX2-2021-Still-WIP) evolution. These changes help getting better performance in games. And also other patches. Linux-tkg needs to be compiled on your own machine, where you can use compiler optimisations such as `-O3` and `-march=native` (and soon LTO + PGO), with an interactive script and a config file, I worked on the script to install on Ubuntu and Fedora. 
+Using a self-compiled kernel can bring some improvements. There is a git repository called [linux-tkg](https://github.com/Frogging-Family/linux-tkg) that provides a script to compile the linux Kernel from source (takes about ~30mins, but can be stripped down with `modprobed-db`) with some customization options : the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)) can be changed to other ones (Project C UPDS, PDS, BMQ, MuQSS)  These changes help getting better performance in games. And also other patches. Linux-tkg needs to be compiled on your own machine, where you can use compiler optimisations such as `-O3` and `-march=native` (and soon LTO + PGO), with an interactive script and a config file, I worked on the script to install on Ubuntu and Fedora.
 
 More information here: https://github.com/Frogging-Family/linux-tkg
+
+#### Threading synchronisation
+
+`linux-tkg` enables adding patches to enable better mimicking window's behavior with games. And therefore get better performance for games ment to run on Windows: `winesync/fastsync`, `futex2`, `fsync`, `esync`.
+
+`esync`, `fsync`, `futex2` have been developped by Valve afaik. They are progressive stacking evolutions (each one needs the previous one and adds new "features" on top, `futex2` being the latest). And naturally, enabling all of them should bring the best performance. To have them in `linux-tkg`, one must manually enable them in the `customization.cfg` or select them in the interactive script.
+
+`winesync/fastsync` are the equivalent of all of `esync`, `fsync`, `futex2` being enabled. Developped by wine developpers. It seems that this is the implementation that will replace the previous ones (and eventually get included in the kernel by default, no need to patch). `winesync` is a kernel module that communicates with `fastsync` that should be in a patched wine (like `wine-tkg`). The performance should be similar or better than `futex2`. To have the `winesync` module:
+- archlinux: you may install `winesync-dkms` from the AUR
+- `linux-tkg`: enable it in the `customization.cfg` or select it from the interactive script.
 
 To know that your linux-tkg kernel is sucessfully showing futex2 sysfs handles, this command should output `futex2`:
 
@@ -319,7 +334,7 @@ I did [this benchmark](#overwatch-cpuset) on Overwatch, the conclusions are the 
 - Playing while doing another heavy workload, like stream with software encoding, works better with the cpuset trick.
 ## Wine
 
-Wine can have quite the impact on games, both positive and negative. Latest wine from Lutris works fine. You can give a try to [wine-tkg](https://github.com/Frogging-Family/wine-tkg-git), it offers quite the amount of performance-improving patches (especially `Fsync` + `Futex2`).
+Wine can have quite the impact on games, both positive and negative. Latest wine from Lutris works fine.
 
 ### Environment variables
 
@@ -330,23 +345,51 @@ STAGING_SHARED_MEMORY=1
 STAGING_WRITECOPY=1
 ```
 
-and if you have `wine-tkg` built with `fsync` + `futex2`, you need to set _all_ of the following (and wine will fallback to `fsync` if `futex2` doesn't work, then `esync` if `fsync` isn't available)
+### wine-tkg
+You can give a try to [wine-tkg](https://github.com/Frogging-Family/wine-tkg-git), it offers quite the amount of performance-improving patches, especially `Esync` + `Fsync` + `Futex2` or `fastsync` (with its corresponding kernel module `winesync`). Note that you need to compile it on your own machine (just like `linux-tkg`), and those patches are enabled by default.
+
+#### Environment variables
+
+##### `Esync` (+ `Fsync` (+ `Futex2`))
+To enable the use of `Esync` + `Fsync` + `Futex2`, one should set the following environment variable.
 ```shell
 WINEESYNC=1
 WINEFSYNC=1
 WINEFSYNC_FUTEX2=1
 ```
-To know that `esync`, `fsync` or `futex2` is running, if you are running `wine` or `lutris` on the command line you should see one of the following:
+To know that `esync`, `esync+fsync` or `esync+fsync+futex2` is running. You can try running your game/launcher from the command line and should see one of the following:
+- `esync`:
+  ```shell
+  [...]
+  esync: up and running
+  [...]
+  ```
+- `esync+fsync`:
+  ```shell
+  [...]
+  fsync: up and running
+  [...]
+- `esync+fsync+futex2`:
+If `esync+fsync` is working.
 ```shell
-esync: up and running
-```
-```shell
-fsync: up and running
-```
-```shell
+[...]
 futex2: up and running
+[...]
 ```
-One should know that `futex2` should be the fastest. But once again, one should try for one's usecase each of the possibilities.
+`esync+fsync+futex2` should be the fastest. But once again, one should try for one's usecase each of the possibilities. (By setting environment variables to 0)
+
+##### `fastsync`
+To have `fastsync` running, one should disable all the above envrionment variables (and also from lutris' game options):
+```shell
+WINEESYNC=0
+WINEFSYNC=0
+WINEFSYNC_FUTEX2=0
+```
+And to also have the `winesync` [kernel module](#threading-synchronisation) loaded. To know if fastsync is correctly working, you may run your game/launcher from the command line once and look for the following line:
+```shell
+wineserver: using server-side synchronization.
+```
+If this line doesn't show, then you may not have the `winesync` kernel module loaded, or your version of `wine-tkg` doesn't support it. Or some envrionment variable is still set.
 ### Wine-tkg: compiler optimisations
 
 On top of the config variables that can be toggled in `customization.cfg` in wine-tkg, I run wine-tkg with the following compiler optimisations, that can be added in the `wine-tkg-profiles/advanced-customization.cfg` file, `AVX` instruction set seems to cause problems for me:
