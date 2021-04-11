@@ -267,9 +267,9 @@ More information here: https://github.com/Frogging-Family/linux-tkg
 
 #### Threading synchronisation
 
-`linux-tkg` offers patches that makes the kernel better mimick Windows' behavior with games. And therefore get better performance for games ment to run on Windows: `winesync/fastsync`, `futex2`, `fsync`, `esync`.
+`linux-tkg` offers patches that makes the kernel better mimick Windows' behavior with threads. And therefore get better performance for games ment to run on Windows: `winesync/fastsync`, `futex2`, `fsync`, `esync`.
 
-`esync`, `fsync`, `futex2` have been developped by Valve afaik. They are progressive stacking evolutions (each one needs the previous one and adds new "features" on top, `futex2` being the latest). And naturally, enabling all of them should bring the best performance. To have them in `linux-tkg`, one must manually enable them in the `customization.cfg` or select them in the interactive script.
+`esync`, `fsync`, `futex2` have been developped by Valve afaik. They are stacking evolutions (each one needs the previous one and adds new "features" on top, `futex2` being the latest). And naturally, enabling all of them should bring the best performance. To have them in `linux-tkg`, one must manually enable them in the `customization.cfg` or select them in the interactive script (`esync` is by default in any linux kernel since it got upstreamed).
 
 `winesync/fastsync` are the equivalent of all of `esync`, `fsync`, `futex2` being enabled. Developped by wine developpers. It seems that this is the implementation that will replace the previous ones (and eventually get included in the kernel by default, no need to patch). `winesync` is a kernel module that communicates with `fastsync` that should be in a patched wine (like `wine-tkg`). The performance should be similar or better than `futex2`. To have the `winesync` module:
 - archlinux: you may install `winesync-dkms` from the AUR
