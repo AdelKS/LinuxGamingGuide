@@ -29,12 +29,11 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
       - [Using `cpuset`](#using-cpuset)
       - [Benchmark](#benchmark)
   - [Wine](#wine)
-    - [Environment variables](#environment-variables)
+      - [Environment variables](#environment-variables)
     - [wine-tkg](#wine-tkg)
-      - [Environment variables](#environment-variables-1)
-        - [`Esync` (+ `Fsync` (+ `Futex2`))](#esync-fsync-futex2)
-        - [`fastsync`](#fastsync)
-    - [Wine-tkg: compiler optimisations](#wine-tkg-compiler-optimisations)
+      - [Esync (+ Fsync (+ Futex2))](#esync-fsync-futex2)
+      - [Fastsync](#fastsync)
+      - [compiler optimisations](#compiler-optimisations)
   - [Overclocking](#overclocking)
     - [CPU and GPU](#cpu-and-gpu)
     - [RAM](#ram)
@@ -273,7 +272,12 @@ More information here: https://github.com/Frogging-Family/linux-tkg
 
 `winesync/fastsync` is a new proposal of syncronization subystem, similar to `futex` and `eventfd`, aimed to serve exclusively for mapping Windows API sync mechanisms. Developped by wine developpers. It seems that this is the implementation that will replace the previous ones (and eventually get included in the kernel by default, no need to patch). `winesync` is a kernel module that communicates with `fastsync` that should be in a patched wine (like `wine-tkg`). The performance should be similar or better than `futex2`. To have the `winesync` module:
 - archlinux: you may install `winesync-dkms` from the AUR
-- `linux-tkg`: enable it in the `customization.cfg` or select it from the interactive script.
+- `linux-tkg`: enable it in the `customization.cfg` or select it from the interactive script. It will do the following
+  - Build and bundle the `winesync` module
+  - Make the module be autostarted by systemd by creating the `/etc/modules-load.d/winesync.conf` file that contains "winesync" inside.
+  - Create a `udev` rule for `winesync` in `/etc/udev/rules.d/winesync.rules` to give it proper permissions. The file contains `KERNEL=="winesync", MODE="0644"`.
+  - Add the `winesync` header file to `/usr/include/linux/winesync.h`. In RPM and DEB distros this header file is installed through one of the RPM/DEB packages created. For `Generic` distro, it gets installed by `make headers_install HDR_INSTALL_PATH=/usr`
+- DKMS for non-arch: follow the [README in this repository](https://github.com/Cat-Lady/winesync-dkms)
 
 To know that your linux-tkg kernel is sucessfully showing futex2 sysfs handles, this command should output `futex2`:
 
@@ -334,9 +338,9 @@ I did [this benchmark](#overwatch-cpuset) on Overwatch, the conclusions are the 
 - Playing while doing another heavy workload, like stream with software encoding, works better with the cpuset trick.
 ## Wine
 
-Wine can have quite the impact on games, both positive and negative. Latest wine from Lutris works fine.
+Wine is a program that enables running windows executables on Linux. Through Wine, windows executables run natively on your linux machine (**W**ine **I**s **N**ot an **E**mulator xD), Wine will be there to remap all Windows specific behavior of the program to something Linux can handle, `DXVK` for example replaces the part of Wine that maps `DirectX` (Windows specific) calls of executables to Vulkan calls (That Linux can handle). Tweaking Wine can have quite the impact on games, both positive and negative. Latest wine from Lutris works fine, but `wine-tkg` in my experience performs better.
 
-### Environment variables
+#### Environment variables
 
 Some [wine environment variables](https://wiki.winehq.org/Wine-Staging_Environment_Variables#Shared_Memory) can be set that can help with performance, given that they can break games, they can be added on a per-game basis as usual in Lutris. The variables are the following:
 
@@ -346,18 +350,16 @@ STAGING_WRITECOPY=1
 ```
 
 ### wine-tkg
-You can give a try to [wine-tkg](https://github.com/Frogging-Family/wine-tkg-git), it offers quite the amount of performance-improving patches, especially `Esync` + `Fsync` + `Futex2` or `fastsync` (with its corresponding kernel module `winesync`). Note that you need to compile it on your own machine (just like `linux-tkg`), and those patches are enabled by default.
+[wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) is a set of scripts that clone and compile `wine`'s source code, on your own machine, with extra patches that offer better performance and better game compatibility. One of the interesting offered extra features are additionnal [threading synchronisation](#threading-synchronisation) primitives that work with the corresponding patched `linux-tkg` kernel. One can use `Esync+Fsync+Futex2` or `fastsync` (with its corresponding kernel module `winesync`).
 
-#### Environment variables
-
-##### `Esync` (+ `Fsync` (+ `Futex2`))
-To enable the use of `Esync` + `Fsync` + `Futex2`, one should set the following environment variable.
+#### Esync (+ Fsync (+ Futex2))
+To enable the use of `Esync` + `Fsync` + `Futex2`, `wine-tkg` needs to be built with the corresponding features enabled. Then, to enable `Esync+Fsync+Futex2`, you need to set the following environment variables
 ```shell
 WINEESYNC=1
 WINEFSYNC=1
 WINEFSYNC_FUTEX2=1
 ```
-To know that `esync`, `esync+fsync` or `esync+fsync+futex2` is running. You can try running your game/launcher from the command line and should see one of the following:
+Note that you can also run with only `Esync` or `Esync+Fatsync` by setting the variables to `0` (to disable) or `1` (to enable) accordingly. To know that `esync`, `esync+fsync` or `esync+fsync+futex2` is running. You can try running your game/launcher from the command line and you should see one of the following:
 - `esync`:
   ```shell
   [...]
@@ -370,36 +372,44 @@ To know that `esync`, `esync+fsync` or `esync+fsync+futex2` is running. You can 
   fsync: up and running
   [...]
 - `esync+fsync+futex2`:
-If `esync+fsync` is working.
-```shell
-[...]
-futex2: up and running
-[...]
-```
-`esync+fsync+futex2` should be the fastest. But once again, one should try for one's usecase each of the possibilities. (By setting environment variables to 0)
+  ```shell
+  [...]
+  futex2: up and running
+  [...]
+  ```
+`esync+fsync+futex2` should be the fastest. But once again, you can only try to make sure.
 
-##### `fastsync`
-To have `fastsync` running, one should disable all the above envrionment variables (and also from lutris' game options):
-```shell
-WINEESYNC=0
-WINEFSYNC=0
-WINEFSYNC_FUTEX2=0
-```
-And to also have the `winesync` [kernel module](#threading-synchronisation) loaded. To know if fastsync is correctly working, you may run your game/launcher from the command line once and look for the following line:
+#### Fastsync
+To be able to use `fastsync` with `wine-tkg`, you need to do the following, **in this order**
+1. Be running a `winesync` enabled `linux-tkg` kernel, more information [in this section](#threading-synchronisation)
+2. Disable the use of `wine-staging`, `fsync` and `futex2` in `wine-tkg`'s (proton or vanilla) config file before building it. 
+    * You can also use [this repository](https://github.com/openglfreak/wine-tkg-userpatches/tree/next), instead of disabling the stuff above, to be able to build a `wine-tkg` that can run both `fsync/futex2` and `fatsync` with `wine-staging` code, although that reposistory as-is is hard to use as it has no documentation yet on how to use it.
+3. Disable all environment variables related to `esync/fsync/futex2` (and also from lutris' game options):
+    ```shell
+    WINEESYNC=0
+    WINEFSYNC=0
+    WINEFSYNC_FUTEX2=0
+    ```
+To know if fastsync is correctly working, you may run your game/launcher from the command line once and look for the following lines:
 ```shell
 wineserver: using server-side synchronization.
+wine: using fast synchronization.
 ```
-If this line doesn't show, then you may not have the `winesync` kernel module loaded, or your version of `wine-tkg` doesn't support it. Or some envrionment variable is still set.
-### Wine-tkg: compiler optimisations
+This command should also return few exectuables
+```shell
+lsof /dev/winesync
+```
+**Note:** even with this, sometimes `fatsync` does not correctly work. I am investigating and will update this guide accordingly. `fastsync` should have a similar performance to `Futex2` so far, so if it doesn't work for you, switch back to `Futex2` then try again a little bit later.
+#### compiler optimisations
 
-On top of the config variables that can be toggled in `customization.cfg` in wine-tkg, I run wine-tkg with the following compiler optimisations, that can be added in the `wine-tkg-profiles/advanced-customization.cfg` file, `AVX` instruction set seems to cause problems for me:
+On top of the config variables that can be toggled in `customization.cfg` in `wine-tkg`, I run wine-tkg with the following compiler optimisations, that can be added in the `wine-tkg-profiles/advanced-customization.cfg` file, `AVX` instruction set seems to cause problems for me:
 
 ```shell
-_GCC_FLAGS="-O3 -march=native -mno-avx -pipe -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
+_GCC_FLAGS="-O3 -march=native -mno-avx -pipe -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta"
 # Custom LD flags to use instead of system-wide makepkg flags set in /etc/makepkg.conf. Default is "-pipe -O2 -ftree-vectorize".
 _LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 # Same as _GCC_FLAGS but for cross-compiled binaries.
-_CROSS_FLAGS="-O3 -march=native -mno-avx -pipe -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
+_CROSS_FLAGS="-O3 -march=native -mno-avx -pipe -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta"
 # Same as _LD_FLAGS but for cross-compiled binaries.
 _CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 ```
