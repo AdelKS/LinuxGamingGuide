@@ -43,6 +43,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [OBS](#obs)
       - [Using `cpuset` with software encoder on Ryzen CPUs](#using-cpuset-with-software-encoder-on-ryzen-cpus)
       - [Gnome](#gnome)
+      - [obs-vkcapture](#obs-vkcapture)
     - [Replay sorcery](#replay-sorcery)
     - [Stream only the game sounds](#stream-only-the-game-sounds)
   - [Sound improvements with PulseAudio](#sound-improvements-with-pulseaudio)
@@ -453,7 +454,7 @@ On Gnome, an experimental feature can be enabled:
 ```shell
 gsettings set org.gnome.mutter experimental-features '["dma-buf-screen-sharing"]'
 ```
-That will enable `zero-copy` game capture, which noticeably reduces the added input lag added by the game capture for streaming. A beta version of `Obs-studio` should then be used, it can be installed via `flatpak`
+That will enable `zero-copy` capture (I am not sure what happens with games in that matter), which noticeably reduces the added input lag added by the game capture for streaming. This features is only available on `obs-studio` version `27.0` onwards, which is still in beta. It can be installed via `flatpak`
 ```shell
 flatpak install --user https://flathub.org/beta-repo/appstream/com.obsproject.Studio.flatpakref
 ```
@@ -464,8 +465,15 @@ OBS_USE_EGL=1 com.obsproject.Studio
 where `com.obsproject.Studio` is the name of the `obs-studio` executable, installed through flatpak, it may have another name in your specific distro.
 
 **Some open Issues I have been having**
-- __Network Error on Twitch:__ Lately I've been getting network error on twitch when I switch between video sources (Desktop to Overwatch), I couldn't get help on it and I still can't figure out what the issue is... If you have any ideas please reach out!
-- __Decoding crashes__: Viewers on windows reporting that their decoder is crashing when watching my stream, I have no idea why. I think it's an FFMPEG-VAAPI thing.
+- __Network Error on Twitch:__ Switching between virtual desktops on X11 causes my twitch streams to crash. So do not use them and play your games in windowed fullscreen (it does not make any difference on Linux, Fullscreen vs Windowed Fullscreen). If you have any ideas please reach out!
+
+#### obs-vkcapture
+
+A `zero-copy` game capture that uses the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) exists for capturing games: [obs-vkcapture](https://github.com/nowrep/obs-vkcapture). It needs the version `27.0` of `obs-studio`, but not the flatpak version, since it needs headers from it (it must be possible to use the flatpak version too but I don't know how). So you need to compile and install `obs-studio` from source ([documentation here](https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux-build-directions)), then compile and install `obs-vkcapture` form source. After that, you only have to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
+```shell
+OBS_USE_EGL=1 obs
+```
+You will see a `game capture` new source entry. It works great and removes entirely the issue of added input lag.
 
 ### Replay sorcery
 
