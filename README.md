@@ -16,7 +16,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [GPU](#gpu)
     - [Nvidia](#nvidia)
     - [AMD](#amd)
-      - [Mesa / RADV](#mesa-radv)
+      - [RADV](#radv)
         - [Profile Guided Optimisations](#profile-guided-optimisations)
   - [Kernel](#kernel)
     - [Command line options](#command-line-options)
@@ -120,7 +120,7 @@ A nice documentation is given by, once again, Arch's documentation: https://wiki
   * amdvlk: AMD's official open source Vulkan-only driver, I suppose the rest (OpenGL) is left to mesa. link here: https://github.com/GPUOpen-Drivers/AMDVLK
   * amdgpu PRO: AMD's official closed source driver, that has its own Vulkan and OpenGL implementation. 
 
-#### Mesa / RADV
+#### RADV
 
 If you are running RADV and with a mesa version prior to 20.2, you should consider trying out ACO as it makes shader compilation (which happens on the CPU) way faster : go to "Configure" > "System Options" > Toggle ACO.
 
