@@ -12,12 +12,15 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Table of Content](#table-of-content)
   - [Linux distribution](#linux-distribution)
   - [Lutris](#lutris)
+  - [Self-compiling](#self-compiling)
+    - [Flags to try](#flags-to-try)
   - [DXVK](#dxvk)
+    - [Custom compile flags](#custom-compile-flags)
   - [GPU](#gpu)
     - [Nvidia](#nvidia)
     - [AMD](#amd)
       - [RADV](#radv)
-        - [Profile Guided Optimisations](#profile-guided-optimisations)
+        - [Self-compile](#self-compile)
   - [Kernel](#kernel)
     - [Command line options](#command-line-options)
     - [Custom/self compiled kernels](#customself-compiled-kernels)
@@ -72,6 +75,61 @@ I have only used Lutris, to install and run Overwatch, I don't think there's roo
 Some useful settings:
 * Enable FSYNC (if you have a patched custom kernel, further information below) otherwise enable ESYNC: once overwatch is installed, go to "Configure" > "Runner Options" > Toggle FSYNC or ESYNC.
 
+
+## Self-compiling
+
+Compiling is the process of tranforming human written code (like C/C++/Rust/... etc) to machine runnable programs (the `.exe` files on Windows, on Linux they usually have no extension :P). Compiling is actually done by a program, a compiler, on linux it's `gcc` or `clang`. There is not a unique way to translate/compile code to machine runnable programs, the compiler has lots of freedom on how to implement that, and we can influence them by telling them to try "harder" to optimize the machine code, by giving them the so called "flags": a set of command line options given to the compiler, an example is
+```shell
+gcc main.c -O2 -march=native -pipe
+```
+where `-O2`, `-march=native` and `-pipe` are compiler flags. There are many flags that compilers accept, the ones specific to optimisation are given in [GCC's documentation](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html). A few important (meta)flags
+- The `-Ox`, where `x=1,2,3`, is a generic flag that sets the generic level optimization, it activates many other flags that actually do something. Distros that compile their software usually with `-O2`
+- The `-march` flag is a flag that tells the compiler to use additionnal features that aren't available for all CPUs: newer CPU implement some "instruction sets" (aka addiotionnal features) that enable them to perform some operations faster, like [SIMD instructions](https://en.wikipedia.org/wiki/SIMD). It makes some programs faster, like `ffmpeg` with video conversion. This instruction is not used by default with Distro packages as they need to have their programs able to run on all machine, even those from 2001. So one can win a lot just by compiling with `-march=native` in computationnal heavy programs. Although some programs have embedded detection code to use addtionnal features of your CPU. Some Linux Distributions like [Gentoo](https://www.gentoo.org/) enable you to compile every single package on your own machine so you can have ALL the apps built with `-march=native` (it may take several hours given your CPU)
+- Link Time Optimizations (LTO) that involve the use of the flags `-flto`, `-fdevirtualize-at-ltrans` and `-flto-partition`
+- Profile Guided Optimizations (PGO) that involve the use of `-fprofile-generate=/path/to/stats/folder`, `-fprofile-use=/path/to/stats/folder` flags. The idea behind is to produce a first version of the program, with performance counters added in with the `-fprofile-generate=/path/to/stats/folder` flag. Then you use the compiled program in your real life use-cases (it will be way slower than usual), the program meanwhile fills up some extra files with useful statistics in `/path/to/stats/folder`. Then you compile again your program with the `-fprofile-use=/path/to/stats/folder` flag with the folder `/path/to/stats/folder` filed with statistics files that have the `.gcda` extension.
+
+A nice introduction to compiler optimizations `-Ox`, `LTO` and `PGO`, is made in a Suse Documentation that you can find here: https://documentation.suse.com/sbp/all/html/SBP-GCC-10/index.html
+
+The Kernel, `Wine`, `RADV` and `DXVK` can be compiled on your own machine so you can use additional compile flags (up to a certain level) for the particular CPU you own and potentially faster with more "agressive" compiler flags. I said potentially as you need to check for yourself if it is truly the case or not.
+
+### Flags to try
+
+Here is a group of flags can use when building your own programs
+```shell
+BASE="-march=native -O3 -pipe"
+GRAPHITE="-fgraphite-identity -floop-strip-mine"
+MISC="-floop-nest-optimize -fno-semantic-interposition -fipa-pta"
+LTO3="-flto -fdevirtualize-at-ltrans -flto-partition=one"
+LTO2="-flto -fdevirtualize-at-ltrans -flto-partition=balanced"
+LTO1="-flto -fdevirtualize-at-ltrans -flto-partition=1to1"
+```
+It is recommended to try them in this order, if one doesn't work (for whatever reasons: fails to compile or doesn't work), you try the next one:
+1. `BASE + GRAPHITE + MISC + LTO3`:
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=one
+  ```
+2. `BASE + GRAPHITE + MISC + LTO2`:
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=balanced
+  ```
+3. `BASE + GRAPHITE + MISC + LTO1`:
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=1to1
+  ```
+4. `BASE + GRAPHITE + MISC`
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta
+  ```
+5. `BASE + GRAPHITE`
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine
+  ```
+6. `BASE`
+  ```
+  -march=native -O3 -pipe
+  ```
+
+
 ## DXVK
 
 This is the library that maps DirectX (Windows) to Vulkan (Multi-platform and open source) so games that are meant for Windows work on Linux. It's better than wine's built-in mapper called WineD3D. Lutris provides a version already. 
@@ -84,16 +142,22 @@ cd dxvk
 # Build new DLLS
 ./package-release.sh master ~/.local/share/lutris/runtime/dxvk/ --no-package
 ```
-To use more aggressive compiler optimisations, one can edit `build-win32.txt` and `build-win64.txt` and change the following before running the `./package-release.sh` script:
-```
-c_args=['-march=native', '-O3', '-pipe', '-flto', '-fgraphite-identity', '-floop-nest-optimize', '-floop-strip-mine', '-fno-semantic-interposition', '-fipa-pta', '-fdevirtualize-at-ltrans']
-cpp_args=['-march=native', '-O3', '-pipe', '-flto', '-fgraphite-identity', '-floop-nest-optimize', '-floop-strip-mine', '-fno-semantic-interposition', '-fipa-pta', '-fdevirtualize-at-ltrans']
-c_link_args = ['-flto', '-static', '-static-libgcc']
-cpp_link_args = ['-flto', '-static', '-static-libgcc', '-static-libstdc++']
-```
-These may improve performance or not, the best is to test with and without and see for oneself. If regressions happen, first try removing the `-flto` option, then change the `-O3` to `-O2`, then remove `-march=native`. And if after all this it still doesn't work, just go back to the original settings.
 
-Then you go in Lutris and tell it to use this version of dxvk: "Configure" > "Runner Options" > "DXVK Version" and put `dxvk-master`
+### Custom compile flags
+
+DXVK can be compiled with [user provided compile flags](#self-compiling). For that, you edit `build-win32.txt` and `build-win64.txt` and change the following before running the `./package-release.sh` script:
+```shell
+[built-in options]
+c_args=[... TO BE FILLED ...]
+cpp_args=[... TO BE FILLED ...]
+c_link_args = ['-static', '-static-libgcc', ... TO BE FILLED ...]
+cpp_link_args = ['-static', '-static-libgcc', '-static-libstdc++', ... TO BE FILLED ...]
+```
+Where you can replace `... TO BE FILLED ...` with `BASE + GRAPHITE + MISC + LTO2` flags [defined here](#flags-to-try), although you need to respect the syntax of this file: flags are quoted and separated with comas _e.g._ `c_args=['-O2', '-march=native']`.
+
+You can also enable [PGO](#self-compiling) by appending `-fprofile-generate` or `-fprofile-use`, depending on the stage you are in, to `c_args` and `cpp_args`. You also need to add `'-lgcov'` to `c_link_args` and `cpp_link_args`
+
+These flag changes may improve performance or not, the best is to test with and without and see for oneself. If regressions happen or it doesn' want to compile you can try [other flags](#flags-to-try).
 
 ## GPU
 
@@ -124,20 +188,30 @@ A nice documentation is given by, once again, Arch's documentation: https://wiki
 
 If you are running RADV and with a mesa version prior to 20.2, you should consider trying out ACO as it makes shader compilation (which happens on the CPU) way faster : go to "Configure" > "System Options" > Toggle ACO.
 
-Your distro ships the latest stable version, you can go more bleeding edge to get the latest additions, but keep in mind that regressions often come with it. On Ubuntu there's a [PPA](https://launchpad.net/~oibaf/+archive/ubuntu/graphics-drivers) that gives out the latest mesa, and another [PPA](https://launchpad.net/~kisak/+archive/ubuntu/kisak-mesa) that's less bleeding edge/more stable . Otherwise you can compile only RADV by hand with the extra bonus of using "agressive" compiler optimisations (`-march=native`, `-O3`, and LTO and PGO) and use it for any Vulkan game, in a per game basis:
+Your distro ships the latest stable version, you can go more bleeding edge to get the latest additions, but keep in mind that regressions often come with it. On Ubuntu there's a [PPA](https://launchpad.net/~oibaf/+archive/ubuntu/graphics-drivers) that gives out the latest mesa, and another [PPA](https://launchpad.net/~kisak/+archive/ubuntu/kisak-mesa) that's less bleeding edge/more stable . 
 
+##### Self-compile
+
+You can compile only RADV by hand with the extra bonus of using your own compiler optimizations [as described in this section](#self-compiling) and use it for any Vulkan game, in a per game basis.
+
+First, you get the source code
 ```shell
 git clone --depth=1 https://gitlab.freedesktop.org/mesa/mesa.git
-cd mesa
+```
+This command will create a `mesa` folder. To compile only RADV, you go into the sources folder and do the following
+```shell
+cd path/to/mesa
+git clean -fdx
 mkdir build && cd build
-export CFLAGS="-march=native -O3 -pipe"
+export CFLAGS="... [To be Filled] ..."
 export CXXFLAGS="${CFLAGS}"
+export LDFLAGS="-Wl,-O1,--sort-common,--as-needed,-z,now ${CFLAGS}"
 meson .. \
     -D prefix="$HOME/radv-master" \
     --libdir="$HOME/radv-master/lib" \
     -D b_ndebug=true \
-    -D b_lto=true \
-    -D b_pgo=off \
+    -D b_lto=TO BE CHANGED \
+    -D b_pgo=TO BE CHANGED \
     -D buildtype=release \
     -D platforms=x11,wayland \
     -D dri-drivers= \
@@ -149,101 +223,31 @@ meson .. \
 meson configure
 ninja install
 ```
-And here again, if you feel even more adventurous, you can go for this set of compiler flags:
+Where you need to fill a a few lines
+- `CFLAGS` with flags, you can use `BASE + GRAPHITE + MISC + LTO3` from the [flags to try section](#flags-to-try).
+- If you enabled the `LTO` flags you must set `-D b_lto=true`, otherwise `-D b_lto=true`
+- With regards to PGO, first read [the bullet point about PGO](#self-compiling) 
+  1. Profile generation
+      - you must set `-D b_pgo=generate`
+      - append `-fprofile-generate=$HOME/radv-pgo-data` to `CFLAGS`, where you can replace `$HOME/radv-pgo-data` to a folder of your liking
+  2. Profile use
+      - you must set `-D b_pgo=use`
+      - append `-fprofile-use=$HOME/radv-pgo-data` to `CFLAGS`, where you replace `$HOME/radv-pgo-data` to the same folder you used for profile generation
+  3. No PGO, you must set `-D b_pgo=off`
+
+These may improve performance or not, the best is to test with and without and see for oneself. If regressions happen, follow the steps in [flags to try section](#flags-to-try) to reduce the number of flags.
+
+After running the lines above, you get the driver installed in `$HOME/radv-master`, you can change the folder name and where it is in the line `-D prefix="$HOME/radv-master"`. Now, to use it for Overwatch (or any other game), you must set the following environment variable (in Lutris, it's in "Configure" > "System Options" > Environment variables, and add it):
 ```shell
-export CFLAGS="-march=native -O3 -pipe -flto -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans"
-export CXXFLAGS="${CFLAGS}"
-export LDFLAGS="-flto"
-```
-These may improve performance or not, the best is to test with and without and see for oneself. If regressions happen, or it doesn't succeed in the compile step. First try removing the `-flto` option, then change the `-O3` to `-O2`, then remove `-march=native`. And if after all this it still doesn't work, just go back to the original settings (aka without the `export` lines).
-
-After running the lines above, you get the driver installed in `$HOME/radv-master`. Now, to use it for Overwatch (or any other game), you go to "Configure" > "System Options" > Environment variables and add the following line:
-
-```
-VK_ICD_FILENAMES=$HOME/radv/share/vulkan/icd.d/radeon_icd.x86_64.json:$OTHER_PATH/radeon_icd.i686.json
+VK_ICD_FILENAMES=$HOME/radv-master/share/vulkan/icd.d/radeon_icd.x86_64.json:$OTHER_PATH/radeon_icd.i686.json
 ```
 where you should manually replace `$HOME` by your home path `/home/Joe` and `$OTHER_PATH` by where `radeon_icd.i686.json` actually is, you can find out with
 ```
 sudo updatedb
 locate radeon_icd.i686.json
 ```
-If the games crashes after doing all this, you can either try other git commits (you will need some git knowledge) or revert to the stable driver by simply removing the `VK_ICD_FILENAMES` environment variable. And if you don't wanna hear about bleeding edge mesa anymore you can simply remove the `mesa` folder along with `$HOME/radv-master`.
+If the games crashes after doing all this, you can either try other git commits (you will need some git knowledge) or revert to the stable driver by simply removing the `VK_ICD_FILENAMES` environment variable. And if you don't wanna hear about bleeding edge mesa anymore you can simply remove the `mesa` source folder along with `$HOME/radv-master`.
 
-##### Profile Guided Optimisations
-
-One can actually go even further in the compiler optimisations, by using this so called [Profile Guided Optimisations](https://en.wikipedia.org/wiki/Profile-guided_optimization). The idea behind is to produce a first version of the driver, with performance counters added in (that slow it down qute a bit). Use the driver in real life use-cases to retrieve useful statistics. Then use those statistics to compile a final, improved version, of the driver.
-
-For what will follow, I suppose that the fist clone step has already been done, and the source code is in the `mesa` folder.
-
-**Step 1: Profiling data generation** 
-
-```shell
-cd path/to/mesa
-git clean -f -d -x
-mkdir build && cd build
-export CFLAGS="-march=native -O3 -pipe -flto -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans -fprofile-generate=pgo-generate"
-export LDFLAGS="-flto -fprofile-generate=pgo-generate"
-export CXXFLAGS="${CFLAGS}"
-meson .. \
-    -D prefix="$HOME/radv-master-pgogen" \
-    --libdir="$HOME/radv-master-pgogen/lib" \
-    -D b_ndebug=true \
-    -D b_lto=true \
-    -D b_pgo=generate \
-    -D b_coverage=true \
-    -D buildtype=release \
-    -D platforms=x11,wayland \
-    -D dri-drivers= \
-    -D gallium-drivers= \
-    -D vulkan-drivers=amd \
-    -D gles1=disabled \
-    -D gles2=disabled \
-    -D opengl=false
-meson configure
-ninja install
-```
-
-This will generate the driver in the folder `$HOME/radv-master-pgogen`, what we need to do next is to tell lutris to use it by changing, in Lutris "Configure" > "System Options" > Environment variables and add/edit the following line:
-
-```shell
-VK_ICD_FILENAMES=$HOME/radv-master-pgogen/share/vulkan/icd.d/radeon_icd.x86_64.json:$OTHER_PATH/radeon_icd.i686.json
-```
-where you should manually replace `$HOME` by your home path `/home/Joe` and `$OTHER_PATH` by where `radeon_icd.i686.json` actually is, you can find it out by following the explanations above. After that, open and play the game for a while, let's say an hour. The game will generate some statistics files in the folder `pgo-generate` that is located at the same directory where the game's executable is located. Copy the folder to the home folder:
-
-```shell
-cp path/to/game/executable/pgo-generate ~/pgo-generate
-```
-
-**Step 2: Use the profiling data**
-
-We expect that profiling data is in the folder `~/pgo-generate`
-```shell
-export CFLAGS="-march=native -O3 -pipe -flto -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans -fprofile-use=/home/Joe/pgo-generate -fprofile-partial-training"
-export LDFLAGS="-flto -fprofile-use=/home/Joe/pgo-generate"
-export CXXFLAGS="${CFLAGS}"
-meson .. \
-    -D prefix="$HOME/radv-master-pgo" \
-    --libdir="$HOME/radv-master-pgo/lib" \
-    -D b_ndebug=true \
-    -D b_lto=true \
-    -D b_pgo=use \
-    -D buildtype=release \
-    -D platforms=x11,wayland \
-    -D dri-drivers= \
-    -D gallium-drivers= \
-    -D vulkan-drivers=amd \
-    -D gles1=disabled \
-    -D gles2=disabled \
-    -D opengl=false
-meson configure
-ninja install
-```
-Where `Joe` in `-fprofile-use=/home/Joe/pgo-generate` should be changed to your username. The driver will be located in `$HOME/radv-master-pgo`, what we need to do next is to tell lutris to use it by changing, in Lutris "Configure" > "System Options" > Environment variables and add/edit the following line:
-
-```shell
-VK_ICD_FILENAMES=$HOME/radv-master-pgogen/share/vulkan/icd.d/radeon_icd.x86_64.json:$OTHER_PATH/radeon_icd.i686.json
-```
-where you should manually replace `$HOME` by your home path `/home/Joe` and `$OTHER_PATH` by where `radeon_icd.i686.json` actually is, you can find it out by following the explanations above.
 ## Kernel
 
 First, try to get the latest kernel your distro ships, it often comes with performance improvements (it contains the base updates for the amd gpu driver for example).
@@ -261,7 +265,7 @@ kernel: umip: Overwatch.exe[5970] ip:140621a9a sp:21dea0: For now, expensive sof
 You can disable this protection with the following kernel parameter `clearcpuid=514`
 ### Custom/self compiled kernels
 
-Using a self-compiled kernel can bring some improvements. There is a git repository called [linux-tkg](https://github.com/Frogging-Family/linux-tkg) that provides a script to compile the linux Kernel from source (takes about ~30mins, but can be stripped down with `modprobed-db`) with some customization options : the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)) can be changed to other ones (Project C UPDS, PDS, BMQ, MuQSS)  These changes help getting better performance in games. And also other patches. Linux-tkg needs to be compiled on your own machine, where you can use compiler optimisations such as `-O3` and `-march=native` (and soon LTO + PGO), with an interactive script and a config file, I worked on the script to install on Ubuntu and Fedora.
+Using a self-compiled kernel can bring some improvements. There is a git repository called [linux-tkg](https://github.com/Frogging-Family/linux-tkg) that provides a script to compile the linux Kernel from source (takes about ~30mins, but can be stripped down with `modprobed-db`) with some customization options : the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)) can be changed to other ones (Project C UPDS, PDS, BMQ, MuQSS)  These changes help getting better performance in games. And also other patches. Linux-tkg needs to be compiled on your own machine, where you can use compiler optimisations such as `-O3` and `-march=native` (LTO is experimental and Clang only, PGO will come soon), with an interactive script and a config file, I worked on the script to install on Ubuntu and Fedora.
 
 More information here: https://github.com/Frogging-Family/linux-tkg
 
@@ -407,17 +411,18 @@ lsof /dev/winesync
 **Note:** even with this, sometimes `fatsync` does not correctly work. I am investigating and will update this guide accordingly. `fastsync` should have a similar performance to `Futex2` so far, so if it doesn't work for you, switch back to `Futex2` then try again a little bit later.
 #### compiler optimisations
 
-On top of the config variables that can be toggled in `customization.cfg` in `wine-tkg`, I run wine-tkg with the following compiler optimisations, that can be added in the `wine-tkg-profiles/advanced-customization.cfg` file, `AVX` instruction set seems to cause problems for me:
+On top of the config variables that can be toggled in `customization.cfg` in `wine-tkg`, you can set [custom compiler optimizations](#self-compiling) by editing the following lines of the file `wine-tkg-profiles/advanced-customization.cfg`
 
 ```shell
-_GCC_FLAGS="-O3 -march=native -mno-avx -pipe -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta"
+_GCC_FLAGS="... EDIT HERE ..."
 # Custom LD flags to use instead of system-wide makepkg flags set in /etc/makepkg.conf. Default is "-pipe -O2 -ftree-vectorize".
 _LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 # Same as _GCC_FLAGS but for cross-compiled binaries.
-_CROSS_FLAGS="-O3 -march=native -mno-avx -pipe -fgraphite-identity -floop-nest-optimize -floop-strip-mine -fno-semantic-interposition -fipa-pta"
+_CROSS_FLAGS="... EDIT HERE ..."
 # Same as _LD_FLAGS but for cross-compiled binaries.
 _CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 ```
+Where you can change `... EDIT HERE ...` with flags [from here](#flags-to-try): note that LTO nor PGO works with wine, you can at most use the `BASE + GRAPHITE + MISC` flags
 
 ## Overclocking
 
