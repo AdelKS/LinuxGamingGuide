@@ -469,11 +469,11 @@ On Gnome, an experimental feature can be enabled:
 ```shell
 gsettings set org.gnome.mutter experimental-features '["dma-buf-screen-sharing"]'
 ```
-That will enable `zero-copy` capture (I am not sure what happens with games in that matter), which noticeably reduces the added input lag added by the game capture for streaming. This features is only available on `obs-studio` version `27.0` onwards, which is still in beta. It can be installed via `flatpak`
+That will enable window capturing through the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf). Which enables `OBS` to work on Wayland but also not add as much input lag is with its `Xcomposite` backed. This feature can only be used by `obs-studio` version `27.0` onwards. If your distro doesn't provide that version, it can be installed via `flatpak`
 ```shell
 flatpak install --user https://flathub.org/beta-repo/appstream/com.obsproject.Studio.flatpakref
 ```
-Then it can be run with an environment variable, `OBS_USE_EGL=1`:
+On Gnome under X11, you need to run OBS with an extra environment variable, `OBS_USE_EGL=1`:
 ```shell
 OBS_USE_EGL=1 com.obsproject.Studio
 ```
@@ -481,11 +481,13 @@ where `com.obsproject.Studio` is the name of the `obs-studio` executable, instal
 
 #### obs-vkcapture
 
-A `zero-copy` game capture that uses the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) exists for capturing games: [obs-vkcapture](https://github.com/nowrep/obs-vkcapture). It needs the version `27.0` of `obs-studio`, but not the flatpak version, since it needs headers from it (it must be possible to use the flatpak version too but I don't know how). So you need to compile and install `obs-studio` from source ([documentation here](https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux-build-directions)), then compile and install `obs-vkcapture` form source. After that, you only have to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
+[obs-vkcapture](https://github.com/nowrep/obs-vkcapture) implements the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) for capturing games: it needs the version `27.0` of `obs-studio`, or newer, to be installed in the regular way because it needs headers from it (it must be possible to use the flatpak version too but I don't know how). If your distro doesn't ship that version of `obs-studio`, you can compile from source ([documentation here](https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux-build-directions)).
+
+Once you have a working `obs-studio` version `27.0` or higher, you need to compile `obs-vkcapture` form source then install it, documentation in its Github page. After that, you need to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
 ```shell
 OBS_USE_EGL=1 obs
 ```
-You will see a `game capture` new source entry. It works great and removes entirely the issue of added input lag.
+And you will see a `game capture` new source entry. It works great and fixed my issues with added input lag and stuttering `obs-studio` used to have.
 
 ### Replay sorcery
 
