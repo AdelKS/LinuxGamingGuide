@@ -460,6 +460,9 @@ Performance overlays are small "widgets" that stack on top of your game view and
 
 If you can't use your own GPU for encoding or prefer to use a software encoder, it's a very good idea to se the `cpuset` trick explained above to not affect your game's performance by running OBS in a different CCX/CCD. I tried it and it makes a huge difference.
 
+**An important fix for an issue I have been having for a year now**
+- __Network Error on Twitch:__ Switching between sources that leave a black screen for a very short time, _e.g._ having the game in a virtual desktop then switching to another virtual desktop, makes the stream on twitch crash for whatever reason. To work around this, keep a background image behind all of your sources, so whenever nothing is shown, it's that background image.
+
 #### Gnome
 
 On Gnome, an experimental feature can be enabled: 
@@ -475,9 +478,6 @@ Then it can be run with an environment variable, `OBS_USE_EGL=1`:
 OBS_USE_EGL=1 com.obsproject.Studio
 ```
 where `com.obsproject.Studio` is the name of the `obs-studio` executable, installed through flatpak, it may have another name in your specific distro.
-
-**Some open Issues I have been having**
-- __Network Error on Twitch:__ Switching between virtual desktops on X11 causes my twitch streams to crash. So do not use them and play your games in windowed fullscreen (it does not make any difference on Linux, Fullscreen vs Windowed Fullscreen). If you have any ideas please reach out!
 
 #### obs-vkcapture
 
