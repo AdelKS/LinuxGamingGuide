@@ -276,13 +276,14 @@ More information here: https://github.com/Frogging-Family/linux-tkg
 `esync` and `fsync` have been developped by CodeWeavers and Collabora. `futex2` is a new backend for `fsync`, and is not a different mechanism per se, the other one being the current `futex` implementation + a patch that adds the `FUTEX_WAIT_MULTIPLE` operation. They are mutualy exclusive, so only one is used at time. To have them in `linux-tkg`, one must manually enable them in the `customization.cfg` or select them in the interactive script (`esync` is by default in any linux kernel since is based in an mainline feature called `eventfd`).
 
 `winesync/fastsync` is a new proposal of syncronization subystem, similar to `futex` and `eventfd`, aimed to serve exclusively for mapping Windows API sync mechanisms. Developped by wine developpers. It seems that this is the implementation that will replace the previous ones (and eventually get included in the kernel by default, no need to patch). `winesync` is a kernel module that communicates with `fastsync` that should be in a patched wine (like `wine-tkg`). The performance should be similar or better than `futex2`. To have the `winesync` module:
-- archlinux: you need to install the following packagse from the AUR: `winesync`, `winesync`, `winesync-header` and `winesync-udev-rule`
-- `linux-tkg`: enable it in the `customization.cfg` or select it from the interactive script. It will do the following
+- The DKMS route
+  - Archlinux: you need to install the following packagse from the AUR: `winesync`, `winesync`, `winesync-header` and `winesync-udev-rule`
+  - other distros: follow the [README in this repository](https://github.com/Cat-Lady/winesync-dkms)
+- Directly with`linux-tkg`: enable it in the `customization.cfg` or select it from the interactive script. It will do the following
   - Build and bundle the `winesync` module
   - Make the module be autostarted by systemd by creating the `/etc/modules-load.d/winesync.conf` file that contains "winesync" inside.
   - Create a `udev` rule for `winesync` in `/etc/udev/rules.d/winesync.rules` to give it proper permissions. The file contains `KERNEL=="winesync", MODE="0644"`.
   - Add the `winesync` header file to `/usr/include/linux/winesync.h`. In RPM and DEB distros this header file is installed through one of the RPM/DEB packages created. For `Generic` distro, it gets installed by `make headers_install HDR_INSTALL_PATH=/usr`
-- DKMS for non-arch: follow the [README in this repository](https://github.com/Cat-Lady/winesync-dkms)
 
 To know that your linux-tkg kernel is sucessfully showing futex2 sysfs handles, this command should output `futex2`:
 
