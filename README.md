@@ -435,7 +435,13 @@ Overclocking is possible on Linux, please refer to the Archlinux wiki on [Improv
 I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/master/DDR4%20OC%20Guide.md) on the matter.
 ## X11/Wayland
 
-I use only X11 for now, and works nicely. Wayland is not as good as X11 for now, for gaming (the desktop smoothness is better than x11 though, with AMD GPUs), except if you want to try a custom wine with Wayland patches: https://github.com/varmd/wine-wayland. I am unable to run Overwatch with it yet. In terms of input lag LXDE seems to be better for me than Gnome. Feel free to try for yourself!
+I use only X11 for now, and works nicely. Wayland is not as good as X11 for gaming, for now. Except maybe with a custom wine with Wayland patches: https://github.com/varmd/wine-wayland. I am unable to run Overwatch with it yet. 
+
+**Best DE for gaming:** In terms of input lag LXDE/LXQt (using OpenBox as a WM) has the lowest input lag and the smoothest feel, I heard KDE with its recent `5.22` update should be pretty competitive. `Gnome`, even though I like it for desktop work, sucks with gaming (frame drops, high input lag).
+
+**Some X11 settings for gaming:**
+- The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering). Some may argue that it reduces input lag, I think that it's theoretically right. But with high refresh rate monitors, (e.g. 240Hz), I think image update smoothness is way more noticeable than the added input lag. This option entirely removes screen tearing with anything: scrolling on Firefox, on compositorless DEs like LXDE melted butter smooth, for example.
+- If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
 
 ## Performance overlays
 
