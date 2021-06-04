@@ -33,8 +33,8 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
       - [Benchmark](#benchmark)
   - [Wine](#wine)
       - [Environment variables](#environment-variables)
-    - [wine-tkg](#wine-tkg)
-      - [Esync (+ Fsync (+ Futex2))](#esync-fsync-futex2)
+    - [Wine-tkg](#wine-tkg)
+      - [Esync-Fsync-Futex2](#esync-fsync-futex2)
       - [Fastsync](#fastsync)
       - [compiler optimisations](#compiler-optimisations)
   - [Overclocking](#overclocking)
@@ -83,14 +83,14 @@ Compiling is the process of tranforming human written code (like C/C++/Rust/... 
 gcc main.c -O2 -march=native -pipe
 ```
 where `-O2`, `-march=native` and `-pipe` are compiler flags. There are many flags that compilers accept, the ones specific to optimisation are given in [GCC's documentation](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html). A few important (meta)flags
-- The `-Ox`, where `x=1,2,3`, is a generic flag that sets the generic level optimization, it activates many other flags that actually do something. Distros that compile their software usually with `-O2`
-- The `-march` flag is a flag that tells the compiler to use additionnal features that aren't available for all CPUs: newer CPU implement some "instruction sets" (aka addiotionnal features) that enable them to perform some operations faster, like [SIMD instructions](https://en.wikipedia.org/wiki/SIMD). It makes some programs faster, like `ffmpeg` with video conversion. This instruction is not used by default with Distro packages as they need to have their programs able to run on all machine, even those from 2001. So one can win a lot just by compiling with `-march=native` in computationnal heavy programs. Although some programs have embedded detection code to use addtionnal features of your CPU. Some Linux Distributions like [Gentoo](https://www.gentoo.org/) enable you to compile every single package on your own machine so you can have ALL the apps built with `-march=native` (it may take several hours given your CPU)
+- The `-Ox`, where `x=1,2,3`, is a generic flag that sets the generic level optimization, it activates many other flags that actually do something. Distros compile the packages they ship usually with `-O2`
+- The `-march` flag is a flag that tells the compiler to use additional features that aren't available for all CPUs: newer CPU implement some "instruction sets" (aka additional features) that enable them to perform some tasks faster, like [SIMD instructions](https://en.wikipedia.org/wiki/SIMD). It makes some programs faster, like `ffmpeg` with video conversion. These instruction sets are not used by default in packages shipped by distros as they need to have them able to run on all machines, even those from 2001. So one can win some performance by just compiling with `-march=native` their computational heavy programs. Although some have embedded detection code to use additional insruction sets if detected. Some Linux Distributions like [Gentoo](https://www.gentoo.org/) enable you to compile every single package on your own machine so you can have ALL the apps built with `-march=native` (it may take several hours depending on your CPU)
 - Link Time Optimizations (LTO) that involve the use of the flags `-flto`, `-fdevirtualize-at-ltrans` and `-flto-partition`
 - Profile Guided Optimizations (PGO) that involve the use of `-fprofile-generate=/path/to/stats/folder`, `-fprofile-use=/path/to/stats/folder` flags. The idea behind is to produce a first version of the program, with performance counters added in with the `-fprofile-generate=/path/to/stats/folder` flag. Then you use the compiled program in your real life use-cases (it will be way slower than usual), the program meanwhile fills up some extra files with useful statistics in `/path/to/stats/folder`. Then you compile again your program with the `-fprofile-use=/path/to/stats/folder` flag with the folder `/path/to/stats/folder` filed with statistics files that have the `.gcda` extension.
 
 A nice introduction to compiler optimizations `-Ox`, `LTO` and `PGO`, is made in a Suse Documentation that you can find here: https://documentation.suse.com/sbp/all/html/SBP-GCC-10/index.html
 
-The Kernel, `Wine`, `RADV` and `DXVK` can be compiled on your own machine so you can use additional compile flags (up to a certain level) for the particular CPU you own and potentially faster with more "agressive" compiler flags. I said potentially as you need to check for yourself if it is truly the case or not.
+The Kernel, `Wine`, `RADV` and `DXVK` can be compiled on your own machine so you can use additional compile flags (up to a certain level) for the particular CPU you own and potentially faster with more "aggressive" compiler flags. I said potentially as you need to check for yourself if it is truly the case or not.
 
 ### Flags to try
 
@@ -153,9 +153,11 @@ cpp_args=[... TO BE FILLED ...]
 c_link_args = ['-static', '-static-libgcc', ... TO BE FILLED ...]
 cpp_link_args = ['-static', '-static-libgcc', '-static-libstdc++', ... TO BE FILLED ...]
 ```
-Where you can replace `... TO BE FILLED ...` with `BASE + GRAPHITE + MISC + LTO2` flags [defined here](#flags-to-try), although you need to respect the syntax of this file: flags are quoted and separated with comas _e.g._ `c_args=['-O2', '-march=native']`.
+Where you can replace `... TO BE FILLED ...` with `BASE + GRAPHITE + MISC + LTO3` flags [defined here](#flags-to-try) if you don't enable `PGO`.
 
-You can also enable [PGO](#self-compiling) by appending `-fprofile-generate` or `-fprofile-use`, depending on the stage you are in, to `c_args` and `cpp_args`. You also need to add `'-lgcov'` to `c_link_args` and `cpp_link_args`
+You can also enable [PGO](#self-compiling) by appending `-fprofile-generate=/path/to/dxvk-pgo-data` or `-fprofile-use=/path/to/dxvk-pgo-data` to `c_args` and `cpp_args`, depending on the stage you are in. You can change the `=/path/to/dxvk-pgo-data` path. You also need to add `'-lgcov'` to `c_link_args` and `cpp_link_args`
+
+**Note:** you need to respect the syntax of the `build-winXX.txt` files. Flags are quoted and separated with comas _e.g._ `c_args=['-O2', '-march=native']`.
 
 These flag changes may improve performance or not, the best is to test with and without and see for oneself. If regressions happen or it doesn' want to compile you can try [other flags](#flags-to-try).
 
@@ -225,14 +227,14 @@ ninja install
 ```
 Where you need to fill a a few lines
 - `CFLAGS` with flags, you can use `BASE + GRAPHITE + MISC + LTO3` from the [flags to try section](#flags-to-try).
-- If you enabled the `LTO` flags you must set `-D b_lto=true`, otherwise `-D b_lto=true`
-- With regards to PGO, first read [the bullet point about PGO](#self-compiling) 
+- If you enabled the `LTO` flags you must set `-D b_lto=true`, otherwise `-D b_lto=false`
+- With regards to PGO, first read [the bullet point about PGO](#self-compiling)
   1. Profile generation
       - you must set `-D b_pgo=generate`
-      - append `-fprofile-generate=$HOME/radv-pgo-data` to `CFLAGS`, where you can replace `$HOME/radv-pgo-data` to a folder of your liking
+      - append `-fprofile-generate=$HOME/radv-pgo-data` to `CFLAGS`, where you can replace `$HOME/radv-pgo-data` by another folder if you wish
   2. Profile use
       - you must set `-D b_pgo=use`
-      - append `-fprofile-use=$HOME/radv-pgo-data` to `CFLAGS`, where you replace `$HOME/radv-pgo-data` to the same folder you used for profile generation
+      - append `-fprofile-use=$HOME/radv-pgo-data` to `CFLAGS`, where you replace `$HOME/radv-pgo-data` with the same folder you used for profile generation
   3. No PGO, you must set `-D b_pgo=off`
 
 These may improve performance or not, the best is to test with and without and see for oneself. If regressions happen, follow the steps in [flags to try section](#flags-to-try) to reduce the number of flags.
@@ -359,10 +361,10 @@ STAGING_SHARED_MEMORY=1
 STAGING_WRITECOPY=1
 ```
 
-### wine-tkg
+### Wine-tkg
 [wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) is a set of scripts that clone and compile `wine`'s source code, on your own machine, with extra patches that offer better performance and better game compatibility. One of the interesting offered extra features are additionnal [threading synchronisation](#threading-synchronisation) primitives that work with the corresponding patched `linux-tkg` kernel. One can use `Esync+Fsync+Futex2` or `fastsync` (with its corresponding kernel module `winesync`).
 
-#### Esync (+ Fsync (+ Futex2))
+#### Esync-Fsync-Futex2
 To enable the use of `Esync` + `Fsync` + `Futex2`, `wine-tkg` needs to be built with the corresponding features enabled. Then, to enable `Esync+Fsync+Futex2`, you need to set the following environment variables
 ```shell
 WINEESYNC=1
