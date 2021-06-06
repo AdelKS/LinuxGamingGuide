@@ -153,9 +153,7 @@ cpp_args=[... TO BE FILLED ...]
 c_link_args = ['-static', '-static-libgcc', ... TO BE FILLED ...]
 cpp_link_args = ['-static', '-static-libgcc', '-static-libstdc++', ... TO BE FILLED ...]
 ```
-Where you can replace `... TO BE FILLED ...` with `BASE + GRAPHITE + MISC + LTO3` flags [defined here](#flags-to-try) if you don't enable `PGO`.
-
-You can also enable [PGO](#self-compiling) by appending `-fprofile-generate=/path/to/dxvk-pgo-data` or `-fprofile-use=/path/to/dxvk-pgo-data` to `c_args` and `cpp_args`, depending on the stage you are in. You can change the `=/path/to/dxvk-pgo-data` path. You also need to add `'-lgcov'` to `c_link_args` and `cpp_link_args`
+Where you can replace `... TO BE FILLED ...` with `BASE + GRAPHITE + MISC + LTO3` flags [defined here](#flags-to-try) if you don't enable `PGO`. If you want to use [PGO](#self-compiling), you can use the `BASE + GRAPHITE + MISC + LTO2` + `-fprofile-generate=/path/to/dxvk-pgo-data` or `-fprofile-use=/path/to/dxvk-pgo-data`, depending on the stage you are in. You can change the `=/path/to/dxvk-pgo-data` path. You also need to add `'-lgcov'` to `c_link_args` and `cpp_link_args`
 
 **Note:** you need to respect the syntax of the `build-winXX.txt` files. Flags are quoted and separated with comas _e.g._ `c_args=['-O2', '-march=native']`.
 
