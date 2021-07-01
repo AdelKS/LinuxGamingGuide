@@ -440,7 +440,7 @@ I use only X11 for now, and works nicely. Wayland is not as good as X11 for gami
 **Best DE for gaming:** In terms of input lag LXDE/LXQt (using OpenBox as a WM) has the lowest input lag and the smoothest feel, I heard KDE with its recent `5.22` update should be pretty competitive. `Gnome`, even though I like it for desktop work, sucks with gaming (frame drops, high input lag).
 
 **Some X11 settings for gaming:**
-- The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering). Some may argue that it reduces input lag, I think that it's theoretically right. But with high refresh rate monitors, (e.g. 240Hz), I think image update smoothness is way more noticeable than the added input lag. This option entirely removes screen tearing with anything: scrolling on Firefox, on compositorless DEs like LXDE melted butter smooth, for example.
+- The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering). Some may argue that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag. But with high refresh rate monitors, (e.g. 240Hz), I think image update smoothness is way more noticeable than the added input lag. This option entirely removes screen tearing with anything: scrolling on Firefox, on compositorless DEs like LXDE melted butter smooth, for example.
 - If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
 
 ## Performance overlays
@@ -483,11 +483,11 @@ where `com.obsproject.Studio` is the name of the `obs-studio` executable, instal
 
 [obs-vkcapture](https://github.com/nowrep/obs-vkcapture) implements the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) for capturing games: it needs the version `27.0` of `obs-studio`, or newer, to be installed in the regular way because it needs headers from it (it must be possible to use the flatpak version too but I don't know how). If your distro doesn't ship that version of `obs-studio`, you can compile from source ([documentation here](https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux-build-directions)).
 
-Once you have a working `obs-studio` version `27.0` or higher, you need to compile `obs-vkcapture` form source then install it, documentation in its Github page. After that, you need to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
+Once you have a working `obs-studio` version `27.0` or higher, you need to compile `obs-vkcapture` form source then install it, documentation in its [Github page](https://github.com/nowrep/obs-vkcapture). After that, you need to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
 ```shell
 OBS_USE_EGL=1 obs
 ```
-And you will see a `game capture` new source entry. It works great and fixed my issues with added input lag and stuttering `obs-studio` used to have.
+And you will see a `game capture` new source entry. It works great and fixed my issues with added input lag and stuttering `obs-studio` used to have. Games need to run with the environment variable `OBS_VKCAPTURE=1` or need to be run with the command `obs-vkcapture wine yourgame` (the command gets installed when installing `obs-vkcapture`).
 
 ### Replay sorcery
 
