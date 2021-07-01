@@ -440,7 +440,7 @@ I use only X11 for now, and works nicely. Wayland is not as good as X11 for gami
 **Best DE for gaming:** In terms of input lag LXDE/LXQt (using OpenBox as a WM) has the lowest input lag and the smoothest feel, I heard KDE with its recent `5.22` update should be pretty competitive. `Gnome`, even though I like it for desktop work, sucks with gaming (frame drops, high input lag).
 
 **Some X11 settings for gaming:**
-- The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering). Some may argue that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag. But with high refresh rate monitors, (e.g. 240Hz), I think image update smoothness is way more noticeable than the added input lag. This option entirely removes screen tearing with anything: scrolling on Firefox, on compositorless DEs like LXDE melted butter smooth, for example.
+- The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering). Some may argue that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag. But with high refresh rate monitors, (e.g. 240Hz), I think image update smoothness is way more noticeable than the added input lag. This option entirely removes screen tearing with anything: for example scrolling on Firefox, on compositor-less DEs like LXDE, becomes super smooth.
 - If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
 
 ## Performance overlays
@@ -461,7 +461,7 @@ Performance overlays are small "widgets" that stack on top of your game view and
 If you can't use your own GPU for encoding or prefer to use a software encoder, it's a very good idea to se the `cpuset` trick explained above to not affect your game's performance by running OBS in a different CCX/CCD. I tried it and it makes a huge difference.
 
 **An important fix for an issue I have been having for a year now**
-- __Network Error on Twitch:__ Switching between sources that leave a black screen for a very short time, _e.g._ having the game in a virtual desktop then switching to another virtual desktop, makes the stream on twitch crash for whatever reason. To work around this, keep a background image behind all of your sources, so whenever nothing is shown, it's that background image.
+- __Network Error on Twitch:__ Switching between sources that leave a black screen for a very short time, _e.g._ having the game in a virtual desktop then switching to another virtual desktop, makes the stream on twitch crash for whatever reason. To work around this, keep a background image behind all of your sources, so whenever nothing is supposed to be shown, it's that background image instead of a black background.
 
 #### Gnome
 
