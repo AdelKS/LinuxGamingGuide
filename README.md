@@ -103,7 +103,7 @@ LTO3="-flto -fdevirtualize-at-ltrans -flto-partition=one"
 LTO2="-flto -fdevirtualize-at-ltrans -flto-partition=balanced"
 LTO1="-flto -fdevirtualize-at-ltrans -flto-partition=1to1"
 ```
-It is recommended to try them in this order, if one doesn't work (for whatever reasons: fails to compile or doesn't work), you try the next one:
+It is recommended to try them in the following order, if one fails (for whatever reasons: fails to compile or doesn't work), try the next one:
 1. `BASE + GRAPHITE + MISC + LTO3`:
   ```
   -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=one
