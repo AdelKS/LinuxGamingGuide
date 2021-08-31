@@ -432,7 +432,8 @@ Overclocking is possible on Linux, please refer to the Archlinux wiki on [Improv
 
 ### RAM
 
-I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/master/DDR4%20OC%20Guide.md) on the matter.
+I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/oc-guide/DDR4%20OC%20Guide.md) on the matter.
+                                            
 ## X11/Wayland
 
 I use only X11 for now, and works nicely. Wayland is not as good as X11 for gaming, for now. Except maybe with a custom wine with Wayland patches: https://github.com/varmd/wine-wayland. I am unable to run Overwatch with it yet. 
