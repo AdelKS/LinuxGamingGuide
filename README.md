@@ -500,15 +500,15 @@ You are in a Discord call and streaming at the same time, but you only want OBS 
 
 Create `Game-Sink`:
 ```shell
-pacmd load-module module-null-sink sink_name=game_sink sink_properties=device.description=Game-Sink
+pactl load-module module-null-sink sink_name=game_sink sink_properties=device.description=Game-Sink
 ```
 Find the actual name of `$OriginalSoundcard`: you do this command and look at its output, you should recognize your card's name there:
 ```shell
-pacmd list-sinks | grep name:
+pactl list sinks | grep name:
 ```
 For example, for me I have a SteelSeries Arctis PRO with the Game DAC (with cable), the name of my card is `alsa_output.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.iec958-stereo`. So here's how you do the loopback from `Game-Sink`:
 ```shell
-pacmd load-module module-loopback source="game_sink.monitor" sink="alsa_output.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.iec958-stereo"
+pactl load-module module-loopback source="game_sink.monitor" sink="alsa_output.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.iec958-stereo"
 ```
 Then, all what's left is to do is to open `pavucontrol` (google how to install it if you don't have it) and select `Game-Sink` for where `obs-studio` picks its audio from. And select `Game-Sink` for where the game outputs its audio to.
 
