@@ -494,6 +494,9 @@ And you will see a `game capture` new source entry. It works great and fixed my 
 
 [Replay sorcery](https://github.com/matanui159/ReplaySorcery) is a tool to save small replays of your gaming sessions, without the need to be streaming. It saves a "video" of your play for the past `x` seconds in RAM: it is saved as sequence of JPEG images (small footprint on the computer's ressources). And these images are only converted to a video when you want to actually save a replay (more ressource heavy). I haven't given it a try, if you want to add hints and tips about it, please feel free to PR something or open an issue!
 
+## Sound tweaks with Pipewire/Pulseaudio
+
+This section is about some tweaks one can do with [Pulseaudio](https://www.freedesktop.org/wiki/Software/PulseAudio/) or [Pipewire](https://pipewire.org/) (will replace Pulseaudio and offers more features).
 ### Stream only the game sounds
 
 You are in a Discord call and streaming at the same time, but you only want OBS to stream the game's sounds ? Search no more. The solution is here (that I found [here](https://unix.stackexchange.com/questions/384220/how-to-create-a-virtual-audio-output-and-route-it-in-ubuntu-based-distro)): the idea is to create some kind of virutal soundcard, let's call it `Game-Sink`, where the game will output it sound on. Then you redirect the sound from `Game-Sink` to your actual soundcard.
@@ -508,11 +511,9 @@ pactl list sinks | grep name:
 ```
 For example, for me I have a SteelSeries Arctis PRO with the Game DAC (with cable), the name of my card is `alsa_output.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.iec958-stereo`. So here's how you do the loopback from `Game-Sink`:
 ```shell
-pactl load-module module-loopback source="game_sink.monitor" sink="alsa_output.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.iec958-stereo"
+pactl load-module module-loopback source="game_sink.monitor" sink="alsa_output.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.iec958-stereo" source_output_properties="stream.capture.sink=1"
 ```
 Then, all what's left is to do is to open `pavucontrol` (google how to install it if you don't have it) and select `Game-Sink` for where `obs-studio` picks its audio from. And select `Game-Sink` for where the game outputs its audio to.
-
-## Sound improvements with PulseAudio
 
 ### Improve the sound of your headset
 
@@ -522,13 +523,13 @@ A headset with high fidelity should have a flat frequency response, but affordab
 
 #### The Graphical way
 
-Install `pulseeffects` (`pulseeffects-legacy-git` from the AUR if on Archlinux) and enable the "Convolver" plugin for your ouput sound:
+Install `easyeffects` (`pulseeffects-legacy-git` for `Pulseaudio` from the AUR if on Archlinux) and enable the "Convolver" plugin for your ouput sound:
 
 ![PulseEffects mic noise suppression](./images/headset-auto-eq-gui.png)
 
 You need to download the corresponding `.wav` file to your headset, from the [AutoEq](https://github.com/jaakkopasanen/AutoEq) github repository. For example the files related to my headset are [these ones](https://github.com/jaakkopasanen/AutoEq/tree/master/results/rtings/rtings_harman_over-ear_2018/SteelSeries%20Arctis%20Pro%20GameDAC). There's a 44.1kHz and a 48kHz version for those `.wav` files. Pick the highest frequency your soundcard can handle, or just try both if you are too lazy to figure that out haha.
 
-*Note:* the `pulseeffects` app must remain open for this to keep on working, except if you enable the "start as a service on login" menu option then log out and back in.
+*Note:* the `easyeffects` app must remain open for this to keep on working, except if you enable the "start as a service on login" menu option then log out and back in.
 ### Mic noise suppression
 
 You have cherry blue mechanical keyboard, your friends and teammates keep on complaining/sending death threats about you being too noisy with your keyboard ? Fear no more.
@@ -537,14 +538,17 @@ You have cherry blue mechanical keyboard, your friends and teammates keep on com
 
 #### The Graphical way
 
-Install `pulseeffects` (`pulseeffects-legacy-git` from the AUR if on Archlinux) and enable the "Noise Reduction" plugin for your mic:
+* If you are using Pipewire, install [easyeffects](https://github.com/wwmm/easyeffects), it probably is in your distro's repositories.
+* If you are still on Pulseaudio, you can install a "legacy" version of `easyeffects`, called [pulseffects-legacy](https://github.com/wwmm/easyeffects/tree/pulseaudio-legacy). It may be available in your distro's repositories (e.g. `pulseeffects-legacy-git` from the AUR, on Archlinux) or you need to build it from source.
+
+Enable the "Noise Reduction" plugin for your mic:
 
 ![PulseEffects mic noise suppression](./images/mic-noise-suppression-gui.png)
 
-*Note:* the `pulseeffects` app must remain open for this to keep on working, except if you enable the "start as a service on login" menu option then log out and back in.
+*Note:* the `easyeffects` app must remain open for this to keep on working, except if you enable the "start as a service on login" menu option then log out and back in.
 #### The command line way
 
-All this is explained in [Werman's Git repository](https://github.com/werman/noise-suppression-for-voice). I will put it back here.
+All this is explained in [Werman's Git repository](https://github.com/werman/noise-suppression-for-voice). I will put it back here. It works for both Pipewire and Pulseaudio
 
 1- Clone, build and install the plugin
 ```shell
@@ -561,22 +565,22 @@ For Stereo mics
 ```shell
 #!/bin/bash
 
-pacmd load-module module-null-sink sink_name=denoised_mic_stereo sink_properties=device.description=Denoised-Mic-Stereo rate=48000
+pactl load-module module-null-sink sink_name="denoised_mic_stereo" sink_properties="device.description=Denoised-Mic-Stereo" rate="48000"
 
-pacmd load-module module-ladspa-sink sink_name=denoiser_stereo sink_properties=device.description=Denoiser-Stereo sink_master=denoised_mic_stereo label=noise_suppressor_stereo plugin=librnnoise_ladspa control=50
+pactl load-module module-ladspa-sink sink_name=denoiser_stereo sink_properties="device.description=Denoiser-Stereo" sink_master="denoised_mic_stereo" label="noise_suppressor_stereo" plugin="librnnoise_ladspa" control="50"
 
-pacmd load-module module-loopback source="alsa_input.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.multichannel-input" sink=denoiser_stereo channels=2 source_dont_move=true sink_dont_move=true
+pactl load-module module-loopback source="alsa_input.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.multichannel-input" sink="denoiser_stereo" channels="2" source_dont_move="true" sink_dont_move="true" source_output_properties="stream.capture.sink=1"
 ```
 
 For mono mics
 ```shell
 #!/bin/bash
 
-pacmd load-module module-null-sink sink_name=denoised_mic_mono sink_properties=device.description=Denoised-Mic-Mono rate=48000
+pactl load-module module-null-sink sink_name="denoised_mic_mono" sink_properties="device.description=Denoised-Mic-Mono" rate="48000"
 
-pacmd load-module module-ladspa-sink sink_name=denoiser_mono sink_properties=device.description=Denoiser-Mono sink_master=denoised_mic_mono label=noise_suppressor_mono plugin=librnnoise_ladspa control=50
+pactl load-module module-ladspa-sink sink_name="denoiser_mono" sink_properties="device.description=Denoiser-Mono" sink_master="denoised_mic_mono" label="noise_suppressor_mono" plugin="librnnoise_ladspa" control="50"
 
-pacmd load-module module-loopback source="alsa_input.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.multichannel-input" sink=denoiser_mono channels=1 source_dont_move=true sink_dont_move=true
+pactl load-module module-loopback source="alsa_input.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.multichannel-input" sink="denoiser_mono" channels="1" source_dont_move="true" sink_dont_move="true" source_output_properties="stream.capture.sink=1"
 ```
 
 Where `alsa_input.usb-SteelSeries_SteelSeries_GameDAC_000000000000-00.multichannel-input` is the name of my mic input. You can obtain the name of your mic input with:
