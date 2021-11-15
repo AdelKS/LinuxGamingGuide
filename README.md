@@ -42,7 +42,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [RAM](#ram)
   - [X11/Wayland](#x11wayland)
   - [Performance overlays](#performance-overlays)
-  - [Streaming - Saving replays](#streaming-saving-replays)
+  - [Streaming - Saving replays](#streaming---saving-replays)
     - [OBS](#obs)
       - [Using `cpuset` with software encoder on Ryzen CPUs](#using-cpuset-with-software-encoder-on-ryzen-cpus)
       - [Gnome](#gnome)
