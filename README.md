@@ -28,7 +28,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Game mode](#game-mode)
     - [AMD Ryzen: the `cpuset` trick](#amd-ryzen-the-cpuset-trick)
       - [A small intro to CPU cache](#a-small-intro-to-cpu-cache)
-      - [What can we do with this information ?](#what-can-we-do-with-this-information)
+      - [What can we do with this information ?](#what-can-we-do-with-this-information-)
       - [Using `cpuset`](#using-cpuset)
       - [Benchmark](#benchmark)
   - [Wine](#wine)
@@ -44,19 +44,21 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Performance overlays](#performance-overlays)
   - [Streaming - Saving replays](#streaming---saving-replays)
     - [OBS](#obs)
+      - [Desktop environments](#desktop-environments)
+        - [Gnome](#gnome)
+      - [Encoders](#encoders)
       - [Using `cpuset` with software encoder on Ryzen CPUs](#using-cpuset-with-software-encoder-on-ryzen-cpus)
-      - [Gnome](#gnome)
       - [obs-vkcapture](#obs-vkcapture)
     - [Replay sorcery](#replay-sorcery)
+  - [Sound tweaks with Pipewire/Pulseaudio](#sound-tweaks-with-pipewirepulseaudio)
     - [Stream only the game sounds](#stream-only-the-game-sounds)
-  - [Sound improvements with PulseAudio](#sound-improvements-with-pulseaudio)
     - [Improve the sound of your headset](#improve-the-sound-of-your-headset)
       - [The Graphical way](#the-graphical-way)
     - [Mic noise suppression](#mic-noise-suppression)
       - [The Graphical way](#the-graphical-way-1)
       - [The command line way](#the-command-line-way)
   - [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt)
-  - [Compositor / desktop effects](#compositor-desktop-effects)
+  - [Compositor / desktop effects](#compositor--desktop-effects)
   - [Benchmarks](#benchmarks)
   - [Misc](#misc)
 
@@ -455,22 +457,19 @@ Performance overlays are small "widgets" that stack on top of your game view and
 
 ### OBS
 
-[OBS](https://obsproject.com/) is the famous open source streaming software, it works nicely with X11 on AMD GPUs, especially LXDE (when compared to Gnome) I feel no added input lag with LXDE. The video quality is actually better than Windows, since you can use VAAPI-FFMPEG on Linux, and it has a better video quality than the AMD thingy on windows. Nvidia has been reported to work nicely on linux and on windows with their new NVENC thing.
+[OBS](https://obsproject.com/) is the famous open source streaming software: it helps streaming and recording your games, desktop, audio input/output, webcams, IP cameras... etc.
 
-#### Using `cpuset` with software encoder on Ryzen CPUs
+#### Desktop environments
 
-If you can't use your own GPU for encoding or prefer to use a software encoder, it's a very good idea to se the `cpuset` trick explained above to not affect your game's performance by running OBS in a different CCX/CCD. I tried it and it makes a huge difference.
+It works nicely with X11 on AMD GPUs, especially LXDE/LXQt (when compared to Gnome) with respect to the added input lag.
 
-**An important fix for an issue I have been having for a year now**
-- __Network Error on Twitch:__ Switching between sources that leave a black screen for a very short time, _e.g._ having the game in a virtual desktop then switching to another virtual desktop, makes the stream on twitch crash for whatever reason. To work around this, keep a background image behind all of your sources, so whenever nothing is supposed to be shown, it's that background image instead of a black background.
-
-#### Gnome
+##### Gnome
 
 On Gnome, an experimental feature can be enabled: 
 ```shell
 gsettings set org.gnome.mutter experimental-features '["dma-buf-screen-sharing"]'
 ```
-That will enable window capturing through the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf). Which enables `OBS` to work on Wayland but also not add as much input lag is with its `Xcomposite` backed. This feature can only be used by `obs-studio` version `27.0` onwards. If your distro doesn't provide that version, it can be installed via `flatpak`
+That will enable window capturing through the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf). Which enables `OBS` to work on Wayland but also not add as much input lag is with its `Xcomposite` backend. This feature can only be used by `obs-studio` version `27.0` onwards. If your distro doesn't provide that version, it can be installed via `flatpak`
 ```shell
 flatpak install --user https://flathub.org/beta-repo/appstream/com.obsproject.Studio.flatpakref
 ```
@@ -480,15 +479,28 @@ OBS_USE_EGL=1 com.obsproject.Studio
 ```
 where `com.obsproject.Studio` is the name of the `obs-studio` executable, installed through flatpak, it may have another name in your specific distro.
 
+#### Encoders
+
+With AMD GPUs, one can use `ffmpeg-vaapi` to leverage the GPU for encoding, which is offered out of the box. `ffmpeg-amf` contains additions from AMD's [AMF](https://github.com/GPUOpen-LibrariesAndSDKs/AMF) library, my testing gave me the impression that it produces better videos than `ffmpeg-vaapi` but [it needs some work](https://www.reddit.com/r/linux_gaming/comments/qwqxwd/how_to_enable_amd_amf_encoding_in_obs/) (I am working on streamlining all of this on Gentoo).
+
+Nvidia has been reported to work nicely on linux and on windows with their new `nvenc` encoder.
+
+#### Using `cpuset` with software encoder on Ryzen CPUs
+
+If you can't use your own GPU for encoding or prefer to use a software encoder, it's a very good idea to se the `cpuset` trick explained above to not affect your game's performance by running OBS in a different CCX/CCD. I tried it and it makes a huge difference.
+
+**An important fix for an issue I have been having for a year now**
+- __Network Error on Twitch:__ Switching between sources that leave a black screen for a very short time, _e.g._ having the game in a virtual desktop then switching to another virtual desktop, makes the stream on twitch crash for whatever reason. To work around this, keep a background image behind all of your sources, so whenever nothing is supposed to be shown, it's that background image instead of a black background.
+
 #### obs-vkcapture
 
 [obs-vkcapture](https://github.com/nowrep/obs-vkcapture) implements the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) for capturing games: it needs the version `27.0` of `obs-studio`, or newer, to be installed in the regular way because it needs headers from it (it must be possible to use the flatpak version too but I don't know how). If your distro doesn't ship that version of `obs-studio`, you can compile from source ([documentation here](https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux-build-directions)).
 
-Once you have a working `obs-studio` version `27.0` or higher, you need to compile `obs-vkcapture` form source then install it, documentation in its [Github page](https://github.com/nowrep/obs-vkcapture). After that, you need to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
+Once you have a working `obs-studio` version `27.0` or higher, you need to compile `obs-vkcapture` form source then install it : documentation is in its [Github page](https://github.com/nowrep/obs-vkcapture) (it's also on the `AUR` on Arch, and in `GURU` on Gentoo). After that, you need to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
 ```shell
 OBS_USE_EGL=1 obs
 ```
-And you will see a `game capture` new source entry. It works great and fixed my issues with added input lag and stuttering `obs-studio` used to have. Games need to run with the environment variable `OBS_VKCAPTURE=1` or need to be run with the command `obs-vkcapture wine yourgame` (the command gets installed when installing `obs-vkcapture`).
+And you will see a `game capture` as a new source entry. It works great and fixed my issues with added input lag and stuttering `obs-studio` used to have with `Xcomposite` sources. Games need to run with the environment variable `OBS_VKCAPTURE=1` or need to be run with the command `obs-vkcapture wine yourgame` (the command gets installed when installing `obs-vkcapture`).
 
 ### Replay sorcery
 
