@@ -486,7 +486,7 @@ where `com.obsproject.Studio` is the name of the `obs-studio` executable, instal
 
 With AMD GPUs, one can use `ffmpeg-vaapi` to leverage the GPU for encoding, which is offered out of the box. `ffmpeg-amf` contains additions from AMD's [AMF](https://github.com/GPUOpen-LibrariesAndSDKs/AMF) library, but [it needs some work](https://www.reddit.com/r/linux_gaming/comments/qwqxwd/how_to_enable_amd_amf_encoding_in_obs/) (I am working on streamlining all of this on Gentoo). Nvidia has been reported to work nicely on linux and on windows with their new `nvenc` encoder.
 
-To compare between encoders with your particular game, you can record a short lossless video `lossless.avi` (the one I made is  [this one](./video/lossless.avi)) using this option on `obs`
+To compare between encoders with your particular game, you can record a short lossless video `lossless.avi` (the one I made is  [this one](https://github.com/AdelKS/LinuxGamingGuide/raw/master/videos/lossless.avi)) using this option on `obs`
 
 ![obs lossless recording setting](./images/obs-lossless-recording.png)
 
