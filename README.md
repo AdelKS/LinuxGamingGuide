@@ -1,6 +1,6 @@
 # A linux gaming guide
 
-This is some kind of guide/compilation of things, that I got to do/learn about while on my journey of gaming on linux. I am putting it here so it can be useful to others! If you want to see something added here, or to correct something where I am wrong, you are welcome to open an issue or a PR ! 
+This is some kind of guide/compilation of things, that I got to do/learn about while on my journey of gaming on linux. I am putting it here so it can be useful to others! If you want to see something added here, or to correct something where I am wrong, you are welcome to open an issue or a PR !
 
 ## Table of Content
 
@@ -134,7 +134,7 @@ It is recommended to try them in the following order, if one fails (for whatever
 
 ## DXVK
 
-This is the library that maps DirectX (Windows) to Vulkan (Multi-platform and open source) so games that are meant for Windows work on Linux. It's better than wine's built-in mapper called WineD3D. Lutris provides a version already. 
+This is the library that maps DirectX (Windows) to Vulkan (Multi-platform and open source) so games that are meant for Windows work on Linux. It's better than wine's built-in mapper called WineD3D. Lutris provides a version already.
 
 You can compile your own latest one with some "better" compiler optimizations if you wish, and that's what I am doing but I have no idea about the possible FPS benefits of doing that. To do so you will need to put what DXVK's compile script gives you in `~/.local/share/lutris/runtime/dxvk/`. Link here: https://github.com/doitsujin/dxvk
 
@@ -181,16 +181,16 @@ A nice documentation is given by, once again, Arch's documentation: https://wiki
 
 * "Very old" GPUs: the opensource driver is `radeon` and you only have that as an option, along with AMD's closed source driver I believe. But you are out of luck for running DXVK, since both driver's don't implement Vulkan.
 * "Old" GPUs: GCN1 and GCN2 are now supported by the newer "amdgpu" driver and you switch to it to win a few frames.
-* New GPUs: the base driver is `amdgpu`, and is shipped and updated with the linux Kernel, stacks on top of it three different drivers: 
+* New GPUs: the base driver is `amdgpu`, and is shipped and updated with the linux Kernel, stacks on top of it three different drivers:
   * Mesa: the open source graphics stack that handles AMD, Intel, Qualcomm ...etc GPUs. The AMD OpenGL driver is called RadeonSI Gallium3D and is the best you can get. The Vulkan driver is called RADV
   * amdvlk: AMD's official open source Vulkan-only driver, I suppose the rest (OpenGL) is left to mesa. link here: https://github.com/GPUOpen-Drivers/AMDVLK
-  * amdgpu PRO: AMD's official closed source driver, that has its own Vulkan and OpenGL implementation. 
+  * amdgpu PRO: AMD's official closed source driver, that has its own Vulkan and OpenGL implementation.
 
 #### RADV
 
 If you are running RADV and with a mesa version prior to 20.2, you should consider trying out ACO as it makes shader compilation (which happens on the CPU) way faster : go to "Configure" > "System Options" > Toggle ACO.
 
-Your distro ships the latest stable version, you can go more bleeding edge to get the latest additions, but keep in mind that regressions often come with it. On Ubuntu there's a [PPA](https://launchpad.net/~oibaf/+archive/ubuntu/graphics-drivers) that gives out the latest mesa, and another [PPA](https://launchpad.net/~kisak/+archive/ubuntu/kisak-mesa) that's less bleeding edge/more stable . 
+Your distro ships the latest stable version, you can go more bleeding edge to get the latest additions, but keep in mind that regressions often come with it. On Ubuntu there's a [PPA](https://launchpad.net/~oibaf/+archive/ubuntu/graphics-drivers) that gives out the latest mesa, and another [PPA](https://launchpad.net/~kisak/+archive/ubuntu/kisak-mesa) that's less bleeding edge/more stable .
 
 ##### Self-compile
 
@@ -394,7 +394,7 @@ Note that you can also run with only `Esync` or `Esync+Fatsync` by setting the v
 #### Fastsync
 To be able to use `fastsync` with `wine-tkg`, you need to do the following, **in this order**
 1. Be running a `winesync` enabled `linux-tkg` kernel, more information [in this section](#threading-synchronisation)
-2. Disable the use of `wine-staging`, `fsync` and `futex2` in `wine-tkg`'s (proton or vanilla) config file before building it. 
+2. Disable the use of `wine-staging`, `fsync` and `futex2` in `wine-tkg`'s (proton or vanilla) config file before building it.
     * You can also use [this repository](https://github.com/openglfreak/wine-tkg-userpatches/tree/next), instead of disabling the stuff above, to be able to build a `wine-tkg` that can run both `fsync/futex2` and `fatsync` with `wine-staging` code, although that reposistory as-is is hard to use as it has no documentation yet on how to use it.
 3. Disable all environment variables related to `esync/fsync/futex2` (and also from lutris' game options):
     ```shell
@@ -435,10 +435,10 @@ Overclocking is possible on Linux, please refer to the Archlinux wiki on [Improv
 ### RAM
 
 I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/oc-guide/DDR4%20OC%20Guide.md) on the matter.
-                                            
+
 ## X11/Wayland
 
-I use only X11 for now, and works nicely. Wayland is not as good as X11 for gaming, for now. Except maybe with a custom wine with Wayland patches: https://github.com/varmd/wine-wayland. I am unable to run Overwatch with it yet. 
+I use only X11 for now, and works nicely. Wayland is not as good as X11 for gaming, for now. Except maybe with a custom wine with Wayland patches: https://github.com/varmd/wine-wayland. I am unable to run Overwatch with it yet.
 
 **Best DE for gaming:** In terms of input lag LXDE/LXQt (using OpenBox as a WM) has the lowest input lag and the smoothest feel, I heard KDE with its recent `5.22` update should be pretty competitive. `Gnome`, even though I like it for desktop work, sucks with gaming (frame drops, high input lag).
 
@@ -468,7 +468,7 @@ It works nicely with X11 on AMD GPUs, especially LXDE/LXQt (when compared to Gno
 
 ##### Gnome
 
-On Gnome, an experimental feature can be enabled: 
+On Gnome, an experimental feature can be enabled:
 ```shell
 gsettings set org.gnome.mutter experimental-features '["dma-buf-screen-sharing"]'
 ```
@@ -484,13 +484,59 @@ where `com.obsproject.Studio` is the name of the `obs-studio` executable, instal
 
 #### Encoders
 
-With AMD GPUs, one can use `ffmpeg-vaapi` to leverage the GPU for encoding, which is offered out of the box. `ffmpeg-amf` contains additions from AMD's [AMF](https://github.com/GPUOpen-LibrariesAndSDKs/AMF) library, my testing gave me the impression that it produces better videos than `ffmpeg-vaapi` but [it needs some work](https://www.reddit.com/r/linux_gaming/comments/qwqxwd/how_to_enable_amd_amf_encoding_in_obs/) (I am working on streamlining all of this on Gentoo).
+With AMD GPUs, one can use `ffmpeg-vaapi` to leverage the GPU for encoding, which is offered out of the box. `ffmpeg-amf` contains additions from AMD's [AMF](https://github.com/GPUOpen-LibrariesAndSDKs/AMF) library, but [it needs some work](https://www.reddit.com/r/linux_gaming/comments/qwqxwd/how_to_enable_amd_amf_encoding_in_obs/) (I am working on streamlining all of this on Gentoo). Nvidia has been reported to work nicely on linux and on windows with their new `nvenc` encoder.
 
-Nvidia has been reported to work nicely on linux and on windows with their new `nvenc` encoder.
+To compare between encoders with your particular game, you can record a short lossless video `lossless.avi` (the one I made is  [this one](./video/lossless.avi)) using this option on `obs`
+
+![obs lossless recording setting](./images/obs-lossless-recording.png)
+
+Then, you can transcode it, for example using `ffmpeg-vaapi` with the settings you want to use for streaming:
+
+```shell
+ffmpeg -i 'lossless.avi' -vcodec h264_vaapi -profile:v main -level 5.2 -vf 'format=nv12,hwupload' -vaapi_device '/dev/dri/renderD128' -b:v 4500000  'vaapi.mkv'
+```
+
+in this case `High@5.2` at `4500kbps` (I obtain  [this video](./video/vaapi.mkv)). We can do the same with `ffmpeg-amf` (after getting it properly installed)
+
+```shell
+VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/amd_pro_icd64.json ffmpeg -i 'lossless.avi' -vcodec h264_amf -profile:v main -level 5.2 -quality quality -b:v 4500000  'amf.mkv'
+```
+
+which in this case is `Main@5.2` (`High` doesn't seem to work) at `4500kbps` (I obtain  [this video](./video/amf.mkv)). Then, we can compare between both by using [Netflix's VMAF](https://github.com/Netflix/vmaf/) scoring for each encoded file:
+
+```shell
+➜ ffmpeg -i 'vaapi.mkv' -i 'lossless.avi' -filter_complex libvmaf -f null -
+
+[... cropped output ...]
+
+VMAF score: 73.419031
+
+➜ ffmpeg -i 'amf.mkv' -i 'lossless.avi' -filter_complex libvmaf -f null -
+
+[... cropped output ...]
+
+VMAF score: 80.747651
+```
+
+This shows that `amf` gets me better quality videos thant `vaapi` on my `RDNA1` `RX 5700 XT` GPU. You can try for yourself using [the lossless video I used](./video/lossless.avi) and convert it with your encoder: I would love to know how much better nvidia's `nvenc` is, at the same `4.5kbps` bitrate; and also Intel's, issues/PRs welcome!
+
+Notes:
+- To know the options offered by your encoder within `ffmpeg` you can write the following: `ffmpeg -h encoder=h264_amf`, where you replace `h264_amf` with the name of the encoder you want, that `ffmpeg` supports.
+- The `'format=nv12,hwupload'` is due to `vaapi` not being able to handle the input color format and a translation is done on the CPU, and apparently this is done when using `ffmpeg-vaapi` for streaming on `obs`, when compared to `ffmpeg-amf`.
+- The `VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/amd_pro_icd64.json` at the beginning of the `AMF` transcoding overrides the vulkan driver with AMD's closed source one from their PRO series driver. The name `amd_pro_icd64.json` depends on the distro but the path should remain the same.
+- `VAAPI`'s performance of mesa can be improved on `RDNA` (`RX 5000` series) and `RDNA2` (`RX 6000` series) by compiling your own mesa package (you will have to figure that out by yourself...) with [this patch](./patches/cabac-enable.patch): it enables the so called [CABAC](https://en.wikipedia.org/wiki/Context-adaptive_binary_arithmetic_coding) encoding method which improves the quality of videos at same bitrate (older AMD GPUs already have it enabled). For example I get this `VMAF` score with the patched `mesa` package, that gives out [this video file](./videos/vaapi-cabac.mkv) and this better `VMAF` score
+  ```shell
+  ➜ ffmpeg -i 'vaapi-cabac.mkv' -i 'lossless.avi' -filter_complex libvmaf -f null -
+
+  [... cropped output ...]
+
+  VMAF score: 77.724074
+  ```
+
 
 #### Using `cpuset` with software encoder on Ryzen CPUs
 
-If you can't use your own GPU for encoding or prefer to use a software encoder, it's a very good idea to se the `cpuset` trick explained above to not affect your game's performance by running OBS in a different CCX/CCD. I tried it and it makes a huge difference.
+If you can't use your own GPU for encoding or prefer to use a software encoder, it's a very good idea to use the `cpuset` trick explained above to not affect your game's performance by running OBS in a different CCX/CCD. I benchmarked it and it makes a huge difference.
 #### obs-vkcapture
 
 [obs-vkcapture](https://github.com/nowrep/obs-vkcapture) implements the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) for capturing games: it needs the version `27.0` of `obs-studio`, or newer, to be installed in the regular way because it needs headers from it (it must be possible to use the flatpak version too but I don't know how). If your distro doesn't ship that version of `obs-studio`, you can compile from source ([documentation here](https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux-build-directions)).

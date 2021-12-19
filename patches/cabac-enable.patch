@@ -1,0 +1,26 @@
+# Enable CABAC in Latest AMD GPUs
+
+--- a/src/gallium/drivers/radeon/radeon_vcn_enc_1_2.c
++++ b/src/gallium/drivers/radeon/radeon_vcn_enc_1_2.c
+@@ -184,7 +184,7 @@ static void radeon_enc_slice_control_hevc(struct radeon_encoder *enc)
+ static void radeon_enc_spec_misc(struct radeon_encoder *enc)
+ {
+    enc->enc_pic.spec_misc.constrained_intra_pred_flag = 0;
+-   enc->enc_pic.spec_misc.cabac_enable = 0;
++   enc->enc_pic.spec_misc.cabac_enable = 1;
+    enc->enc_pic.spec_misc.cabac_init_idc = 0;
+    enc->enc_pic.spec_misc.half_pel_enabled = 1;
+    enc->enc_pic.spec_misc.quarter_pel_enabled = 1;
+diff --git a/src/gallium/drivers/radeon/radeon_vcn_enc_3_0.c b/src/gallium/drivers/radeon/radeon_vcn_enc_3_0.c
+index 6c5871eae..15d166ff7 100644
+--- a/src/gallium/drivers/radeon/radeon_vcn_enc_3_0.c
++++ b/src/gallium/drivers/radeon/radeon_vcn_enc_3_0.c
+@@ -41,7 +41,7 @@
+ static void radeon_enc_spec_misc(struct radeon_encoder *enc)
+ {
+    enc->enc_pic.spec_misc.constrained_intra_pred_flag = 0;
+-   enc->enc_pic.spec_misc.cabac_enable = 0;
++   enc->enc_pic.spec_misc.cabac_enable = 1;
+    enc->enc_pic.spec_misc.cabac_init_idc = 0;
+    enc->enc_pic.spec_misc.half_pel_enabled = 1;
+    enc->enc_pic.spec_misc.quarter_pel_enabled = 1;
