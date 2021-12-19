@@ -496,7 +496,7 @@ Then, you can transcode it, for example using `ffmpeg-vaapi` with the settings y
 ffmpeg -i 'lossless.avi' -vcodec h264_vaapi -profile:v main -level 5.2 -vf 'format=nv12,hwupload' -vaapi_device '/dev/dri/renderD128' -b:v 4500000  'vaapi.mkv'
 ```
 
-in this case `High@5.2` at `4500kbps` (I obtain  [this video](./video/vaapi.mkv)). We can do the same with `ffmpeg-amf` (after getting it properly installed)
+in this case `Main@5.2` at `4500kbps` (I obtain  [this video](./video/vaapi.mkv)). We can do the same with `ffmpeg-amf` (after getting it properly installed)
 
 ```shell
 VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/amd_pro_icd64.json ffmpeg -i 'lossless.avi' -vcodec h264_amf -profile:v main -level 5.2 -quality quality -b:v 4500000  'amf.mkv'
@@ -521,6 +521,7 @@ VMAF score: 80.747651
 This shows that `amf` gets me better quality videos thant `vaapi` on my `RDNA1` `RX 5700 XT` GPU. You can try for yourself using [the lossless video I used](./video/lossless.avi) and convert it with your encoder: I would love to know how much better nvidia's `nvenc` is, at the same `4.5kbps` bitrate; and also Intel's, issues/PRs welcome!
 
 Notes:
+- To know the details on how a video file `video.mkv` is encoded, you can use the `mediainfo` command (needs installing the related package): `mediainfo video.mkv`.
 - To know the options offered by your encoder within `ffmpeg` you can write the following: `ffmpeg -h encoder=h264_amf`, where you replace `h264_amf` with the name of the encoder you want, that `ffmpeg` supports.
 - The `'format=nv12,hwupload'` is due to `vaapi` not being able to handle the input color format and a translation is done on the CPU, and apparently this is done when using `ffmpeg-vaapi` for streaming on `obs`, when compared to `ffmpeg-amf`.
 - The `VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/amd_pro_icd64.json` at the beginning of the `AMF` transcoding overrides the vulkan driver with AMD's closed source one from their PRO series driver. The name `amd_pro_icd64.json` depends on the distro but the path should remain the same.
