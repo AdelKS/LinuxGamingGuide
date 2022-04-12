@@ -24,7 +24,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Kernel](#kernel)
     - [Command line options](#command-line-options)
     - [Custom/self compiled kernels](#customself-compiled-kernels)
-      - [Threading synchronisation](#threading-synchronisation)
+      - [Threading synchronization](#threading-synchronization)
     - [Game mode](#game-mode)
     - [AMD Ryzen: the `cpuset` trick](#amd-ryzen-the-cpuset-trick)
       - [A small intro to CPU cache](#a-small-intro-to-cpu-cache)
@@ -36,7 +36,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Wine-tkg](#wine-tkg)
       - [Esync-Fsync-Futex2](#esync-fsync-futex2)
       - [Fastsync](#fastsync)
-      - [compiler optimisations](#compiler-optimisations)
+      - [compiler optimizations](#compiler-optimizations)
   - [Overclocking](#overclocking)
     - [CPU and GPU](#cpu-and-gpu)
     - [RAM](#ram)
@@ -67,7 +67,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
 
 ## Linux distribution
 
-I have seen many reddit posts asking which linux distributions is "best" for gaming. My thoughts on the matter is that, to get the best performance, one simply needs the latest updates. All linux distributions provide the sames packages and provide updates. Some provide them faster than others. So any distribution that updates its packages the soonest after upstream (aka the original developpers), is good in my opinion. Some distributions can take longer, sometimes 6 months after, for big projects (which is acceptable too, since one would get the updates without the initial bugs).
+I have seen many reddit posts asking which linux distributions is "best" for gaming. My thoughts on the matter is that, to get the best performance, one simply needs the latest updates. All linux distributions provide the sames packages and provide updates. Some provide them faster than others. So any distribution that updates its packages the soonest after upstream (aka the original developers), is good in my opinion. Some distributions can take longer, sometimes 6 months after, for big projects (which is acceptable too, since one would get the updates without the initial bugs).
 
 ## Lutris
 
@@ -80,13 +80,13 @@ Some useful settings:
 
 ## Self-compiling
 
-Compiling is the process of tranforming human written code (like C/C++/Rust/... etc) to machine runnable programs (the `.exe` files on Windows, on Linux they usually have no extension :P). Compiling is actually done by a program, a compiler, on linux it's `gcc` or `clang`. There is not a unique way to translate/compile code to machine runnable programs, the compiler has lots of freedom on how to implement that, and we can influence them by telling them to try "harder" to optimize the machine code, by giving them the so called "flags": a set of command line options given to the compiler, an example is
+Compiling is the process of transforming human written code (like C/C++/Rust/... etc) to machine runnable programs (the `.exe` files on Windows, on Linux they usually have no extension :P). Compiling is actually done by a program, a compiler, on linux it's `gcc` or `clang`. There is not a unique way to translate/compile code to machine runnable programs, the compiler has lots of freedom on how to implement that, and we can influence them by telling them to try "harder" to optimize the machine code, by giving them the so called "flags": a set of command line options given to the compiler, an example is
 ```shell
 gcc main.c -O2 -march=native -pipe
 ```
-where `-O2`, `-march=native` and `-pipe` are compiler flags. There are many flags that compilers accept, the ones specific to optimisation are given in [GCC's documentation](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html). A few important (meta)flags
+where `-O2`, `-march=native` and `-pipe` are compiler flags. There are many flags that compilers accept, the ones specific to optimization are given in [GCC's documentation](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html). A few important (meta)flags
 - The `-Ox`, where `x=1,2,3`, is a generic flag that sets the generic level optimization, it activates many other flags that actually do something. Distros compile the packages they ship usually with `-O2`
-- The `-march` flag is a flag that tells the compiler to use additional features that aren't available for all CPUs: newer CPU implement some "instruction sets" (aka additional features) that enable them to perform some tasks faster, like [SIMD instructions](https://en.wikipedia.org/wiki/SIMD). It makes some programs faster, like `ffmpeg` with video conversion. These instruction sets are not used by default in packages shipped by distros as they need to have them able to run on all machines, even those from 2001. So one can win some performance by just compiling with `-march=native` their computational heavy programs. Although some have embedded detection code to use additional insruction sets if detected. Some Linux Distributions like [Gentoo](https://www.gentoo.org/) enable you to compile every single package on your own machine so you can have ALL the apps built with `-march=native` (it may take several hours depending on your CPU)
+- The `-march` flag is a flag that tells the compiler to use additional features that aren't available for all CPUs: newer CPU implement some "instruction sets" (aka additional features) that enable them to perform some tasks faster, like [SIMD instructions](https://en.wikipedia.org/wiki/SIMD). It makes some programs faster, like `ffmpeg` with video conversion. These instruction sets are not used by default in packages shipped by distros as they need to have them able to run on all machines, even those from 2001. So one can win some performance by just compiling with `-march=native` their computational heavy programs. Although some have embedded detection code to use additional instruction sets if detected. Some Linux Distributions like [Gentoo](https://www.gentoo.org/) enable you to compile every single package on your own machine so you can have ALL the apps built with `-march=native` (it may take several hours depending on your CPU)
 - Link Time Optimizations (LTO) that involve the use of the flags `-flto`, `-fdevirtualize-at-ltrans` and `-flto-partition`
 - Profile Guided Optimizations (PGO) that involve the use of `-fprofile-generate=/path/to/stats/folder`, `-fprofile-use=/path/to/stats/folder` flags. The idea behind is to produce a first version of the program, with performance counters added in with the `-fprofile-generate=/path/to/stats/folder` flag. Then you use the compiled program in your real life use-cases (it will be way slower than usual), the program meanwhile fills up some extra files with useful statistics in `/path/to/stats/folder`. Then you compile again your program with the `-fprofile-use=/path/to/stats/folder` flag with the folder `/path/to/stats/folder` filed with statistics files that have the `.gcda` extension.
 
@@ -159,7 +159,7 @@ Where you can replace `... TO BE FILLED ...` with `BASE + GRAPHITE + MISC + LTO3
 
 **Note:** you need to respect the syntax of the `build-winXX.txt` files. Flags are quoted and separated with comas _e.g._ `c_args=['-O2', '-march=native']`.
 
-These flag changes may improve performance or not, the best is to test with and without and see for oneself. If regressions happen or it doesn' want to compile you can try [other flags](#flags-to-try).
+These flag changes may improve performance or not, the best is to test with and without and see for oneself. If regressions happen or it doesn't want to compile you can try [other flags](#flags-to-try).
 
 ## GPU
 
@@ -174,7 +174,7 @@ If you didn't install the proprietary driver your computer is likely to be runni
 
 Once you have the proprietary driver installed, open `nvidia-settings`, make sure you have set your main monitor to its maximum refresh rate and have 'Force Full Composition Pipeline' disabled (advanced settings).
 
-Also, in Lutris, you can disable the size limit of the NVidia shader cache by adding `__GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1` to the environement variables.
+Also, in Lutris, you can disable the size limit of the NVidia shader cache by adding `__GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1` to the environnement variables.
 
 ### AMD
 A nice documentation is given by, once again, Arch's documentation: https://wiki.archlinux.org/index.php/AMDGPU
@@ -260,38 +260,41 @@ As you may know, the kernel has various protection mechanisms from malicious pro
 
 Okay, how to disable all mitigations ? Fortunately it's super simple: add `mitigations=off` command line to your [kernel parameters](https://wiki.archlinux.org/index.php/Kernel_parameters).
 
-I ran accross another protection that got added in the kernel that disables a certain set of cpu instructions from user space programs (`umip`), instructions from this set is used for example in Overwatch some other games. That protection broke those games then the kernel got [a patch that emulates those instructions](https://github.com/torvalds/linux/commit/1e5db223696afa55e6a038fac638f759e1fdcc01) with a certain overhead with a kernel message like this one:
+I ran across another protection that got added in the kernel that disables a certain set of cpu instructions from user space programs (`umip`), instructions from this set is used for example in Overwatch some other games. That protection broke those games then the kernel got [a patch that emulates those instructions](https://github.com/torvalds/linux/commit/1e5db223696afa55e6a038fac638f759e1fdcc01) with a certain overhead with a kernel message like this one:
 ```shell
 kernel: umip: Overwatch.exe[5970] ip:140621a9a sp:21dea0: For now, expensive software emulation returns the result.
 ```
 You can disable this protection with the following kernel parameter `clearcpuid=514`
 ### Custom/self compiled kernels
 
-Using a self-compiled kernel can bring some improvements. There is a git repository called [linux-tkg](https://github.com/Frogging-Family/linux-tkg) that provides a script to compile the linux Kernel from source (takes about ~30mins, but can be stripped down with `modprobed-db`) with some customization options : the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)) can be changed to other ones (Project C UPDS, PDS, BMQ, MuQSS)  These changes help getting better performance in games. And also other patches. Linux-tkg needs to be compiled on your own machine, where you can use compiler optimisations such as `-O3` and `-march=native` (LTO is experimental and Clang only, PGO will come soon), with an interactive script and a config file, I worked on the script to install on many distros other than Arch
+Using a self-compiled kernel can bring some improvements. There is a git repository called [linux-tkg](https://github.com/Frogging-Family/linux-tkg) that provides a script to compile the linux Kernel from source (takes about ~30mins, but can be stripped down with `modprobed-db`) with some customization options : the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([CFS](https://en.wikipedia.org/wiki/Completely_Fair_Scheduler)) can be changed to other ones (Project C UPDS, PDS, BMQ, MuQSS)  These changes help getting better performance in games. And also other patches. Linux-tkg needs to be compiled on your own machine, where you can use compiler optimizations such as `-O3` and `-march=native` (LTO is experimental and Clang only, PGO will come soon), with an interactive script and a config file, I worked on the script to install on many distros other than Arch
 
 More information here: https://github.com/Frogging-Family/linux-tkg
 
-#### Threading synchronisation
+#### Threading synchronization
 
-`linux-tkg` offers patches that makes the kernel better mimick Windows' behavior with threads. And therefore get better performance for games ment to run on Windows: `winesync/fastsync`, `futex2`, `fsync`, `esync`.
+`linux-tkg` offers patches that makes the kernel better mimic Windows' behavior with threads. And therefore get better performance for games meant to run on Windows: `winesync/fastsync`, `futex2`, `fsync`, `esync`.
 
-`esync` and `fsync` have been developped by CodeWeavers and Collabora. `futex2` is a new backend for `fsync`, and is not a different mechanism per se, the other one being the current `futex` implementation + a patch that adds the `FUTEX_WAIT_MULTIPLE` operation. They are mutualy exclusive, so only one is used at time. To have them in `linux-tkg`, one must manually enable them in the `customization.cfg` or select them in the interactive script (`esync` is by default in any linux kernel since is based in an mainline feature called `eventfd`).
+`esync`, `fsync` and `futex2` names you may have heard about have been developed by CodeWeavers and Collabora. Chronologically, here's what happened
+- `esync` is the oldest implementation and available in any non ancient kernel in any distro, since it uses the kernel's `eventfd` [system call](https://man7.org/linux/man-pages/man2/eventfd.2.html). Issues arise in some distros when a game opens a lot of the so called "file descriptors"
+- `FUTEX_WAIT_MULTIPLE`, a special additional flag on the `futex` [system call](https://man7.org/linux/man-pages/man2/futex.2.html) was developed and originally called `fsync` (that we will also call `fsync1`). `linux-tkg` and `wine-tkg` were offering support for this work under the `fsync` naming. This work did not get upstreamed in the linux kernel (out-of-tree).
+- `futex2` implementing  a new system call
+  - Initially called `futex_wait`: `linux-tkg` and `wine-tkg` were offering support for this work under the `futex2` naming.
+  - The system call then [got upstreamed](https://www.kernel.org/doc/html/latest/userspace-api/futex2.html) in kernel `5.16` with a slightly different name : `futex_waitv`. Since then, it is referred to as `fsync` (so basically an `fsync2`) or `futex2` interchangeably. Which leads to some confusions...
 
-`winesync/fastsync` is a new proposal of syncronization subystem, similar to `futex` and `eventfd`, aimed to serve exclusively for mapping Windows API sync mechanisms. Developped by wine developpers. It seems that this is the implementation that will replace the previous ones (and eventually get included in the kernel by default, no need to patch). `winesync` is a kernel module that communicates with `fastsync` that should be in a patched wine (like `wine-tkg`). The performance should be similar or better than `futex2`. To have the `winesync` module:
+`linux-tkg` offers, through its `customization.cfg` file :
+- In kernels 5.16+
+  - builtin support for `futex_waitv`
+  - Support for `fsync1` through `futex_waitv` to support `fsync1` with old wines.
+- In kernels 5.15, 5.14 and 5.13
+  - Back ported patches of `futex_waitv` thanks to [these efforts](https://github.com/andrealmeid/futex_waitv_patches) (the original author behind the upstreaming effort).
+- For kernels < 5.16 : Support for "old" `futex2` and `fsync1`. Old `futex2` implementation exposed sysfs handles as its syscall number wasn't decided yet. On such kernels the following should output `futex2`: `ls /sys/kernel | grep futex`
+
+`winesync/fastsync` is a new proposal of synchronization subsystem, similar to `futex` and `eventfd`, aimed to serve exclusively for mapping Windows API sync mechanisms. developed by wine developers. This implementation is put on hold since the upstreaming of `futex_waitv`. `winesync` is a kernel module that communicates with `fastsync` that should be in a patched wine (like `wine-tkg`). The performance should be similar or better than `esync`, but probably not better than `fsync`. To have the `winesync` module:
 - The DKMS route
-  - Archlinux: you need to install the following packagse from the AUR: `winesync`, `winesync`, `winesync-header` and `winesync-udev-rule`
+  - Archlinux: you need to install the following package from the AUR: `winesync`, `winesync`, `winesync-header` and `winesync-udev-rule`
   - other distros: follow the [README in this repository](https://github.com/Cat-Lady/winesync-dkms)
-- Directly with`linux-tkg`: enable it in the `customization.cfg` or select it from the interactive script. It will do the following
-  - Build and bundle the `winesync` module
-  - Make the module be autostarted by systemd by creating the `/etc/modules-load.d/winesync.conf` file that contains "winesync" inside.
-  - Create a `udev` rule for `winesync` in `/etc/udev/rules.d/winesync.rules` to give it proper permissions. The file contains `KERNEL=="winesync", MODE="0644"`.
-  - Add the `winesync` header file to `/usr/include/linux/winesync.h`. In RPM and DEB distros this header file is installed through one of the RPM/DEB packages created. For `Generic` distro, it gets installed by `make headers_install HDR_INSTALL_PATH=/usr`
-
-To know that your linux-tkg kernel is sucessfully showing futex2 sysfs handles, this command should output `futex2`:
-
-```shell
-ls /sys/kernel | grep futex
-```
+- Not offered by `linux-tkg` [any longer](https://github.com/Frogging-Family/linux-tkg/commit/b357a8c0486575083c59c4caa15ca8dc1ea54e87)
 
 For a less efforts solution, you can look up Xanmod kernel, Liquorix, Linux-zen, Chaotic-AUR (Archlinux). That provide precompiled binaries. (`futex2` is afaik not available in them).
 
@@ -307,7 +310,7 @@ You can check whether or not gamemode is running with the command `gamemoded -s`
 #### A small intro to CPU cache
 The cache is the closest memory to the CPU, and data from RAM needs to go through the cache first before being processed by the CPU. The CPU doesn't read from RAM directly. This cache memory is very small (at maximum few hundred megabytes as of current CPUs) and this leads to some wait time in the CPU: when some data needs to be processed but isn't already in cache (a "cache miss"), it needs to be loaded from RAM. When the cache is "full", because it will always be, some "old" data in cache is synced back in RAM then replaced by some other data from RAM: this takes time.
 
-There is usually 3 levels of cache memory in our CPUs: L1, L2, and L3. In Ryzen, the L1 and L2 are few hundred kilobytes and the L3 a (few) dozen megabytes. Each core has its own L1 and L2 cache, the L3 is shared: in zen/zen+/zen2 it is shared among each 4 cores (called a CCX). and CCX'es are groupped two by two in what is called CCDs. In zen 3, the L3 cache is shared  among the cores of an entire CCD, 8 cores. There's [this anandtech article](https://www.anandtech.com/show/16214/amd-zen-3-ryzen-deep-dive-review-5950x-5900x-5800x-and-5700x-tested/4) that gives a through analysis of cache topology in Zen 2 vs Zen 3:
+There is usually 3 levels of cache memory in our CPUs: L1, L2, and L3. In Ryzen, the L1 and L2 are few hundred kilobytes and the L3 a (few) dozen megabytes. Each core has its own L1 and L2 cache, the L3 is shared: in zen/zen+/zen2 it is shared among each 4 cores (called a CCX). and CCX'es are grouped two by two in what is called CCDs. In zen 3, the L3 cache is shared  among the cores of an entire CCD, 8 cores. There's [this anandtech article](https://www.anandtech.com/show/16214/amd-zen-3-ryzen-deep-dive-review-5950x-5900x-5800x-and-5700x-tested/4) that gives a through analysis of cache topology in Zen 2 vs Zen 3:
 
 ![Zen3_vs_Zen2](./images/Zen3_vs_Zen2.jpg)
 
@@ -362,7 +365,7 @@ STAGING_WRITECOPY=1
 ```
 
 ### Wine-tkg
-[wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) is a set of scripts that clone and compile `wine`'s source code, on your own machine, with extra patches that offer better performance and better game compatibility. One of the interesting offered extra features are additionnal [threading synchronisation](#threading-synchronisation) primitives that work with the corresponding patched `linux-tkg` kernel. One can use `Esync+Fsync+Futex2` or `fastsync` (with its corresponding kernel module `winesync`).
+[wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) is a set of scripts that clone and compile `wine`'s source code, on your own machine, with extra patches that offer better performance and better game compatibility. One of the interesting offered extra features are additional [threading synchronization](#threading-synchronization) primitives that work with the corresponding patched `linux-tkg` kernel. One can use `Esync+Fsync+Futex2` or `fastsync` (with its corresponding kernel module `winesync`).
 
 #### Esync-Fsync-Futex2
 To enable the use of `Esync` + `Fsync` + `Futex2`, `wine-tkg` needs to be built with the corresponding features enabled. Then, to enable `Esync+Fsync+Futex2`, you need to set the following environment variables
@@ -393,7 +396,7 @@ Note that you can also run with only `Esync` or `Esync+Fatsync` by setting the v
 
 #### Fastsync
 To be able to use `fastsync` with `wine-tkg`, you need to do the following, **in this order**
-1. Be running a `winesync` enabled `linux-tkg` kernel, more information [in this section](#threading-synchronisation)
+1. Be running a `winesync` enabled `linux-tkg` kernel, more information [in this section](#threading-synchronization)
 2. Disable the use of `wine-staging`, `fsync` and `futex2` in `wine-tkg`'s (proton or vanilla) config file before building it.
     * You can also use [this repository](https://github.com/openglfreak/wine-tkg-userpatches/tree/next), instead of disabling the stuff above, to be able to build a `wine-tkg` that can run both `fsync/futex2` and `fatsync` with `wine-staging` code, although that reposistory as-is is hard to use as it has no documentation yet on how to use it.
 3. Disable all environment variables related to `esync/fsync/futex2` (and also from lutris' game options):
@@ -407,12 +410,12 @@ To know if fastsync is correctly working, you may run your game/launcher from th
 wineserver: using server-side synchronization.
 wine: using fast synchronization.
 ```
-This command should also return few exectuables
+This command should also return few executables
 ```shell
 lsof /dev/winesync
 ```
 **Note:** even with this, sometimes `fatsync` does not correctly work. I am investigating and will update this guide accordingly. `fastsync` should have a similar performance to `Futex2` so far, so if it doesn't work for you, switch back to `Futex2` then try again a little bit later.
-#### compiler optimisations
+#### compiler optimizations
 
 On top of the config variables that can be toggled in `customization.cfg` in `wine-tkg`, you can set [custom compiler optimizations](#self-compiling) by editing the following lines of the file `wine-tkg-profiles/advanced-customization.cfg`
 
@@ -550,7 +553,7 @@ And you will see a `game capture` as a new source entry. It works great and fixe
 
 ### Replay sorcery
 
-[Replay sorcery](https://github.com/matanui159/ReplaySorcery) is a tool to save small replays of your gaming sessions, without the need to be streaming. It saves a "video" of your play for the past `x` seconds in RAM: it is saved as sequence of JPEG images (small footprint on the computer's ressources). And these images are only converted to a video when you want to actually save a replay (more ressource heavy). I haven't given it a try, if you want to add hints and tips about it, please feel free to PR something or open an issue!
+[Replay sorcery](https://github.com/matanui159/ReplaySorcery) is a tool to save small replays of your gaming sessions, without the need to be streaming. It saves a "video" of your play for the past `x` seconds in RAM: it is saved as sequence of JPEG images (small footprint on the computer's resources). And these images are only converted to a video when you want to actually save a replay (more resource heavy). I haven't given it a try, if you want to add hints and tips about it, please feel free to PR something or open an issue!
 
 ## Sound tweaks with Pipewire/Pulseaudio
 
@@ -671,7 +674,7 @@ Benchmarks are welcome: If you happen to do some you are welcome to PR them. I s
 - Fysnc/Esync on vs Fsync/Esync off
 - Different wine versions
 - Kernel schedulers (CFS, PDS, BMQ, MuQSS) in various conditions.
-- Compiler optimisations: Wine, DXVK, Kernel, Mesa.
+- Compiler optimizations: Wine, DXVK, Kernel, Mesa.
 
 
 ## Misc
