@@ -8,59 +8,63 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
 
 <!-- code_chunk_output -->
 
-- [A linux gaming guide](#a-linux-gaming-guide)
-  - [Table of Content](#table-of-content)
-  - [Linux distribution](#linux-distribution)
-  - [Lutris](#lutris)
-  - [Self-compiling](#self-compiling)
-    - [Flags to try](#flags-to-try)
-  - [DXVK](#dxvk)
-    - [Custom compile flags](#custom-compile-flags)
-  - [GPU](#gpu)
-    - [Nvidia](#nvidia)
-    - [AMD](#amd)
-      - [RADV](#radv)
-        - [Self-compile](#self-compile)
-  - [Kernel](#kernel)
-    - [Command line options](#command-line-options)
-    - [Custom/self compiled kernels](#customself-compiled-kernels)
-      - [Threading synchronization](#threading-synchronization)
-    - [Game mode](#game-mode)
-    - [AMD Ryzen: the `cpuset` trick](#amd-ryzen-the-cpuset-trick)
-      - [A small intro to CPU cache](#a-small-intro-to-cpu-cache)
-      - [What can we do with this information ?](#what-can-we-do-with-this-information-)
-      - [Using `cpuset`](#using-cpuset)
-      - [Benchmark](#benchmark)
-  - [Wine](#wine)
-      - [Environment variables](#environment-variables)
-    - [Wine-tkg](#wine-tkg)
-      - [Esync-Fsync-Futex2](#esync-fsync-futex2)
-      - [Fastsync](#fastsync)
-      - [compiler optimizations](#compiler-optimizations)
-  - [Overclocking](#overclocking)
-    - [CPU and GPU](#cpu-and-gpu)
-    - [RAM](#ram)
-  - [X11/Wayland](#x11wayland)
-  - [Performance overlays](#performance-overlays)
-  - [Streaming - Saving replays](#streaming---saving-replays)
-    - [OBS](#obs)
-      - [Desktop environments](#desktop-environments)
-        - [Gnome](#gnome)
-      - [Encoders](#encoders)
-      - [Using `cpuset` with software encoder on Ryzen CPUs](#using-cpuset-with-software-encoder-on-ryzen-cpus)
-      - [obs-vkcapture](#obs-vkcapture)
-    - [Replay sorcery](#replay-sorcery)
-  - [Sound tweaks with Pipewire/Pulseaudio](#sound-tweaks-with-pipewirepulseaudio)
-    - [Stream only the game sounds](#stream-only-the-game-sounds)
-    - [Improve the sound of your headset](#improve-the-sound-of-your-headset)
-      - [The Graphical way](#the-graphical-way)
-    - [Mic noise suppression](#mic-noise-suppression)
-      - [The Graphical way](#the-graphical-way-1)
-      - [The command line way](#the-command-line-way)
-  - [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt)
-  - [Compositor / desktop effects](#compositor--desktop-effects)
-  - [Benchmarks](#benchmarks)
-  - [Misc](#misc)
+- [A linux gaming guide](#-a-linux-gaming-guide)
+  - [Table of Content](#-table-of-content)
+  - [Linux distribution](#-linux-distribution)
+  - [Self-compiling](#-self-compiling)
+    - [Flags to try](#-flags-to-try)
+  - [DXVK](#-dxvk)
+    - [Custom compile flags](#-custom-compile-flags)
+  - [GPU](#-gpu)
+    - [Nvidia](#-nvidia)
+    - [AMD](#-amd)
+      - [RADV](#-radv)
+        - [Self-compile](#-self-compile)
+  - [Kernel](#-kernel)
+    - [Command line options](#-command-line-options)
+    - [Custom/self compiled kernels](#-customself-compiled-kernels)
+      - [Threading synchronization](#-threading-synchronization)
+    - [Game mode](#-game-mode)
+    - [AMD Ryzen: the `cpuset` trick](#-amd-ryzen-the-cpuset-trick)
+      - [A small intro to CPU cache](#-a-small-intro-to-cpu-cache)
+      - [What can we do with this information ?](#-what-can-we-do-with-this-information-)
+      - [Using `cpuset`](#-using-cpuset)
+      - [Benchmark](#-benchmark)
+  - [Wine](#-wine)
+      - [Environment variables](#-environment-variables)
+    - [Wine-tkg](#-wine-tkg)
+      - [Esync-Fsync-Futex2](#-esync-fsync-futex2)
+      - [Fastsync](#-fastsync)
+      - [compiler optimizations](#-compiler-optimizations)
+  - [Game / "Wine prefix" manager](#-game--wine-prefix-manager)
+    - [Lutris](#-lutris)
+    - [Bottles](#-bottles)
+    - [Heroic Games Launcher](#-heroic-games-launcher)
+    - [Steam](#-steam)
+  - [Overclocking](#-overclocking)
+    - [CPU and GPU](#-cpu-and-gpu)
+    - [RAM](#-ram)
+  - [X11/Wayland](#-x11wayland)
+  - [Performance overlays](#-performance-overlays)
+  - [Streaming - Saving replays](#-streaming---saving-replays)
+    - [OBS](#-obs)
+      - [Desktop environments](#-desktop-environments)
+        - [Gnome](#-gnome)
+      - [Encoders](#-encoders)
+      - [Using `cpuset` with software encoder on Ryzen CPUs](#-using-cpuset-with-software-encoder-on-ryzen-cpus)
+      - [obs-vkcapture](#-obs-vkcapture)
+    - [Replay sorcery](#-replay-sorcery)
+  - [Sound tweaks with Pipewire/Pulseaudio](#-sound-tweaks-with-pipewirepulseaudio)
+    - [Stream only the game sounds](#-stream-only-the-game-sounds)
+    - [Improve the sound of your headset](#-improve-the-sound-of-your-headset)
+      - [The Graphical way](#-the-graphical-way)
+    - [Mic noise suppression](#-mic-noise-suppression)
+      - [The Graphical way](#-the-graphical-way-1)
+      - [The command line way](#-the-command-line-way)
+  - [Game render tweaks: vkBasalt](#-game-render-tweaks-vkbasalt)
+  - [Compositor / desktop effects](#-compositor--desktop-effects)
+  - [Benchmarks](#-benchmarks)
+  - [Misc](#-misc)
 
 <!-- /code_chunk_output -->
 
@@ -68,15 +72,6 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
 ## Linux distribution
 
 I have seen many reddit posts asking which linux distributions is "best" for gaming. My thoughts on the matter is that, to get the best performance, one simply needs the latest updates. All linux distributions provide the sames packages and provide updates. Some provide them faster than others. So any distribution that updates its packages the soonest after upstream (aka the original developers), is good in my opinion. Some distributions can take longer, sometimes 6 months after, for big projects (which is acceptable too, since one would get the updates without the initial bugs).
-
-## Lutris
-
-Lutris is some kind of open source Steam that helps with installing and running some games. Each game has its own install script, maintained by usually different people (as far as I understand).
-I have only used Lutris, to install and run Overwatch, I don't think there's room for improvement in here since Lutris is just here to run overwatch with a chosen Wine version and environment variables. Correct me if I am wrong.
-
-Some useful settings:
-* Enable FSYNC (if you have a patched custom kernel, further information below) otherwise enable ESYNC: once overwatch is installed, go to "Configure" > "Runner Options" > Toggle FSYNC or ESYNC.
-
 
 ## Self-compiling
 
@@ -353,7 +348,7 @@ I did [this benchmark](#overwatch-cpuset) on Overwatch, the conclusions are the 
 - Playing while doing another heavy workload, like stream with software encoding, works better with the cpuset trick.
 ## Wine
 
-Wine is a program that enables running windows executables on Linux. Through Wine, windows executables run natively on your linux machine (**W**ine **I**s **N**ot an **E**mulator xD), Wine will be there to remap all Windows specific behavior of the program to something Linux can handle, `DXVK` for example replaces the part of Wine that maps `DirectX` (Windows specific) calls of executables to Vulkan calls (That Linux can handle). Tweaking Wine can have quite the impact on games, both positive and negative. Latest wine from Lutris works fine, but `wine-tkg` in my experience performs better.
+Wine is a program that enables running windows executables on Linux. Through Wine, windows executables run natively on your linux machine (**W**ine **I**s **N**ot an **E**mulator xD), Wine will be there to remap all Windows specific behavior of the program to something Linux can handle, `DXVK` for example replaces the part of Wine that maps `DirectX` (Windows specific) calls of executables to Vulkan calls (That Linux can handle). Tweaking Wine can have quite the impact on games, both positive and negative.
 
 #### Environment variables
 
@@ -429,6 +424,30 @@ _CROSS_FLAGS="... EDIT HERE ..."
 _CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 ```
 Where you can change `... EDIT HERE ...` with flags [from here](#flags-to-try): note that LTO nor PGO works with wine, you can at most use the `BASE + GRAPHITE + MISC` flags
+
+## Game / "Wine prefix" manager
+
+To run games on Linux, wine creates a so-called "prefix" folder with an arbitrary user chosen name, let's say `game-prefix`. It contains all the configuration specific to wine and a folder structure, within the `drive_c` subfolder, that follows Windows' structure: you can find e.g. `Program Files` or `windows/system32` subfolders in it. The DLLs in the latter folder are actually created by wine, through reverse engineering. From a game's/window's app perspective, these DLLs to behave just like windows, and wine takes care of the rest (by implementing system calls itself, in the wineserver I believe, or redirecting to the linux kernel, correct me if I am wrong please).
+
+Usually, one creates one prefix per game/app, as sometimes each game has some quirks that  wine doesn't handle well by default for which a tweak is needed. But that tweaks would break other games apps. And that's where a "game manager" / "wine prefix manager" comes into play to avoid tedious and repetitive manual configurations:
+- Automatically creates prefixes for each of your game
+- Ships various version of Wine to work with the various versions of your games
+- Bundles various DXVK versions to chose from
+- Offers various options that can be toggled (`fsync`, `dxvk-nvapi/dlss`, `fsr`, `latencyflex`...)
+- May have built-in support for extra tools like FPS counters (see [Performance overlays](#-performance-overlays)), or other kinds of stuff (see e.g. [Game render tweaks: vkBasalt](#-game-render-tweaks-vkbasalt))
+
+
+### Lutris
+[Lutris](https://lutris.net/) is one of these Generic open source game managers, it offers a [database](https://lutris.net/games) of scripts to automatically install various games and the quirks and/or extra configuration (e.g. extra fonts) needed to run them. It also enables you to give it your own compiled wine version and that's why I am using it currently. It is however lagging a bit behind in integrating the new tools that are being developped (e.g. `latencyflex`) and offering newer versions of runtime components (`Wine`, `dxvk`, ...). To see the toggles Lutris offers, install a game, then click `Configure` > `Runner options` tab.
+
+### Bottles
+[Bottles](https://usebottles.com/) is a modern take on generic open source game managers, it has a more intuitive configuration UI, ships the latest builds of `wine`/`dxvk`, and tries to implement integration with all the latest other tools. I could however not find how to make it use my own compiled wine version.
+
+### Heroic Games Launcher
+[Heroic Games Launcher](https://heroicgameslauncher.com) is an opensource game manager for games you own on [GOG](gog.com) or [Epic Games](https://store.epicgames.com). I have not tried it at all so that's all I can say x)
+
+### Steam
+Steam's official closed source game manager handles Linux natively and offers to run windows specific games with Steam's own builds of `proton-wine`. It also accepts custom proton builds like e.g. `proton-tkg` ([wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) repo) or GloriousEggroll's [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) prebuilds.
 
 ## Overclocking
 
