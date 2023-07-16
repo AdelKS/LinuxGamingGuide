@@ -9,7 +9,7 @@ fi
 _prefix=""
 
 if [ -f /dev/cpuset/cpuset.cpus ];then
-  _prefix="cupset."
+  _prefix="cpuset."
 fi
 
 if ! [ -d /dev/cpuset/theUgly ]; then
