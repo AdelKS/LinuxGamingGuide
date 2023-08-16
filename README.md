@@ -489,7 +489,9 @@ where `com.obsproject.Studio` is the name of the `obs-studio` executable, instal
 
 #### Encoders
 
-With AMD GPUs, one can use `ffmpeg-vaapi` to leverage the GPU for encoding, which is offered out of the box. `ffmpeg-amf` contains additions from AMD's [AMF](https://github.com/GPUOpen-LibrariesAndSDKs/AMF) library, but [it needs some work](https://www.reddit.com/r/linux_gaming/comments/qwqxwd/how_to_enable_amd_amf_encoding_in_obs/) (I am working on streamlining all of this on Gentoo). Nvidia has been reported to work nicely on linux and on windows with their new `nvenc` encoder.
+With AMD GPUs, one can use `ffmpeg-vaapi` to leverage the GPU for encoding, which is offered out of the box. `ffmpeg-amf` contains additions from AMD's [AMF](https://github.com/GPUOpen-LibrariesAndSDKs/AMF) library, but [it needs some work](https://www.reddit.com/r/linux_gaming/comments/qwqxwd/how_to_enable_amd_amf_encoding_in_obs/) : to install `amf-headers`, `ffmpeg` with `amf` enabled, `amdgpu-pro-vulkan` and `amdgpu-pro-amf` packages. Archlinux and Gentoo have that in place, I did the Gentoo work :D.
+
+Nvidia has been reported to work nicely on linux and on windows with their new `nvenc` encoder.
 
 To compare between encoders with your particular game, you can record a short lossless video `lossless.avi` (the one I made is  [this one](https://github.com/AdelKS/LinuxGamingGuide/raw/master/videos/lossless.avi)) using this option on `obs`
 
@@ -498,46 +500,39 @@ To compare between encoders with your particular game, you can record a short lo
 Then, you can transcode it, for example using `ffmpeg-vaapi` with the settings you want to use for streaming:
 
 ```shell
-ffmpeg -i 'lossless.avi' -vcodec h264_vaapi -profile:v main -level 5.2 -vf 'format=nv12,hwupload' -vaapi_device '/dev/dri/renderD128' -b:v 4500000  'vaapi.mkv'
+ffmpeg -i 'lossless.avi' -vcodec h264_vaapi -profile:v high -level 5.2 -vf 'format=nv12,hwupload' -vaapi_device '/dev/dri/renderD128' -b:v 4500000  'vaapi.mp4'
 ```
 
-in this case `Main@5.2` at `4500kbps` (I obtain  [this video](./video/vaapi.mkv)). We can do the same with `ffmpeg-amf` (after getting it properly installed)
+in this case `High@5.2` at `4500kbps` (I obtain  [this video](./video/vaapi.mkv)). We can do the same with `ffmpeg-amf` (after getting it properly installed)
 
 ```shell
-VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/amd_pro_icd64.json ffmpeg -i 'lossless.avi' -vcodec h264_amf -profile:v main -level 5.2 -quality quality -b:v 4500000  'amf.mkv'
+VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/amd_pro_icd64.json ffmpeg -i 'lossless.avi' -vcodec h264_amf -profile:v high -level 5.2 -quality quality -b:v 4500000  'amf.mp4'
 ```
 
-which in this case is `Main@5.2` (`High` doesn't seem to work) at `4500kbps` (I obtain  [this video](./video/amf.mkv)). Then, we can compare between both by using [Netflix's VMAF](https://github.com/Netflix/vmaf/) scoring for each encoded file:
+which in this case is `High@5.2` at `4500kbps` (I obtain  [this video](./video/amf.mkv)). Then, we can compare between both by using [Netflix's VMAF](https://github.com/Netflix/vmaf/) scoring for each encoded file:
 
 ```shell
-➜ ffmpeg -i 'vaapi.mkv' -i 'lossless.avi' -filter_complex libvmaf -f null -
+# mesa-23.1.5
+➜ ffmpeg -i 'vaapi.mp4' -i 'lossless.avi' -filter_complex libvmaf -f null -
 
 [... cropped output ...]
 
-VMAF score: 73.419031
+VMAF score: 77.785380
 
-➜ ffmpeg -i 'amf.mkv' -i 'lossless.avi' -filter_complex libvmaf -f null -
+➜ ffmpeg -i 'amf.mp4' -i 'lossless.avi' -filter_complex libvmaf -f null -
 
 [... cropped output ...]
 
 VMAF score: 80.747651
 ```
 
-This shows that `amf` gets me better quality videos thant `vaapi` on my `RDNA1` `RX 5700 XT` GPU. You can try for yourself using [the lossless video I used](./video/lossless.avi) and convert it with your encoder: I would love to know how much better nvidia's `nvenc` is, at the same `4.5mbps` bitrate; and also Intel's, issues/PRs welcome!
+This shows that `amf` gets better quality videos than `vaapi` on my `RDNA1` `RX 5700 XT` GPU. You can try for yourself using [the lossless video I used](./video/lossless.avi) and convert it with your encoder: I would love to know how much better nvidia's `nvenc` is, at the same `4.5mbps` bitrate; and also Intel's, issues/PRs welcome!
 
 Notes:
-- To know the details on how a video file `video.mkv` is encoded, you can use the `mediainfo` command (needs installing the related package): `mediainfo video.mkv`.
+- To know the details on how a video file `video.mkv` is encoded, you can use the `mediainfo` command (needs installing the related package): `mediainfo video.mp4`.
 - To know the options offered by your encoder within `ffmpeg` you can write the following: `ffmpeg -h encoder=h264_amf`, where you replace `h264_amf` with the name of the encoder you want, that `ffmpeg` supports.
 - The `'format=nv12,hwupload'` is due to `vaapi` not being able to handle the input color format and a translation is done on the CPU, and apparently this is done when using `ffmpeg-vaapi` for streaming on `obs`, when compared to `ffmpeg-amf`.
 - The `VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/amd_pro_icd64.json` at the beginning of the `AMF` transcoding overrides the vulkan driver with AMD's closed source one from their PRO series driver. The name `amd_pro_icd64.json` depends on the distro but the path should remain the same.
-- `VAAPI`'s performance of mesa can be improved on `RDNA` (`RX 5000` series) and `RDNA2` (`RX 6000` series) by compiling your own mesa package (you will have to figure that out by yourself...) with [this patch](./patches/cabac-enable.patch): it enables the so called [CABAC](https://en.wikipedia.org/wiki/Context-adaptive_binary_arithmetic_coding) encoding method which improves the quality of videos at same bitrate (older AMD GPUs already have it enabled). For example I get this `VMAF` score with the patched `mesa` package, that gives out [this video file](./videos/vaapi-cabac.mkv) and this better `VMAF` score
-  ```shell
-  ➜ ffmpeg -i 'vaapi-cabac.mkv' -i 'lossless.avi' -filter_complex libvmaf -f null -
-
-  [... cropped output ...]
-
-  VMAF score: 77.724074
-  ```
 
 
 #### Using `cpuset` with software encoder on Ryzen CPUs
