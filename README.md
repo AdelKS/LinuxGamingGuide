@@ -467,25 +467,27 @@ Performance overlays are small "widgets" that stack on top of your game view and
 **An important fix for an issue I have been having for a year now**
 - __Network Error on Twitch:__ Switching between sources that leave a black screen for a very short time, _e.g._ having the game in a virtual desktop then switching to another virtual desktop, makes the stream on twitch crash for whatever reason. To work around this, keep a background image behind all of your sources, so whenever nothing is supposed to be shown, it's that background image instead of a black background.
 
-#### Desktop environments
+#### DMA-BUF
 
-It works nicely with X11 on AMD GPUs, especially LXDE/LXQt (when compared to Gnome) with respect to the added input lag.
-
-##### Gnome
-
-On Gnome, an experimental feature can be enabled:
-```shell
-gsettings set org.gnome.mutter experimental-features '["dma-buf-screen-sharing"]'
-```
-That will enable window capturing through the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf). Which enables `OBS` to work on Wayland but also not add as much input lag is with its `Xcomposite` backend. This feature can only be used by `obs-studio` version `27.0` onwards. If your distro doesn't provide that version, it can be installed via `flatpak`
+The ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) is the newest approach to screen/app/game capturing, better than Xcomposite window capturing method in OBS/X11 in terms of overhead and added input lag. This feature can only be used by `obs-studio` version `27.0` onwards. If your distro doesn't provide that version, it can be installed via `flatpak`
 ```shell
 flatpak install --user https://flathub.org/beta-repo/appstream/com.obsproject.Studio.flatpakref
 ```
-On Gnome under X11, you need to run OBS with an extra environment variable, `OBS_USE_EGL=1`:
+Under X11, you need to run OBS with an extra environment variable, `OBS_USE_EGL=1`:
 ```shell
 OBS_USE_EGL=1 com.obsproject.Studio
 ```
 where `com.obsproject.Studio` is the name of the `obs-studio` executable, installed through flatpak, it may have another name in your specific distro.
+
+##### obs-vkcapture
+
+[obs-vkcapture](https://github.com/nowrep/obs-vkcapture) implements the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) for capturing games: it needs the version `27.0` of `obs-studio`, or newer, to be installed in the regular way because it needs headers from it (it must be possible to use the flatpak version too but I don't know how). If your distro doesn't ship that version of `obs-studio`, you can compile from source ([documentation here](https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux-build-directions)).
+
+Once you have a working `obs-studio` version `27.0` or higher, you need to compile `obs-vkcapture` form source then install it : documentation is in its [Github page](https://github.com/nowrep/obs-vkcapture) (it's also on the `AUR` on Arch, and in `GURU` on Gentoo). After that, you need to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
+```shell
+OBS_USE_EGL=1 obs
+```
+And you will see a `game capture` as a new source entry. It works great and fixed my issues with added input lag and stuttering `obs-studio` used to have with `Xcomposite` sources. Games need to run with the environment variable `OBS_VKCAPTURE=1` or need to be run with the command `obs-vkcapture wine yourgame` (the command gets installed when installing `obs-vkcapture`).
 
 #### Encoders
 
@@ -538,15 +540,6 @@ Notes:
 #### Using `cpuset` with software encoder on Ryzen CPUs
 
 If you can't use your own GPU for encoding or prefer to use a software encoder, it's a very good idea to use the `cpuset` trick explained above to not affect your game's performance by running OBS in a different CCX/CCD. I benchmarked it and it makes a huge difference.
-#### obs-vkcapture
-
-[obs-vkcapture](https://github.com/nowrep/obs-vkcapture) implements the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) for capturing games: it needs the version `27.0` of `obs-studio`, or newer, to be installed in the regular way because it needs headers from it (it must be possible to use the flatpak version too but I don't know how). If your distro doesn't ship that version of `obs-studio`, you can compile from source ([documentation here](https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux-build-directions)).
-
-Once you have a working `obs-studio` version `27.0` or higher, you need to compile `obs-vkcapture` form source then install it : documentation is in its [Github page](https://github.com/nowrep/obs-vkcapture) (it's also on the `AUR` on Arch, and in `GURU` on Gentoo). After that, you need to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
-```shell
-OBS_USE_EGL=1 obs
-```
-And you will see a `game capture` as a new source entry. It works great and fixed my issues with added input lag and stuttering `obs-studio` used to have with `Xcomposite` sources. Games need to run with the environment variable `OBS_VKCAPTURE=1` or need to be run with the command `obs-vkcapture wine yourgame` (the command gets installed when installing `obs-vkcapture`).
 
 ### Replay sorcery
 
