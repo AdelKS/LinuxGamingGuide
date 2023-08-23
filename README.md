@@ -469,7 +469,11 @@ Performance overlays are small "widgets" that stack on top of your game view and
 
 #### DMA-BUF
 
-The ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) is the newest approach to screen/app/game capturing, better than Xcomposite window capturing method in OBS/X11 in terms of overhead and added input lag. This feature can only be used by `obs-studio` version `27.0` onwards. If your distro doesn't provide that version, it can be installed via `flatpak`
+The ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) is the newest approach to screen/app/game capturing, better than Xcomposite window capturing method in OBS/X11 in terms of overhead and added input lag. This feature can only be used by `obs-studio` version `27.0` onwards.
+
+To use this protocol for capturing windows/desktop, you need a fairly recent version of your favorite DE (Gnome >= 42, KDE >= ?) and be using pipewire + xdg-portal-kde/xdg-portal-gnome. You can also use it to capture games specifically using the [obs-vkcapture](#obs-vkcapture) plugin which is DE agnostic.
+
+If your distro doesn't provide that version, it can be installed via `flatpak`
 ```shell
 flatpak install --user https://flathub.org/beta-repo/appstream/com.obsproject.Studio.flatpakref
 ```
