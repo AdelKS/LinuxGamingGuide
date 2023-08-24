@@ -46,11 +46,10 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Performance overlays](#performance-overlays)
   - [Streaming - Saving replays](#streaming---saving-replays)
     - [OBS](#obs)
-      - [Desktop environments](#desktop-environments)
-        - [Gnome](#gnome)
+      - [DMA-BUF](#dma-buf)
+        - [obs-vkcapture](#obs-vkcapture)
       - [Encoders](#encoders)
       - [Using `cpuset` with software encoder on Ryzen CPUs](#using-cpuset-with-software-encoder-on-ryzen-cpus)
-      - [obs-vkcapture](#obs-vkcapture)
     - [Replay sorcery](#replay-sorcery)
   - [Sound tweaks with Pipewire/Pulseaudio](#sound-tweaks-with-pipewirepulseaudio)
     - [Stream only the game sounds](#stream-only-the-game-sounds)
@@ -63,6 +62,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Compositor / desktop effects](#compositor--desktop-effects)
   - [Benchmarks](#benchmarks)
   - [Misc](#misc)
+
 
 ## Linux distribution
 
