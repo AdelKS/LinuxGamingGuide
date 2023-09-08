@@ -42,6 +42,8 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Overclocking](#overclocking)
     - [CPU and GPU](#cpu-and-gpu)
     - [RAM](#ram)
+  - [Gaming hardware](#gaming-hardware)
+      - [Mice \& Keyboards: benchmark at home](#mice--keyboards-benchmark-at-home)
   - [X11/Wayland](#x11wayland)
   - [Performance overlays](#performance-overlays)
   - [Streaming - Saving replays](#streaming---saving-replays)
@@ -61,6 +63,9 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt)
   - [Compositor / desktop effects](#compositor--desktop-effects)
   - [Benchmarks](#benchmarks)
+    - [Games](#games)
+      - [Possible benchmarks](#possible-benchmarks)
+    - [Mice](#mice)
   - [Misc](#misc)
 
 
@@ -440,6 +445,30 @@ Overclocking is possible on Linux, please refer to the Archlinux wiki on [Improv
 ### RAM
 
 I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/oc-guide/DDR4%20OC%20Guide.md) on the matter.
+## Gaming hardware
+
+#### Mice & Keyboards: benchmark at home
+I have always had a wired gaming mouse, and always had sometimes this issue where the cable gets entangled when I am playing my FPS game. So I started looking into wirless ones, and this got me interested in mouse latencies: do wireless mice have higher input lag ? This question generalized to mice and keyboards in general.
+
+For that, one can test, by himself, his own mouse or keyboard, provided that one has a high refresh rate monitor and a smartphone with a high refresh rate camera. Thankfully enough, I have a 270Hz monitor and a smartphone that offers 960fps slow-mo videos: This gives me a latency "resolution" of `1000/270 ~ 3.7 ms` and a latency "precision" of `1000/960 ~ 1ms`, plenty to get accurate enough latencies !
+
+Here's how I proced to test latencies:
+1- have your smartphone ready to take a slow-mo video, while having both the mouse/keyboard area and monitor visible within the frame
+2- start the slow-mo
+3- hit the keyboard/mouse key or hit the mouse with your finger
+4- Review the video: count the number of frames between the first frame where the the key got push down / the mouse started moving and the frame you see something change on the monitor. And voila, you have a approximate upper-bound estimation of the latency (click latency / delay of start-of-movement).
+
+Some important notes:
+- The frame where the key gets clicked is a little bit difficult to determine precisely because of pre-travel distance and adds a few frames of uncertainty to the measured value. Same goes for the frame where the mouse starts moving, but to a lessser extent.
+- Do not test on a game: a game adds input lag on top of the one the keyboard/mouse has. I found out that testing on the mouse cursor on the desktop is way better ! Preferably with the compositor disabled.
+
+An interesting note:
+The website https://rtings.com has some high quality mouse/keyboard benchmarks where:
+  - They measure latencies [directly from the USB signal](https://www.rtings.com/mouse/tests/control/sensor-latency) leaving the mouse without even using a monitor.
+  - They [subtract the pre-travel distance time](https://www.rtings.com/keyboard/tests/latency) when measuring a keyboard's latency
+However, you may find it that the delay of start of movement you measure is lower than what they report (as I did with my Sensei Ten mouse), I contacted them and it seems that the difference lies in the fact that the benchmarking procedure I took pushes the mouse with a high acceleration, whereas they test with an electric motor that cannot start with a high acceleration.
+
+Some benchmarks following this procedure are following in the [bencmarks/mice](#mice) section.
 
 ## X11/Wayland
 
@@ -658,18 +687,31 @@ Benchmarks are welcome: If you happen to do some you are welcome to PR them. I s
   - Software: version of the distro, Kernel (if linux-tkg, the modified options in `customization.cfg`), Wine (if wine-tkg, the modified options too), DXVK, Mesa/AMDVLK/Nvidia, compilation process (if manually compiled)
   - Game: how to reproduce the measured benchmarks: Fsync/Esync ? is it a benchmark tool ingame ? a saved play ? Can it be shared so other can benchmark against the same thing with different hardware/software ?
 
-**Benchmarks done:**
+### Games
 
 - [`cpuset` trick](#amd-ryzen-the-cpuset-trick)
   - Overwatch
     - [Benchmark 1](https://flightlessmango.com/games/15751/logs/1343): `cpuset` on vs off, with both ccx separation and smt separation.
 
-**Possible benchmarks:**
+#### Possible benchmarks
 - Fysnc/Esync on vs Fsync/Esync off
 - Different wine versions
 - Kernel schedulers (CFS, PDS, BMQ, MuQSS) in various conditions.
 - Compiler optimizations: Wine, DXVK, Kernel, Mesa.
 
+### Mice
+
+I performed the benchmark according to the section [Mice \& Keyboards: benchmark at home](#mice--keyboards-benchmark-at-home), with a `270Hz` monitor and `960fps` slow-mo videos
+
+- SteelSeries Sensei Ten
+  - Delay to start of movement: `<= 5ms`, [video](videos/sensei-ten-start-of-movement-delay.mp4)
+  - Click latency: `<= 8ms`, [video](videos/sensei-ten-click-latency.mp4)
+- Razer Viper Ultimate
+  - Delay to start of movement: `<= 8ms` [video](videos/viper-ultimate-start-of-movement-delay.mp4)
+  - Click latency: `<= 5ms`, [video](videos/viper-ultimate-click-latency.mp4)
+- Attack Shark X3 / VGN Game Power x3 / Ajazz aj199 (rebrands of the same maouse)
+  - Delay to start of movement: `<= 12ms` [video](videos/attack-shark-x3-start-of-movement-delay.mp4)
+  - Click latency: `39ms-46ms`, [video](videos/attack-shark-x3-click-latency.mp4)
 
 ## Misc
 * Asus ROG laptop 2022 and BIOS updates: if you get the error `Selected file is not a proper bios` with EZ Flash in the BIOS menu. You need a USB stick that's USB3, with a GPT partition table, with secure boot disabled in the BIOS (so you need to put secure boot back to setup mode after the update, and re-enroll your keys).
