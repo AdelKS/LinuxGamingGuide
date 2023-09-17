@@ -730,9 +730,9 @@ I performed the benchmark according to the section [Input lag / latency: benchma
 - Attack Shark X3 / VGN Game Power x3 / Kysona M600 (rebrands of the same mouse)
   - Delay to start of movement: `7ms-13ms` [video](videos/attack-shark-x3-start-of-movement-delay.mp4)
   - Click latency: `37ms-46ms`, [video](videos/attack-shark-x3-click-latency.mp4)
-- Attack Shark X3 / VGN Game Power x3 / Ajazz aj199 (rebrands of the same maouse)
-  - Delay to start of movement: `<= 12ms` [video](videos/attack-shark-x3-start-of-movement-delay.mp4)
-  - Click latency: `39ms-46ms`, [video](videos/attack-shark-x3-click-latency.mp4)
+- Ajazz aj139pro
+  - Delay to start of movement: `7ms-17ms` [video](videos/aj139pro-start-of-movement-delay.mp4)
+  - Click latency: `12ms-21ms`, [video](videos/aj139pro-click-latency.mp4)
 
 ## Misc
 * Asus ROG laptop 2022 and BIOS updates: if you get the error `Selected file is not a proper bios` with EZ Flash in the BIOS menu. You need a USB stick that's USB3, with a GPT partition table, with secure boot disabled in the BIOS (so you need to put secure boot back to setup mode after the update, and re-enroll your keys).
