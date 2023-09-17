@@ -42,8 +42,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
   - [Overclocking](#overclocking)
     - [CPU and GPU](#cpu-and-gpu)
     - [RAM](#ram)
-  - [Gaming hardware](#gaming-hardware)
-      - [Mice \& Keyboards: benchmark at home](#mice--keyboards-benchmark-at-home)
+  - [Input lag / latency: benchmark at home](#input-lag--latency-benchmark-at-home)
   - [X11/Wayland](#x11wayland)
   - [Performance overlays](#performance-overlays)
   - [Streaming - Saving replays](#streaming---saving-replays)
@@ -445,27 +444,46 @@ Overclocking is possible on Linux, please refer to the Archlinux wiki on [Improv
 ### RAM
 
 I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/oc-guide/DDR4%20OC%20Guide.md) on the matter.
-## Gaming hardware
+## Input lag / latency: benchmark at home
+I have always had a wired gaming mouse, and always had sometimes this issue where the cable gets entangled when I am playing my FPS game. So I started looking into wirless ones, and this got me interested in mouse latencies: do wireless mice have higher input lag ? This question generalizes to mice and keyboards in general, and also to games.
 
-#### Mice & Keyboards: benchmark at home
-I have always had a wired gaming mouse, and always had sometimes this issue where the cable gets entangled when I am playing my FPS game. So I started looking into wirless ones, and this got me interested in mouse latencies: do wireless mice have higher input lag ? This question generalized to mice and keyboards in general.
-
-For that, one can test, by himself, his own mouse or keyboard, provided that one has a high refresh rate monitor and a smartphone with a high refresh rate camera. Thankfully enough, I have a 270Hz monitor and a smartphone that offers 960fps slow-mo videos: This gives me a latency "resolution" of `1000/270 ~ 3.7 ms` and a latency "precision" of `1000/960 ~ 1ms`, plenty to get accurate enough latencies !
+For that, one can test, by himself, his own mouse or keyboard (or game), provided that one has a high refresh rate monitor and a smartphone with a high refresh rate camera. Thankfully enough, I have a 270Hz monitor and a smartphone that offers 960fps slow-mo videos: This gives me a latency "resolution" $`\Delta t_\text{res} = T_\text{mon} = 1000/270 \approx 3.7 \text{ms}`$ and a latency "precision" $`\Delta t_\text{prec} = T_\text{cam} = 1000/960 \approx 1\text{ms}`$, plenty to get accurate enough latencies !
 
 Here's how I proced to test latencies:
 1- have your smartphone ready to take a slow-mo video, while having both the mouse/keyboard area and monitor visible within the frame
 2- start the slow-mo
-3- hit the keyboard/mouse key or hit the mouse with your finger
-4- Review the video: count the number of frames between the first frame where the the key got push down / the mouse started moving and the frame you see something change on the monitor. And voila, you have a approximate upper-bound estimation of the latency (click latency / delay of start-of-movement).
+3- hit the keyboard/mouse key or hit the mouse with your finger, hit it fast so the inaccuracy of when the mouse starts to move, click records is the smallest.
+4- Analyze the video:
+   - The origin of the time $`t_\text{i}`$ ("physical input start") is taken at the first camera frame where we can consider that the input has started, and we write $`\delta t_i`$ the uncertainty on it, because the actual frame where the click/move signal is registered by the device is hard to determine.
+     - For a click:
+       - $`t_\text{i}`$: the frame right before the frame where the button starts getting pushed
+       - $`\delta t_i`$: the number of frames between $`t_\text{i}`$ and the first frame where the button does not get pushed any lower
+     - For mouse movement:
+       - $`t_\text{i}`$: the frame right before the mouse body gets deformed from the hit
+       - $`\delta t_i`$: the number of frames between $`t_\text{i}`$ and when the entire mouse body moves
+   - Identify the the time of the first camera frame $`t_\text{cf}`$ ("output event camera frame") where something happens on-screen, in reaction to the input: mouse cursor moves, letter appears, game view moves ...etc.
+     - Note that $`t_\text{cf}`$ is at most $`\Delta t_\text{res}`$ away from the last screen refresh $`t_\text{mf}`$ ("output event monitor frame") where the image got updated, equivalently:
+       - $`t_\text{cf} - \Delta t_\text{res} \le t_\text{mf} \le  t_\text{cf}`$
+       - The high speed camera introduces an uncertainty of $`\Delta t_\text{res}`$
+     - The time $`t_\text{mf}`$ of the last monitor frame refresh reflects what information has been given to the PC in the $`\Delta t_\text{res}`$ timeframe that preceded, so we need to take that into account in our computation of the lower bound of the latency
 
-Some important notes:
-- The frame where the key gets clicked is a little bit difficult to determine precisely because of pre-travel distance and adds a few frames of uncertainty to the measured value. Same goes for the frame where the mouse starts moving, but to a lessser extent.
-- Do not test on a game: a game adds input lag on top of the one the keyboard/mouse has. I found out that testing on the mouse cursor on the desktop is way better ! Preferably with the compositor disabled.
+Now we have enough information to define an approximate upper-bound and lower-bound estimation of the device's latency (click latency / delay of start-of-movement):
+- Upper bound $`\mu_\text{max} = t_\text{cf} - t_\text{i} `$
+- Lower bound $`\mu_\text{min} = \mu_\text{max} - \Delta t_\text{prec} - \Delta t_\text{res} - \delta t_\text{i} `$
+
+![latency diagram](images/latency-considerations.png)
+
+
+An important note:
+- If you are testing the device itself, do NOT test on a game: a game adds input lag on top of the one the keyboard/mouse has. I found out that testing on the mouse cursor on the desktop is way better ! Preferably with the compositor disabled.
+
+Once you have an estimation of the latency of your device, you can start benchmarking game related input lag!
 
 An interesting note:
 The website https://rtings.com has some high quality mouse/keyboard benchmarks where:
   - They measure latencies [directly from the USB signal](https://www.rtings.com/mouse/tests/control/sensor-latency) leaving the mouse without even using a monitor.
   - They [subtract the pre-travel distance time](https://www.rtings.com/keyboard/tests/latency) when measuring a keyboard's latency
+
 However, you may find it that the delay of start of movement you measure is lower than what they report (as I did with my Sensei Ten mouse), I contacted them and it seems that the difference lies in the fact that the benchmarking procedure I took pushes the mouse with a high acceleration, whereas they test with an electric motor that cannot start with a high acceleration.
 
 Some benchmarks following this procedure are following in the [bencmarks/mice](#mice) section.
@@ -701,14 +719,17 @@ Benchmarks are welcome: If you happen to do some you are welcome to PR them. I s
 
 ### Mice
 
-I performed the benchmark according to the section [Mice \& Keyboards: benchmark at home](#mice--keyboards-benchmark-at-home), with a `270Hz` monitor and `960fps` slow-mo videos
+I performed the benchmark according to the section [Input lag / latency: benchmark at home](#input-lag--latency-benchmark-at-home), with a `270Hz` monitor and `960fps` slow-mo videos
 
 - SteelSeries Sensei Ten
   - Delay to start of movement: `<= 5ms`, [video](videos/sensei-ten-start-of-movement-delay.mp4)
-  - Click latency: `<= 8ms`, [video](videos/sensei-ten-click-latency.mp4)
+  - Click latency: `<=10ms`, [video](videos/sensei-ten-click-latency.mp4)
 - Razer Viper Ultimate
-  - Delay to start of movement: `<= 8ms` [video](videos/viper-ultimate-start-of-movement-delay.mp4)
+  - Delay to start of movement: `3ms-9ms` [video](videos/viper-ultimate-start-of-movement-delay.mp4)
   - Click latency: `<= 5ms`, [video](videos/viper-ultimate-click-latency.mp4)
+- Attack Shark X3 / VGN Game Power x3 / Kysona M600 (rebrands of the same mouse)
+  - Delay to start of movement: `7ms-13ms` [video](videos/attack-shark-x3-start-of-movement-delay.mp4)
+  - Click latency: `37ms-46ms`, [video](videos/attack-shark-x3-click-latency.mp4)
 - Attack Shark X3 / VGN Game Power x3 / Ajazz aj199 (rebrands of the same maouse)
   - Delay to start of movement: `<= 12ms` [video](videos/attack-shark-x3-start-of-movement-delay.mp4)
   - Click latency: `39ms-46ms`, [video](videos/attack-shark-x3-click-latency.mp4)
