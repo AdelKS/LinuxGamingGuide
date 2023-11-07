@@ -733,6 +733,9 @@ I performed the benchmark according to the section [Input lag / latency: benchma
 - Ajazz aj139pro
   - Delay to start of movement: `7ms-17ms` [video](videos/aj139pro-start-of-movement-delay.mp4)
   - Click latency: `12ms-21ms`, [video](videos/aj139pro-click-latency.mp4)
+- VGN Firefly F1 Pro Max (`4kHz` polling rate, `1ms` debounce)
+  - Delay to start of movement: `<= 5ms` [video-linux-1](videos/vgn-f1-promax-cursor-delay-linux-1.mp4), [video-linux-2](videos/vgn-f1-promax-cursor-delay-linux-2.mp4), [video-windows-1](videos/vgn-f1-promax-cursor-delay-windows-1.mp4)
+  - Click latency: `<= 9ms` [video-linux-1](videos/vgn-f1-promax-click-latency-linux-1.mp4), [video-linux-2](videos/vgn-f1-promax-click-latency-linux-2.mp4), [video-windows-1](videos/vgn-f1-promax-click-latency-windows-1.mp4), [video-windows-2](videos/vgn-f1-promax-click-latency-windows-2.mp4) (windows click latency tests give `20ms-10ms` probably due to extra software delay from the "files" app)
 
 ## Misc
 * Asus ROG laptop 2022 and BIOS updates: if you get the error `Selected file is not a proper bios` with EZ Flash in the BIOS menu. You need a USB stick that's USB3, with a GPT partition table, with secure boot disabled in the BIOS (so you need to put secure boot back to setup mode after the update, and re-enroll your keys).
