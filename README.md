@@ -39,6 +39,10 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Bottles](#bottles)
     - [Heroic Games Launcher](#heroic-games-launcher)
     - [Steam](#steam)
+      - [Knowledge Base](#knowledge-base)
+        - [Troubleshooting: first thing to try](#troubleshooting-first-thing-to-try)
+        - [Troubleshooting: getting logs](#troubleshooting-getting-logs)
+        - [Shared NTFS partition with Windows](#shared-ntfs-partition-with-windows)
   - [Overclocking](#overclocking)
     - [CPU and GPU](#cpu-and-gpu)
     - [RAM](#ram)
@@ -434,7 +438,45 @@ Usually, one creates one prefix per game/app, as sometimes each game has some qu
 [Heroic Games Launcher](https://heroicgameslauncher.com) is an opensource game manager for games you own on [GOG](gog.com) or [Epic Games](https://store.epicgames.com). I have not tried it at all so that's all I can say x)
 
 ### Steam
-Steam's official closed source game manager handles Linux natively and offers to run windows specific games with Steam's own builds of `proton-wine`. It also accepts custom proton builds like e.g. `proton-tkg` ([wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) repo) or GloriousEggroll's [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) prebuilds.
+Valve's official closed source game manager handles Linux natively and offers to run windows specific games with Steam's own builds of `proton-wine`. It also accepts custom proton builds like e.g. `proton-tkg` ([wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) repo) or GloriousEggroll's [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) prebuilds.
+
+#### Knowledge Base
+
+##### Troubleshooting: first thing to try
+
+When your game simply doesn't work or worked once and then never again, try removing the [Wine Prefix](#game--wine-prefix-manager) created by steam for the game: remove the folder `SteamLibrary/steamapps/compdata/$GAMEID/pfx` (where `$GAMEID` is some unique ID that identifies the game, e.g. `1151640` for `Horizon Zero Dawn`). Then try relaunching the game.
+
+##### Troubleshooting: getting logs
+
+To first step to any troubeshooting is to get logs, in Steam, you need to set a specific launch option
+```
+PROTON_LOG=1 %command%
+```
+which you can reach by doing this (taken from [here](https://help.steampowered.com/en/faqs/view/7D01-D2DD-D75E-2955)):
+1. Open your Steam Library
+2. Right click the game's title and select `Properties`.
+3. On the `General` tab you'll find `Launch Options`` section.
+4. Enter the launch options `PROTON_LOG=1 %command%`
+5. Close the game's `Properties` window and launch the game.
+6. Recreate your issue
+7. A file name `steam-$GAMEID.log` (where `$GAMEID` is some unique ID that identifies the game, like `1151640` for `Horizon Zero Dawn`) will be in your home folder (`/home/foo`)
+
+In the log file (`steam-$GAMEID.log`), look for `err:` lines first, and use the keywords that appear there to know what to google for. Otherwise give the log entirely to people who may ask for it.
+
+##### Shared NTFS partition with Windows
+
+If you simply used a shared NTFS partition with windows and making Steam (Linux) discover it without further tweaks, you most probably will run into problems.
+
+Like this one with `IPHLPAPI.DLL` (which I ran into)
+```
+24337.090:0124:0128:err:module:import_dll Library IPHLPAPI.DLL (which is needed by L"E:\\SteamLibrary\\steamapps\\common\\Horizon Zero Dawn\\HorizonZeroDawn.exe") not found
+```
+
+The fix is to [delete the prefix](#troubleshooting-first-thing-to-try) then to follow [Proton's documentation on the matter](https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows) which involves having the path `/SteamLibrary/steamapps/compatdata` symlink to a folder outside of the NTFS partition, to a folder within a Linux filesystem (Btrfs, EXT4, ...etc ).
+
+**Note:**
+- To avoid having problems when using an NTFS partition on Linux, use `ntfs3` as a filesystem type in your [/etc/fstab](https://wiki.archlinux.org/title/Fstab) file to use [ntfs3 kernel driver](https://wiki.archlinux.org/title/NTFS) (instead of `ntfs` which uses [ntfs-3g userspace driver](https://en.wikipedia.org/wiki/NTFS-3G)) with the mount option `windows_names` ([described here](https://www.kernel.org/doc/html/latest/filesystems/ntfs3.html)). With that, creating the prefix `/SteamLibrary/steamapps/compatdata` within the NTFS partition will fail.
+- If you get an `rm: traversal failed` when trying to delete the prefix (or something else within the NTFS partition). That means your NTFS partition got corrupted and you will need to use Windows to scan and fix errors in the filesystem. Unfortunately Linux has no tool to fix NTFS filesystems.
 
 ## Overclocking
 
