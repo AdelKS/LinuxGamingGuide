@@ -26,6 +26,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
       - [A small intro to CPU cache](#a-small-intro-to-cpu-cache)
       - [What can we do with this information ?](#what-can-we-do-with-this-information-)
       - [Using `cpuset`](#using-cpuset)
+        - [Checking that it works](#checking-that-it-works)
       - [Benchmark](#benchmark)
   - [Wine](#wine)
       - [Environment variables](#environment-variables)
@@ -318,13 +319,20 @@ For my Ryzen 5950X gives this
 
 #### What can we do with this information ?
 Something really nice: give an entire CCX (for Zen/Zen+/Zen2 for CPUs that have six or more cores) or CCD (for Zen3, can only work with a `5950X` or a `5900X`) to your game, and make (nearly) everything else run in the other CCX(s)/CCD(s). With this, as far as I can hypothesize, one reduces the amount of L3 cache misses for the game, since it doesn't share it with no other app. The really nice thing with this, that you can notice easily, is that if you run a heavy linux kernel compilation on the other CCX(s)/CCD(s) your game is less affected: you can test for yourself. I think that using this trick also downplays the role a scheduler has on your games, since the game is alone and very few other things run with it on the same cores (like wine and the kernel).
+
 #### Using `cpuset`
 
-[cpuset](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cpusets.html) is a linux mechanism to create groups of cores (a cpu set) to which you can assign processes, at runtime. One can use it to create two cpu sets: one for your game, another for all the rest. Have a read at the doc to understand how things work. I may update things here to explain further.
+[cpuset](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cpusets.html) is a linux mechanism to create groups of cores (a cpu set) to which you can assign processes, at runtime. Any process in a given cpu set will spawn child processes in the same cpu set.
 
-A Ryzen CPU withtwo or more CCDs/CCXs can be split into two sets of cores, lets call the first one `theGood` (for games) and the second `theUgly` (for the rest). I made two similar scripts that do this, [one for the Ryzen 3700X](./scripts/tasks_redirect_3700X.sh), that has 8 cores, 16 threads: logical cores 0-3,8-11 (given in the `P#` in the `lstopo` result) are assigned to `theGood`, which are associated to 4 physical cores (with SMT) in CCX0. Cores 4-7,12-15 are assigned to `theUgly` in CCX1 ; another one for [for the Ryzen 5950X](./scripts/tasks_redirect_5950X.sh), that has 16 cores, 32 threads: logical cores 0-7,16-23 (given in the `P#` in the `lstopo` result) are assigned to `theGood`, which are associated to 8 physical cores (with SMT) in CCD0. Cores 8-15,24-31 are assigned to `theUgly` in CCD1. Then, the script redirects `lutris` to the `theGood` cpuset. Any process in a given cpu set will spawn child processes in the same cpu set, so `lutris` will launch wine and the game in the same cpuset automatically. You can edit the script to fit with your current CPU, after having a look at what `lstopo` outputs and at the cpuset documentation. You can reverse that cpu set creation and go back to no splitting between cores : created cpu sets (that are folders) can be removed if all the processes they contain get redirected to the main cpu set, that contains all cores. [I made that script too](./scripts/reverse_tasks_redirect.sh).
+One can use it to create two cpu sets: one for your game, another for all the rest. Have a read at the doc to understand how things work. I may update things here to explain further.
 
-**important:** core IDs should be carefully chosen so the cpu sets are separated by CCX/CCD and not just make a non hardware aware split (a recent AMD BIOS update changed the core naming scheme to fit with what Intel does), one way to verify it is, after doing the splitting, to call `lstopo` in both cpusets and verify. A way to do so is to move one shell to the new group, as root:
+A Ryzen CPU with two or more CCDs/CCXs can be split into two sets of cores, lets call the first one `theGood` (for games) and the second `theUgly` (for the rest). You can use the script [tasks_redirect_generic.sh](./scripts/tasks_redirect_generic.sh) to perform that action. It also prompts to redirect `lutris` to the `theGood` cpuset, so anything launched through `lutris` starts in the same cpuset automatically.
+
+The splitting can be reversed with [reverse_tasks_redirect.sh](./scripts/reverse_tasks_redirect.sh): created cpu sets (that are folders) can be removed if all the processes they contain get redirected to the main cpu set, that contains all cores.
+
+##### Checking that it works
+
+Core IDs should be carefully chosen so the cpu sets are separated by CCX/CCD and not just make a non hardware aware split. One way to check it is, after doing the splitting, to call `lstopo` in both cpusets and have a look at its output. A way to do so is to move one shell to the new group, as root:
 
 ```shell
 /bin/echo $$ >> /dev/cpuset/theGood/tasks
