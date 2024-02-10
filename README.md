@@ -24,8 +24,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Game mode](#game-mode)
     - [AMD Ryzen: the `cpuset` trick](#amd-ryzen-the-cpuset-trick)
       - [A small intro to CPU cache](#a-small-intro-to-cpu-cache)
-      - [What can we do with this information ?](#what-can-we-do-with-this-information-)
-      - [Using `cpuset`](#using-cpuset)
+      - [`cpuset`](#cpuset)
         - [Checking that it works](#checking-that-it-works)
       - [Benchmark](#benchmark)
   - [Wine](#wine)
@@ -300,7 +299,13 @@ You can check whether or not gamemode is running with the command `gamemoded -s`
 #### A small intro to CPU cache
 The cache is the closest memory to the CPU, and data from RAM needs to go through the cache first before being processed by the CPU. The CPU doesn't read from RAM directly. This cache memory is very small (at maximum few hundred megabytes as of current CPUs) and this leads to some wait time in the CPU: when some data needs to be processed but isn't already in cache (a "cache miss"), it needs to be loaded from RAM. When the cache is "full", because it will always be, some "old" data in cache is synced back in RAM then replaced by some other data from RAM: this takes time.
 
-There is usually 3 levels of cache memory in our CPUs: L1, L2, and L3. In Ryzen, the L1 and L2 are few hundred kilobytes and the L3 a (few) dozen megabytes. Each core has its own L1 and L2 cache, the L3 is shared: in zen/zen+/zen2 it is shared among each 4 cores (called a CCX). and CCX'es are grouped two by two in what is called CCDs. In zen 3, the L3 cache is shared  among the cores of an entire CCD, 8 cores. There's [this anandtech article](https://www.anandtech.com/show/16214/amd-zen-3-ryzen-deep-dive-review-5950x-5900x-5800x-and-5700x-tested/4) that gives a through analysis of cache topology in Zen 2 vs Zen 3:
+There is usually 3 levels of cache memory in our CPUs: L1, L2, and L3. The L1 and L2 are few hundred kilobytes and the L3 a (few) dozen megabytes. Each core has usually its own L1 and L2 cache, the L3 is shared with other cores.
+
+Ryzen CPUs are made of "chiplets": physical "islands" (some kind of sub-CPUs) of 8 cores with identical specs. A CPU can have several "chiplets".
+
+[This anandtech article](https://www.anandtech.com/show/16214/amd-zen-3-ryzen-deep-dive-review-5950x-5900x-5800x-and-5700x-tested/4) gives a thorough analysis of cache topology in `Zen 2` and `Zen 3`, which apply so far till Zen4 :
+- `zen`/`zen+`/`zen2`: the chiplets are split into two regions of 4 cores with separate 16MB L3 cache.
+- `zen3`/`zen4`: the chiplet is one single entity with 32MB of shared L3 There's
 
 ![Zen3_vs_Zen2](./images/Zen3_vs_Zen2.jpg)
 
@@ -317,18 +322,18 @@ For my Ryzen 5950X gives this
 
 ![Ryzen 5950X topology](./images/Ryzen-5950X-cache-topology.png)
 
-#### What can we do with this information ?
-Something really nice: give an entire CCX (for Zen/Zen+/Zen2 for CPUs that have six or more cores) or CCD (for Zen3, can only work with a `5950X` or a `5900X`) to your game, and make (nearly) everything else run in the other CCX(s)/CCD(s). With this, as far as I can hypothesize, one reduces the amount of L3 cache misses for the game, since it doesn't share it with no other app. The really nice thing with this, that you can notice easily, is that if you run a heavy linux kernel compilation on the other CCX(s)/CCD(s) your game is less affected: you can test for yourself. I think that using this trick also downplays the role a scheduler has on your games, since the game is alone and very few other things run with it on the same cores (like wine and the kernel).
+#### `cpuset`
+Now that we are aware of cache topology in AMD CPUs. We can try giving an entire CCX (for Zen/Zen+/Zen2 for CPUs that have `>=6` cores) or CCD (for Zen3/Zen4, for CPUs that have `>=12` cores) to your game, and make (nearly) everything else run in the other CCX(s)/CCD(s). With this, as far as I can hypothesize, one reduces the amount of L3 cache misses for the game, since it doesn not share it with other processes.
 
-#### Using `cpuset`
+[cpuset](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cpusets.html) is a linux mechanism to create groups of cores (a cpu set) to which you can assign processes, at runtime. Any process in a given cpu set will spawn child processes in the same cpu set. Have a read at the doc to understand how things work.
 
-[cpuset](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cpusets.html) is a linux mechanism to create groups of cores (a cpu set) to which you can assign processes, at runtime. Any process in a given cpu set will spawn child processes in the same cpu set.
-
-One can use it to create two cpu sets: one for your game, another for all the rest. Have a read at the doc to understand how things work. I may update things here to explain further.
-
-A Ryzen CPU with two or more CCDs/CCXs can be split into two sets of cores, lets call the first one `theGood` (for games) and the second `theUgly` (for the rest). You can use the script [tasks_redirect_generic.sh](./scripts/tasks_redirect_generic.sh) to perform that action. It also prompts to redirect `lutris` to the `theGood` cpuset, so anything launched through `lutris` starts in the same cpuset automatically.
-
-The splitting can be reversed with [reverse_tasks_redirect.sh](./scripts/reverse_tasks_redirect.sh): created cpu sets (that are folders) can be removed if all the processes they contain get redirected to the main cpu set, that contains all cores.
+Two scripts are provided in this repo:
+- [tasks_redirect_generic.sh](./scripts/tasks_redirect_generic.sh). This script needs to be run with `lutris` openned by before launching a game.
+  1. Creates two cpusets `theGood` and `theUgly`.
+  2. Redirects every process to `theUgly`
+  3. Prompts to redirect `lutris` to the `theGood` cpuset, so anything launched through `lutris` starts in the same cpuset automatically.
+- [reverse_tasks_redirect.sh](./scripts/reverse_tasks_redirect.sh): reverses the splitting done by the script above.
+  - Info: created cpu sets (that are folders) can be removed if all the processes they contain get redirected to the main cpu set, that contains all cores.
 
 ##### Checking that it works
 
