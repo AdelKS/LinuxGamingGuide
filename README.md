@@ -55,7 +55,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
         - [obs-vkcapture](#obs-vkcapture)
       - [Encoders](#encoders)
       - [Using `cpuset` with software encoder on Ryzen CPUs](#using-cpuset-with-software-encoder-on-ryzen-cpus)
-    - [Replay sorcery](#replay-sorcery)
+      - [Replay Buffer](#replay-buffer)
   - [Sound tweaks with Pipewire/Pulseaudio](#sound-tweaks-with-pipewirepulseaudio)
     - [Stream only the game sounds](#stream-only-the-game-sounds)
     - [Improve the sound of your headset](#improve-the-sound-of-your-headset)
@@ -656,9 +656,18 @@ Notes:
 
 If you can't use your own GPU for encoding or prefer to use a software encoder, it's a very good idea to use the `cpuset` trick explained above to not affect your game's performance by running OBS in a different CCX/CCD. I benchmarked it and it makes a huge difference.
 
-### Replay sorcery
+#### Replay Buffer
 
-[Replay sorcery](https://github.com/matanui159/ReplaySorcery) is a tool to save small replays of your gaming sessions, without the need to be streaming. It saves a "video" of your play for the past `x` seconds in RAM: it is saved as sequence of JPEG images (small footprint on the computer's resources). And these images are only converted to a video when you want to actually save a replay (more resource heavy). I haven't given it a try, if you want to add hints and tips about it, please feel free to PR something or open an issue!
+OBS offers saving the last X seconds of your gaming session in RAM, and it saves it to a file once you press a pre-defined keyboard shortcut.
+
+To enable it:
+1. Settings > Output > Replay Buffer > Enable Replay Buffer
+   - You can also set there how long is the saved window
+2. This adds a new button the the main window: "Start replay buffer"
+   - It will keep in RAM the last X seconds all the time
+3. While "replay buffer" is started and running, you can either
+   - press the "save" button that is right next to "stop replay buffer"
+   - trigger the keyboard shortcut for "save replay"
 
 ## Sound tweaks with Pipewire/Pulseaudio
 
