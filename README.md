@@ -270,15 +270,14 @@ You can disable this protection with the following kernel parameter `clearcpuid=
 you may have heard about `esync`, `fsync` or `futex2` threading synchronisation kernel syscalls. They have been developed by CodeWeavers and Collabora. Chronologically, here's what happened
 - `esync` is the oldest implementation and available in any non ancient kernel in any distro, since it uses the kernel's `eventfd` [system call](https://man7.org/linux/man-pages/man2/eventfd.2.html). Issues arise in some distros when a game opens a lot of the so called "file descriptors"
 - `FUTEX_WAIT_MULTIPLE`, a special additional flag on the `futex` [system call](https://man7.org/linux/man-pages/man2/futex.2.html) was developed. It was referred to in wine as `fsync` (that we will also call `fsync1`). This work did not get upstreamed in the linux kernel (out-of-tree).
-- `futex2` implementing  a new system call
+- `futex_waitv` implementing  a new system call
   - Initially called `futex_wait()`: `linux-tkg` and `wine-tkg` were offering support for this work under the `futex2` naming.
   - The system call then [got upstreamed](https://www.kernel.org/doc/html/latest/userspace-api/futex2.html) in kernel `5.16` with a slightly different name : `futex_waitv()` for the system call, and `futex2` as a feature. It is still referred to as `fsync` in wine (so basically an `fsync2`). Which leads to some confusions...
 
-`winesync/fastsync` is a new proposal of synchronization subsystem, similar to `futex` and `eventfd`, aimed to serve exclusively for mapping Windows API sync mechanisms. developed by wine developers. This implementation is kind of on hold since the upstreaming of `futex_waitv`. `winesync` is a kernel module that communicates with the `fastsync` module in (a patched) wine. To have the `winesync` module:
+`ntsync` (also previously called `winesync`) is a new proposal of synchronization subsystem, similar to `futex` and `eventfd`, aimed to serve exclusively for mapping Windows API sync mechanisms. developed by wine developers. This implementation is kind of on hold since the upstreaming of `futex_waitv`. `ntsync` is a kernel module that communicates with the `ntsync` counterpart (also previously called `fastsync`) in (a patched) wine. To have the `ntsync`:
 - The DKMS route
-  - Archlinux: you need to install the following package from the AUR: `winesync`, `winesync`, `winesync-header` and `winesync-udev-rule`
-  - other distros: follow the [README in this repository](https://github.com/Cat-Lady/winesync-dkms)
-- Not offered by `linux-tkg` [any longer](https://github.com/Frogging-Family/linux-tkg/commit/b357a8c0486575083c59c4caa15ca8dc1ea54e87)
+  - Archlinux: you need to install the following package from the AUR: `ntsync`
+- Use [linux-tkg](#compiling-your-own-linux-tkg) with `_ntsync="true"` in its customization file.
 ### Custom kernels
 
 Using a self-compiled kernel can bring some gaming improvements. Ready to use pre-build custom kernels are readily available: Xanmod kernel, Liquorix, Linux-zen.
