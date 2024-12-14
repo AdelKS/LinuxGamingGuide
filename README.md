@@ -39,6 +39,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Bottles](#bottles)
     - [Heroic Games Launcher](#heroic-games-launcher)
     - [Steam](#steam)
+      - [SteamTinkerLaunch](#steamtinkerlaunch)
       - [Knowledge Base](#knowledge-base)
         - [Troubleshooting: first thing to try](#troubleshooting-first-thing-to-try)
         - [Troubleshooting: getting logs](#troubleshooting-getting-logs)
@@ -452,6 +453,11 @@ Usually, one creates one prefix per game/app, as sometimes each game has some qu
 
 ### Steam
 Valve's official closed source game manager handles Linux natively and offers to run windows specific games with Steam's own builds of `proton-wine`. It also accepts custom proton builds like e.g. `proton-tkg` ([wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) repo) or GloriousEggroll's [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) prebuilds.
+
+#### SteamTinkerLaunch
+
+From [its Github page]((SteamTinkerLaunch))
+> [Steam Tinker Launch](SteamTinkerLaunch) is a versatile Linux wrapper tool for use with the Steam client which allows for easy graphical configuration of game tools, such as GameScope, MangoHud, modding tools and a bunch more. It supports both games using Proton and native Linux games, and works on both X11 and Wayland.
 
 #### Knowledge Base
 
