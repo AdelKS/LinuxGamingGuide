@@ -541,17 +541,26 @@ The website https://rtings.com has some high quality mouse/keyboard benchmarks w
 
 However, you may find it that the delay of start of movement you measure is lower than what they report (as I did with my Sensei Ten mouse), I contacted them and it seems that the difference lies in the fact that the benchmarking procedure I took pushes the mouse with a high acceleration, whereas they test with an electric motor that cannot start with a high acceleration.
 
-Some benchmarks following this procedure are following in the [bencmarks/mice](#mice) section.
+Some benchmarks following this procedure are following in the [benchmarks/mice](#mice) section.
 
 ## X11/Wayland
 
-I use only X11 for now, and works nicely. Wayland is not as good as X11 for gaming, for now. Except maybe with a custom wine with Wayland patches: https://github.com/varmd/wine-wayland. I am unable to run Overwatch with it yet.
+Wayland is the successor to X11, and is now mature and supported enough for X11 to be phased out, and that's what most linux distros are starting to consider.
 
-**Best DE for gaming:** In terms of input lag LXDE/LXQt (using OpenBox as a WM) has the lowest input lag and the smoothest feel, I heard KDE with its recent `5.22` update should be pretty competitive. `Gnome`, even though I like it for desktop work, sucks with gaming (frame drops, high input lag).
+- Wayland
+  - As of KDE 6 and Gnome 46, gaming on wayland just works without any downside (?).
+    - Games however still use XWayland (a "small" X server within the Wayland session to play the game) by default
+      - Proton (e.g. in Steam) doesn't support wayland at all for now, so it will use XWayland.
+      - Starting wine 9.22, native wayland is supported by simply starting the game with the environment variable `DISPLAY` unset / empty. YMMV
+  - VRR is supported out of the box can be toggled using the GUI settings app
+  - HDR is supported
 
-**Some X11 settings for gaming:**
-- The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering). Some may argue that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag. But with high refresh rate monitors, (e.g. 240Hz), I think image update smoothness is way more noticeable than the added input lag. This option entirely removes screen tearing with anything: for example scrolling on Firefox, on compositor-less DEs like LXDE, becomes super smooth.
-- If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
+- X11, some recommendations:
+  - The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering).
+    - It may be argued that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag.
+      - However, with high refresh rate monitors (e.g. 240Hz), image update smoothness is noticeable vs the theoretically added input lag. Try and see !
+      - This option entirely removes screen tearing with anything: for example scrolling on Firefox, on compositor-less DEs like LXDE, becomes super smooth.
+  - If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
 
 ## Performance overlays
 
