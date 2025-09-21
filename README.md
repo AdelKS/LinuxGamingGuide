@@ -33,60 +33,6 @@ You only need `mesa` and `steam` to be able to game. Everything else in this gui
 Steam installs Proton for you. Only other Proton versions you want to use need to be explicitly installed.
 With a Nvidia GPU, you need install the correct drivers, [see here](#nvidia) (except on CachyOS).
 
-## Self-compiling
-
-... is not really necessary, but just in case:  
-Compiling is the process of transforming human written code (like C/C++/Rust/... etc) to machine runnable programs (the `.exe` files on Windows, on Linux they usually have no extension :P). Compiling is actually done by a program, a compiler, on linux it's `gcc` or `clang`. There is not a unique way to translate/compile code to machine runnable programs, the compiler has lots of freedom on how to implement that, and we can influence them by telling them to try "harder" to optimize the machine code, by giving them the so called "flags": a set of command line options given to the compiler, an example is
-```shell
-gcc main.c -O2 -march=native -pipe
-```
-where `-O2`, `-march=native` and `-pipe` are compiler flags. There are many flags that compilers accept, the ones specific to optimization are given in [GCC's documentation](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html). A few important (meta)flags
-- The `-Ox`, where `x=1,2,3`, is a generic flag that sets the generic level optimization, it activates many other flags that actually do something. Distros compile the packages they ship usually with `-O2`
-- The `-march` flag is a flag that tells the compiler to use additional features that aren't available for all CPUs: newer CPU implement some "instruction sets" (aka additional features) that enable them to perform some tasks faster, like [SIMD instructions](https://en.wikipedia.org/wiki/SIMD). It makes some programs faster, like `ffmpeg` with video conversion. These instruction sets are not used by default in packages shipped by distros as they need to have them able to run on all machines, even those from 2001. So one can win some performance by just compiling with `-march=native` their computational heavy programs. Although some have embedded detection code to use additional instruction sets if detected. Some Linux Distributions like [Gentoo](https://www.gentoo.org/) enable you to compile every single package on your own machine so you can have ALL the apps built with `-march=native` (it may take several hours depending on your CPU)
-- Link Time Optimizations (LTO) that involve the use of the flags `-flto`, `-fdevirtualize-at-ltrans` and `-flto-partition`
-- Profile Guided Optimizations (PGO) that involve the use of `-fprofile-generate=/path/to/stats/folder`, `-fprofile-use=/path/to/stats/folder` flags. The idea behind is to produce a first version of the program, with performance counters added in with the `-fprofile-generate=/path/to/stats/folder` flag. Then you use the compiled program in your real life use-cases (it will be way slower than usual), the program meanwhile fills up some extra files with useful statistics in `/path/to/stats/folder`. Then you compile again your program with the `-fprofile-use=/path/to/stats/folder` flag with the folder `/path/to/stats/folder` filed with statistics files that have the `.gcda` extension.
-
-A nice introduction to compiler optimizations `-Ox`, `LTO` and `PGO`, is made in a Suse Documentation that you can find here: https://documentation.suse.com/sbp/all/html/SBP-GCC-10/index.html
-
-The Kernel, `Wine`, `RADV` and `DXVK` can be compiled on your own machine so you can use additional compile flags (up to a certain level) for the particular CPU you own and potentially faster with more "aggressive" compiler flags. I said potentially as you need to check for yourself if it is truly the case or not.
-
-### Flags to try
-
-Here is a group of flags can use when building your own programs
-```shell
-BASE="-march=native -O3 -pipe"
-GRAPHITE="-fgraphite-identity -floop-strip-mine"
-MISC="-floop-nest-optimize -fno-semantic-interposition -fipa-pta"
-LTO3="-flto -fdevirtualize-at-ltrans -flto-partition=one"
-LTO2="-flto -fdevirtualize-at-ltrans -flto-partition=balanced"
-LTO1="-flto -fdevirtualize-at-ltrans -flto-partition=1to1"
-```
-It is recommended to try them in the following order, if one fails (for whatever reasons: fails to compile or doesn't work), try the next one:
-1. `BASE + GRAPHITE + MISC + LTO3`:
-  ```
-  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=one
-  ```
-2. `BASE + GRAPHITE + MISC + LTO2`:
-  ```
-  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=balanced
-  ```
-3. `BASE + GRAPHITE + MISC + LTO1`:
-  ```
-  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=1to1
-  ```
-4. `BASE + GRAPHITE + MISC`
-  ```
-  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta
-  ```
-5. `BASE + GRAPHITE`
-  ```
-  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine
-  ```
-6. `BASE`
-  ```
-  -march=native -O3 -pipe
-  ```
-
 
 ## DXVK
 
@@ -424,80 +370,6 @@ The fix is to [delete the prefix](#troubleshooting-first-thing-to-try) then to f
 - To avoid having problems when using an NTFS partition on Linux, use `ntfs3` as a filesystem type in your [/etc/fstab](https://wiki.archlinux.org/title/Fstab) file to use [ntfs3 kernel driver](https://wiki.archlinux.org/title/NTFS) (instead of `ntfs` which uses [ntfs-3g userspace driver](https://en.wikipedia.org/wiki/NTFS-3G)) with the mount option `windows_names` ([described here](https://www.kernel.org/doc/html/latest/filesystems/ntfs3.html)). With that, creating the prefix `/SteamLibrary/steamapps/compatdata` within the NTFS partition will fail.
 - If you get an `rm: traversal failed` when trying to delete the prefix (or something else within the NTFS partition). That means your NTFS partition got corrupted and you will need to use Windows to scan and fix errors in the filesystem. Unfortunately Linux has no tool to fix NTFS filesystems.
 
-## Overclocking
-
-### CPU and GPU
-Overclocking is possible on Linux, please refer to the Archlinux wiki on [Improving performance](https://wiki.archlinux.org/index.php/Improving_performance#Overclocking) for more information.
-
-### RAM
-
-I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/oc-guide/DDR4%20OC%20Guide.md) on the matter.
-
-
-## Input lag / latency: benchmark at home
-I have always had a wired gaming mouse, and always had sometimes this issue where the cable gets entangled when I am playing my FPS game. So I started looking into wirless ones, and this got me interested in mouse latencies: do wireless mice have higher input lag ? This question generalizes to mice and keyboards in general, and also to games.
-
-For that, one can test, by himself, his own mouse or keyboard (or game), provided that one has a high refresh rate monitor and a smartphone with a high refresh rate camera. Thankfully enough, I have a 270Hz monitor and a smartphone that offers 960fps slow-mo videos: This gives me a latency "resolution" $`\Delta t_\text{res} = T_\text{mon} = 1000/270 \approx 3.7 \text{ms}`$ and a latency "precision" $`\Delta t_\text{prec} = T_\text{cam} = 1000/960 \approx 1\text{ms}`$, plenty to get accurate enough latencies !
-
-Here's how I proced to test latencies:
-1- have your smartphone ready to take a slow-mo video, while having both the mouse/keyboard area and monitor visible within the frame
-2- start the slow-mo
-3- hit the keyboard/mouse key or hit the mouse with your finger, hit it fast so the inaccuracy of when the mouse starts to move, click records is the smallest.
-4- Analyze the video:
-   - The origin of the time $`t_\text{i}`$ ("physical input start") is taken at the first camera frame where we can consider that the input has started, and we write $`\delta t_i`$ the uncertainty on it, because the actual frame where the click/move signal is registered by the device is hard to determine.
-     - For a click:
-       - $`t_\text{i}`$: the frame right before the frame where the button starts getting pushed
-       - $`\delta t_i`$: the number of frames between $`t_\text{i}`$ and the first frame where the button does not get pushed any lower
-     - For mouse movement:
-       - $`t_\text{i}`$: the frame right before the mouse body gets deformed from the hit
-       - $`\delta t_i`$: the number of frames between $`t_\text{i}`$ and when the entire mouse body moves
-   - Identify the the time of the first camera frame $`t_\text{cf}`$ ("output event camera frame") where something happens on-screen, in reaction to the input: mouse cursor moves, letter appears, game view moves ...etc.
-     - Note that $`t_\text{cf}`$ is at most $`\Delta t_\text{res}`$ away from the last screen refresh $`t_\text{mf}`$ ("output event monitor frame") where the image got updated, equivalently:
-       - $`t_\text{cf} - \Delta t_\text{res} \le t_\text{mf} \le  t_\text{cf}`$
-       - The high speed camera introduces an uncertainty of $`\Delta t_\text{res}`$
-     - The time $`t_\text{mf}`$ of the last monitor frame refresh reflects what information has been given to the PC in the $`\Delta t_\text{res}`$ timeframe that preceded, so we need to take that into account in our computation of the lower bound of the latency
-
-Now we have enough information to define an approximate upper-bound and lower-bound estimation of the device's latency (click latency / delay of start-of-movement):
-- Upper bound $`\mu_\text{max} = t_\text{cf} - t_\text{i} `$
-- Lower bound $`\mu_\text{min} = \mu_\text{max} - \Delta t_\text{prec} - \Delta t_\text{res} - \delta t_\text{i} `$
-
-![latency diagram](images/latency-considerations.png)
-
-
-An important note:
-- If you are testing the device itself, do NOT test on a game: a game adds input lag on top of the one the keyboard/mouse has. I found out that testing on the mouse cursor on the desktop is way better! Preferably with the compositor disabled.
-
-Once you have an estimation of the latency of your device, you can start benchmarking game related input lag!
-
-An interesting note:
-The website https://rtings.com has some high quality mouse/keyboard benchmarks where:
-  - They measure latencies [directly from the USB signal](https://www.rtings.com/mouse/tests/control/sensor-latency) leaving the mouse without even using a monitor.
-  - They [subtract the pre-travel distance time](https://www.rtings.com/keyboard/tests/latency) when measuring a keyboard's latency
-
-However, you may find it that the delay of start of movement you measure is lower than what they report (as I did with my Sensei Ten mouse), I contacted them and it seems that the difference lies in the fact that the benchmarking procedure I took pushes the mouse with a high acceleration, whereas they test with an electric motor that cannot start with a high acceleration.
-
-Some benchmarks following this procedure are following in the [benchmarks/mice](#mice) section.
-
-
-## X11/Wayland
-
-Wayland is the successor to X11, and is now mature and supported enough for X11 to be phased out, and that's what most linux distros already did.
-
-- Wayland
-  - As of KDE Plasma 6 and Gnome 46, gaming on wayland just works without any downside (?).
-    - Games however still use XWayland (a "small" X server within the Wayland session to play the game) by default
-      - Proton (e.g. in Steam) doesn't support wayland at all for now, so it will use XWayland.
-      - Starting wine 9.22, native wayland is supported by simply starting the game with the environment variable `DISPLAY` unset / empty. YMMV
-  - VRR is supported out of the box can be toggled using the GUI settings app
-  - HDR is supported and the game needs to run with gamescope inside of Plasma
-
-- X11, some recommendations:
-  - The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering).
-    - It may be argued that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag.
-      - However, with high refresh rate monitors (e.g. 240Hz), image update smoothness is noticeable vs the theoretically added input lag. Try and see!
-      - This option entirely removes screen tearing with anything: for example scrolling on Firefox, on compositor-less DEs like LXDE, becomes super smooth.
-  - If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
-
 
 ## Performance overlays
 
@@ -722,6 +594,84 @@ pactl list sources short
 
 The compositor is the part of your DE that adds desktop transparency effects and animations. In games, this can result in a noticeable loss in fps and added input lag. Some DEs properly detect the fullscreen application and disable compositing for that window, others don't. Gnome, if recent enough, disables the compisitor for fullscreen apps. Luckily, apparently, Lutris has a system option called Disable desktop effects which will disable compositing when you launch the game and restore it when you close it. After finding the command to disable your compositor, you can configure [GameMode](#gamemode) to run the commands to disable and enable it.
 
+
+
+## Overclocking
+
+### CPU and GPU
+Overclocking is possible on Linux, please refer to the Archlinux wiki on [Improving performance](https://wiki.archlinux.org/index.php/Improving_performance#Overclocking) for more information.
+
+### RAM
+
+I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/oc-guide/DDR4%20OC%20Guide.md) on the matter.
+
+
+## Input lag / latency: benchmark at home
+I have always had a wired gaming mouse, and always had sometimes this issue where the cable gets entangled when I am playing my FPS game. So I started looking into wirless ones, and this got me interested in mouse latencies: do wireless mice have higher input lag ? This question generalizes to mice and keyboards in general, and also to games.
+
+For that, one can test, by himself, his own mouse or keyboard (or game), provided that one has a high refresh rate monitor and a smartphone with a high refresh rate camera. Thankfully enough, I have a 270Hz monitor and a smartphone that offers 960fps slow-mo videos: This gives me a latency "resolution" $`\Delta t_\text{res} = T_\text{mon} = 1000/270 \approx 3.7 \text{ms}`$ and a latency "precision" $`\Delta t_\text{prec} = T_\text{cam} = 1000/960 \approx 1\text{ms}`$, plenty to get accurate enough latencies !
+
+Here's how I proced to test latencies:
+1- have your smartphone ready to take a slow-mo video, while having both the mouse/keyboard area and monitor visible within the frame
+2- start the slow-mo
+3- hit the keyboard/mouse key or hit the mouse with your finger, hit it fast so the inaccuracy of when the mouse starts to move, click records is the smallest.
+4- Analyze the video:
+   - The origin of the time $`t_\text{i}`$ ("physical input start") is taken at the first camera frame where we can consider that the input has started, and we write $`\delta t_i`$ the uncertainty on it, because the actual frame where the click/move signal is registered by the device is hard to determine.
+     - For a click:
+       - $`t_\text{i}`$: the frame right before the frame where the button starts getting pushed
+       - $`\delta t_i`$: the number of frames between $`t_\text{i}`$ and the first frame where the button does not get pushed any lower
+     - For mouse movement:
+       - $`t_\text{i}`$: the frame right before the mouse body gets deformed from the hit
+       - $`\delta t_i`$: the number of frames between $`t_\text{i}`$ and when the entire mouse body moves
+   - Identify the the time of the first camera frame $`t_\text{cf}`$ ("output event camera frame") where something happens on-screen, in reaction to the input: mouse cursor moves, letter appears, game view moves ...etc.
+     - Note that $`t_\text{cf}`$ is at most $`\Delta t_\text{res}`$ away from the last screen refresh $`t_\text{mf}`$ ("output event monitor frame") where the image got updated, equivalently:
+       - $`t_\text{cf} - \Delta t_\text{res} \le t_\text{mf} \le  t_\text{cf}`$
+       - The high speed camera introduces an uncertainty of $`\Delta t_\text{res}`$
+     - The time $`t_\text{mf}`$ of the last monitor frame refresh reflects what information has been given to the PC in the $`\Delta t_\text{res}`$ timeframe that preceded, so we need to take that into account in our computation of the lower bound of the latency
+
+Now we have enough information to define an approximate upper-bound and lower-bound estimation of the device's latency (click latency / delay of start-of-movement):
+- Upper bound $`\mu_\text{max} = t_\text{cf} - t_\text{i} `$
+- Lower bound $`\mu_\text{min} = \mu_\text{max} - \Delta t_\text{prec} - \Delta t_\text{res} - \delta t_\text{i} `$
+
+![latency diagram](images/latency-considerations.png)
+
+
+An important note:
+- If you are testing the device itself, do NOT test on a game: a game adds input lag on top of the one the keyboard/mouse has. I found out that testing on the mouse cursor on the desktop is way better! Preferably with the compositor disabled.
+
+Once you have an estimation of the latency of your device, you can start benchmarking game related input lag!
+
+An interesting note:
+The website https://rtings.com has some high quality mouse/keyboard benchmarks where:
+  - They measure latencies [directly from the USB signal](https://www.rtings.com/mouse/tests/control/sensor-latency) leaving the mouse without even using a monitor.
+  - They [subtract the pre-travel distance time](https://www.rtings.com/keyboard/tests/latency) when measuring a keyboard's latency
+
+However, you may find it that the delay of start of movement you measure is lower than what they report (as I did with my Sensei Ten mouse), I contacted them and it seems that the difference lies in the fact that the benchmarking procedure I took pushes the mouse with a high acceleration, whereas they test with an electric motor that cannot start with a high acceleration.
+
+Some benchmarks following this procedure are following in the [benchmarks/mice](#mice) section.
+
+
+## X11/Wayland
+
+Wayland is the successor to X11, and is now mature and supported enough for X11 to be phased out, and that's what most linux distros already did.
+
+- Wayland
+  - As of KDE Plasma 6 and Gnome 46, gaming on wayland just works without any downside (?).
+    - Games however still use XWayland (a "small" X server within the Wayland session to play the game) by default
+      - Proton (e.g. in Steam) doesn't support wayland at all for now, so it will use XWayland.
+      - Starting wine 9.22, native wayland is supported by simply starting the game with the environment variable `DISPLAY` unset / empty. YMMV
+  - VRR is supported out of the box can be toggled using the GUI settings app
+  - HDR is supported and the game needs to run with gamescope inside of Plasma
+
+- X11, some recommendations:
+  - The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering).
+    - It may be argued that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag.
+      - However, with high refresh rate monitors (e.g. 240Hz), image update smoothness is noticeable vs the theoretically added input lag. Try and see!
+      - This option entirely removes screen tearing with anything: for example scrolling on Firefox, on compositor-less DEs like LXDE, becomes super smooth.
+  - If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
+
+
+
 ## Benchmarks
 
 Benchmarks are welcome: If you happen to do some you are welcome to PR them. I sugggest to use MangoHud and upload the results to its corresponding website (https://flightlessmango.com), more information [here](https://github.com/flightlessmango/MangoHud), before uploading the results make sure to include as many information as possible to be able to "reproduce"
@@ -760,6 +710,62 @@ I performed the benchmark according to the section [Input lag / latency: benchma
 - VGN Firefly F1 Pro Max (`4kHz` polling rate, `1ms` debounce)
   - Delay to start of movement: `<= 5ms` [video-linux-1](videos/vgn-f1-promax-cursor-delay-linux-1.mp4), [video-linux-2](videos/vgn-f1-promax-cursor-delay-linux-2.mp4), [video-windows-1](videos/vgn-f1-promax-cursor-delay-windows-1.mp4)
   - Click latency: `<= 9ms` [video-linux-1](videos/vgn-f1-promax-click-latency-linux-1.mp4), [video-linux-2](videos/vgn-f1-promax-click-latency-linux-2.mp4), [video-windows-1](videos/vgn-f1-promax-click-latency-windows-1.mp4), [video-windows-2](videos/vgn-f1-promax-click-latency-windows-2.mp4) (windows click latency tests give `20ms-10ms` probably due to extra software delay from the "files" app)
+
+
+## Self-compiling
+
+... is not really necessary, but just in case:  
+Compiling is the process of transforming human written code (like C/C++/Rust/... etc) to machine runnable programs (the `.exe` files on Windows, on Linux they usually have no extension :P). Compiling is actually done by a program, a compiler, on linux it's `gcc` or `clang`. There is not a unique way to translate/compile code to machine runnable programs, the compiler has lots of freedom on how to implement that, and we can influence them by telling them to try "harder" to optimize the machine code, by giving them the so called "flags": a set of command line options given to the compiler, an example is
+```shell
+gcc main.c -O2 -march=native -pipe
+```
+where `-O2`, `-march=native` and `-pipe` are compiler flags. There are many flags that compilers accept, the ones specific to optimization are given in [GCC's documentation](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html). A few important (meta)flags
+- The `-Ox`, where `x=1,2,3`, is a generic flag that sets the generic level optimization, it activates many other flags that actually do something. Distros compile the packages they ship usually with `-O2`
+- The `-march` flag is a flag that tells the compiler to use additional features that aren't available for all CPUs: newer CPU implement some "instruction sets" (aka additional features) that enable them to perform some tasks faster, like [SIMD instructions](https://en.wikipedia.org/wiki/SIMD). It makes some programs faster, like `ffmpeg` with video conversion. These instruction sets are not used by default in packages shipped by distros as they need to have them able to run on all machines, even those from 2001. So one can win some performance by just compiling with `-march=native` their computational heavy programs. Although some have embedded detection code to use additional instruction sets if detected. Some Linux Distributions like [Gentoo](https://www.gentoo.org/) enable you to compile every single package on your own machine so you can have ALL the apps built with `-march=native` (it may take several hours depending on your CPU)
+- Link Time Optimizations (LTO) that involve the use of the flags `-flto`, `-fdevirtualize-at-ltrans` and `-flto-partition`
+- Profile Guided Optimizations (PGO) that involve the use of `-fprofile-generate=/path/to/stats/folder`, `-fprofile-use=/path/to/stats/folder` flags. The idea behind is to produce a first version of the program, with performance counters added in with the `-fprofile-generate=/path/to/stats/folder` flag. Then you use the compiled program in your real life use-cases (it will be way slower than usual), the program meanwhile fills up some extra files with useful statistics in `/path/to/stats/folder`. Then you compile again your program with the `-fprofile-use=/path/to/stats/folder` flag with the folder `/path/to/stats/folder` filed with statistics files that have the `.gcda` extension.
+
+A nice introduction to compiler optimizations `-Ox`, `LTO` and `PGO`, is made in a Suse Documentation that you can find here: https://documentation.suse.com/sbp/all/html/SBP-GCC-10/index.html
+
+The Kernel, `Wine`, `RADV` and `DXVK` can be compiled on your own machine so you can use additional compile flags (up to a certain level) for the particular CPU you own and potentially faster with more "aggressive" compiler flags. I said potentially as you need to check for yourself if it is truly the case or not.
+
+### Flags to try
+
+Here is a group of flags can use when building your own programs
+```shell
+BASE="-march=native -O3 -pipe"
+GRAPHITE="-fgraphite-identity -floop-strip-mine"
+MISC="-floop-nest-optimize -fno-semantic-interposition -fipa-pta"
+LTO3="-flto -fdevirtualize-at-ltrans -flto-partition=one"
+LTO2="-flto -fdevirtualize-at-ltrans -flto-partition=balanced"
+LTO1="-flto -fdevirtualize-at-ltrans -flto-partition=1to1"
+```
+It is recommended to try them in the following order, if one fails (for whatever reasons: fails to compile or doesn't work), try the next one:
+1. `BASE + GRAPHITE + MISC + LTO3`:
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=one
+  ```
+2. `BASE + GRAPHITE + MISC + LTO2`:
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=balanced
+  ```
+3. `BASE + GRAPHITE + MISC + LTO1`:
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta -flto -fdevirtualize-at-ltrans -flto-partition=1to1
+  ```
+4. `BASE + GRAPHITE + MISC`
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine -floop-nest-optimize -fno-semantic-interposition -fipa-pta
+  ```
+5. `BASE + GRAPHITE`
+  ```
+  -march=native -O3 -pipe -fgraphite-identity -floop-strip-mine
+  ```
+6. `BASE`
+  ```
+  -march=native -O3 -pipe
+  ```
+
 
 ## Misc
 * Asus ROG laptop 2022 and BIOS updates: if you get the error `Selected file is not a proper bios` with EZ Flash in the BIOS menu. You need a USB stick that's USB3, with a GPT partition table, with secure boot disabled in the BIOS (so you need to put secure boot back to setup mode after the update, and re-enroll your keys).
