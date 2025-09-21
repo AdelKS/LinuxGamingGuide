@@ -532,15 +532,15 @@ OBS_USE_EGL=1 com.obsproject.Studio
 ```
 where `com.obsproject.Studio` is the name of the `obs-studio` executable, installed through flatpak, it may have another name in your specific distro.
 
+
 ##### obs-vkcapture
 
 [obs-vkcapture](https://github.com/nowrep/obs-vkcapture) implements the ["dma-buf" sharing protocol](https://elinux.org/images/a/a8/DMA_Buffer_Sharing-_An_Introduction.pdf) for capturing games: it needs the version `27.0` of `obs-studio`, or newer, to be installed in the regular way because it needs headers from it (it must be possible to use the flatpak version too but I don't know how). If your distro doesn't ship that version of `obs-studio`, you can compile from source ([documentation here](https://github.com/obsproject/obs-studio/wiki/Install-Instructions#linux-build-directions)).
 
-Once you have a working `obs-studio` version `27.0` or higher, you need to compile `obs-vkcapture` form source then install it : documentation is in its [Github page](https://github.com/nowrep/obs-vkcapture) (it's also on the `AUR` on Arch, and in `GURU` on Gentoo). After that, you need to run `obs-studio` with the environment variable, `OBS_USE_EGL=1`:
-```shell
-OBS_USE_EGL=1 obs
-```
-And you will see a `game capture` as a new source entry. It works great and fixed my issues with added input lag and stuttering `obs-studio` used to have with `Xcomposite` sources. Games need to run with the environment variable `OBS_VKCAPTURE=1` or need to be run with the command `obs-vkcapture wine yourgame` (the command gets installed when installing `obs-vkcapture`).
+Once you have a working `obs-studio` version `27.0` or higher, you need to compile `obs-vkcapture` form source then install it: documentation is in its [Github page](https://github.com/nowrep/obs-vkcapture) (it's also on the `AUR` on Arch, repos of CachyOS and in `GURU` on Gentoo).  
+And you will see a `game capture` as a new source entry. It works great and fixed my issues with added input lag and stuttering `obs-studio` used to have with `Xcomposite` sources. Games need to run with the environment variable `OBS_VKCAPTURE=1`.  
+[STL](#steamtinkerlaunch) can set this environment variable for all you games if you enter it in `.config/steamtinkerlaunch/gamecfgs/customvars/global-custom-vars.conf`. The other files are game-specific configs.
+
 
 #### Encoders
 
