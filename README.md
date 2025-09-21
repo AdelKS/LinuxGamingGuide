@@ -202,6 +202,85 @@ locate radeon_icd.i686.json
 ```
 If the games crashes after doing all this, you can either try other git commits (you will need some git knowledge) or revert to the stable driver by simply removing the `VK_ICD_FILENAMES` environment variable. And if you don't wanna hear about bleeding edge mesa anymore you can simply remove the `mesa` source folder along with `$HOME/radv-master`.
 
+
+## Proton
+
+Proton extends Wine and makes it possible to game without any tinkering.  
+
+You should always use Proton. If that doesn't work, try [Proton-GE](#proton-ge). Wine is only needed on edge cases.
+
+### Wine
+
+Wine is a program that enables running windows executables on Linux. Through Wine, windows executables run natively on your linux machine (**W**ine **I**s **N**ot an **E**mulator xD), Wine will be there to remap all Windows specific behavior of the program to something Linux can handle, `DXVK` and `VKD3D` for example replaces the part of Wine that maps `DirectX` (Windows specific) calls of executables to Vulkan calls (That Linux can handle). Tweaking Wine can have quite the impact on games, both positive and negative.
+
+### Proton-GE
+
+Some games won't run with Proton, so try them out with [Proton-GE](https://github.com/GloriousEggroll/proton-ge-custom). They do have some fixes before Proton does.
+
+### fsync or ntsync?
+
+Generally, you want to use `fsync`. `ntsync` is mostly [not faster](https://discuss.cachyos.org/t/proton-cachyos-ntsync-and-fsync-comparison-update/7932/11). `fsync` doesn't need to be explicitly installed, it's in Proton.
+
+
+### Wine-tkg
+[wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) is a set of scripts that clone and compile `wine` and `proton`, on your own machine, with extra patches that offer better performance and better game compatibility. One of the interesting offered extra features are additional threading synchronization primitives that work with the corresponding patched `linux-tkg` kernel. One can use `Esync+Fsync+Futex2` or `fastsync` (with its corresponding kernel module `winesync`).
+
+#### compiler optimizations
+
+On top of the config variables that can be toggled in `customization.cfg` in `wine-tkg`, you can set [custom compiler optimizations](#self-compiling) by editing the following lines of the file `wine-tkg-profiles/advanced-customization.cfg`
+
+```shell
+_GCC_FLAGS="... EDIT HERE ..."
+# Custom LD flags to use instead of system-wide makepkg flags set in /etc/makepkg.conf. Default is "-pipe -O2 -ftree-vectorize".
+_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
+# Same as _GCC_FLAGS but for cross-compiled binaries.
+_CROSS_FLAGS="... EDIT HERE ..."
+# Same as _LD_FLAGS but for cross-compiled binaries.
+_CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
+```
+Where you can change `... EDIT HERE ...` with flags [from here](#flags-to-try): note that LTO nor PGO works with wine, you can at most use the `BASE + GRAPHITE + MISC` flags
+
+
+#### Knowledge Base
+
+##### Troubleshooting: first thing to try
+
+When your game simply doesn't work or worked once and then never again, try removing the [Wine Prefix](#game--wine-prefix-manager) created by steam for the game: remove the folder `SteamLibrary/steamapps/compdata/$GAMEID/pfx` (where `$GAMEID` is some unique ID that identifies the game, e.g. `1151640` for `Horizon Zero Dawn`). Then try relaunching the game.
+
+##### Troubleshooting: getting logs
+
+To first step to any troubeshooting is to get logs, in Steam, you need to set a specific launch option
+```
+PROTON_LOG=1 %command%
+```
+which you can reach by doing this (taken from [here](https://help.steampowered.com/en/faqs/view/7D01-D2DD-D75E-2955)):
+1. Open your Steam Library
+2. Right click the game's title and select `Properties`.
+3. On the `General` tab you'll find `Launch Options`` section.
+4. Enter the launch options `PROTON_LOG=1 %command%`
+5. Close the game's `Properties` window and launch the game.
+6. Recreate your issue
+7. A file name `steam-$GAMEID.log` (where `$GAMEID` is some unique ID that identifies the game, like `1151640` for `Horizon Zero Dawn`) will be in your home folder (`/home/foo`)
+
+In the log file (`steam-$GAMEID.log`), look for `err:` lines first, and use the keywords that appear there to know what to google for. Otherwise give the log entirely to people who may ask for it.
+
+##### Shared NTFS partition with Windows
+
+If you simply used a shared NTFS partition with windows and making Steam (Linux) discover it without further tweaks, you most probably will run into problems.
+
+Like this one with `IPHLPAPI.DLL` (which I ran into)
+```
+24337.090:0124:0128:err:module:import_dll Library IPHLPAPI.DLL (which is needed by L"E:\\SteamLibrary\\steamapps\\common\\Horizon Zero Dawn\\HorizonZeroDawn.exe") not found
+```
+
+The fix is to [delete the prefix](#troubleshooting-first-thing-to-try) then to follow [Proton's documentation on the matter](https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows) which involves having the path `/SteamLibrary/steamapps/compatdata` symlink to a folder outside of the NTFS partition, to a folder within a Linux filesystem (Btrfs, EXT4, ...etc ).
+
+**Note:**
+- To avoid having problems when using an NTFS partition on Linux, use `ntfs3` as a filesystem type in your [/etc/fstab](https://wiki.archlinux.org/title/Fstab) file to use [ntfs3 kernel driver](https://wiki.archlinux.org/title/NTFS) (instead of `ntfs` which uses [ntfs-3g userspace driver](https://en.wikipedia.org/wiki/NTFS-3G)) with the mount option `windows_names` ([described here](https://www.kernel.org/doc/html/latest/filesystems/ntfs3.html)). With that, creating the prefix `/SteamLibrary/steamapps/compatdata` within the NTFS partition will fail.
+- If you get an `rm: traversal failed` when trying to delete the prefix (or something else within the NTFS partition). That means your NTFS partition got corrupted and you will need to use Windows to scan and fix errors in the filesystem. Unfortunately Linux has no tool to fix NTFS filesystems.
+
+
+
 ## Kernel
 
 First, try to get the latest kernel your distro ships, it often comes with performance improvements (it contains the base updates for the amd gpu driver for example).
@@ -295,83 +374,6 @@ Then also open another shell, and do `lstopo`, you should get separate results:
 I did [this benchmark](#overwatch-cpuset) on Overwatch, the conclusions are the following:
 - After a fresh restart, I already have a small number of processes (around 300), and most of them are sleeping, which means that Overwatch basically already has the entirety of the CPU for itself. Doing the cpuset trick reduced the performance: I think it's because Overwatch works optimally in more than 4 cores.
 - Playing while doing another heavy workload, like stream with software encoding, works better with the cpuset trick.
-
-
-## Proton
-
-Proton extends Wine and makes it possible to game without any tinkering.  
-
-You should always use Proton. If that doesn't work, try [Proton-GE](#proton-ge). Wine is only needed on edge cases.
-
-### Wine
-
-Wine is a program that enables running windows executables on Linux. Through Wine, windows executables run natively on your linux machine (**W**ine **I**s **N**ot an **E**mulator xD), Wine will be there to remap all Windows specific behavior of the program to something Linux can handle, `DXVK` and `VKD3D` for example replaces the part of Wine that maps `DirectX` (Windows specific) calls of executables to Vulkan calls (That Linux can handle). Tweaking Wine can have quite the impact on games, both positive and negative.
-
-### Proton-GE
-
-Some games won't run with Proton, so try them out with [Proton-GE](https://github.com/GloriousEggroll/proton-ge-custom). They do have some fixes before Proton does.
-
-### fsync or ntsync?
-
-Generally, you want to use `fsync`. `ntsync` is mostly [not faster](https://discuss.cachyos.org/t/proton-cachyos-ntsync-and-fsync-comparison-update/7932/11). `fsync` doesn't need to be explicitly installed, it's in Proton.
-
-
-### Wine-tkg
-[wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) is a set of scripts that clone and compile `wine` and `proton`, on your own machine, with extra patches that offer better performance and better game compatibility. One of the interesting offered extra features are additional threading synchronization primitives that work with the corresponding patched `linux-tkg` kernel. One can use `Esync+Fsync+Futex2` or `fastsync` (with its corresponding kernel module `winesync`).
-
-#### compiler optimizations
-
-On top of the config variables that can be toggled in `customization.cfg` in `wine-tkg`, you can set [custom compiler optimizations](#self-compiling) by editing the following lines of the file `wine-tkg-profiles/advanced-customization.cfg`
-
-```shell
-_GCC_FLAGS="... EDIT HERE ..."
-# Custom LD flags to use instead of system-wide makepkg flags set in /etc/makepkg.conf. Default is "-pipe -O2 -ftree-vectorize".
-_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
-# Same as _GCC_FLAGS but for cross-compiled binaries.
-_CROSS_FLAGS="... EDIT HERE ..."
-# Same as _LD_FLAGS but for cross-compiled binaries.
-_CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
-```
-Where you can change `... EDIT HERE ...` with flags [from here](#flags-to-try): note that LTO nor PGO works with wine, you can at most use the `BASE + GRAPHITE + MISC` flags
-
-
-#### Knowledge Base
-
-##### Troubleshooting: first thing to try
-
-When your game simply doesn't work or worked once and then never again, try removing the [Wine Prefix](#game--wine-prefix-manager) created by steam for the game: remove the folder `SteamLibrary/steamapps/compdata/$GAMEID/pfx` (where `$GAMEID` is some unique ID that identifies the game, e.g. `1151640` for `Horizon Zero Dawn`). Then try relaunching the game.
-
-##### Troubleshooting: getting logs
-
-To first step to any troubeshooting is to get logs, in Steam, you need to set a specific launch option
-```
-PROTON_LOG=1 %command%
-```
-which you can reach by doing this (taken from [here](https://help.steampowered.com/en/faqs/view/7D01-D2DD-D75E-2955)):
-1. Open your Steam Library
-2. Right click the game's title and select `Properties`.
-3. On the `General` tab you'll find `Launch Options`` section.
-4. Enter the launch options `PROTON_LOG=1 %command%`
-5. Close the game's `Properties` window and launch the game.
-6. Recreate your issue
-7. A file name `steam-$GAMEID.log` (where `$GAMEID` is some unique ID that identifies the game, like `1151640` for `Horizon Zero Dawn`) will be in your home folder (`/home/foo`)
-
-In the log file (`steam-$GAMEID.log`), look for `err:` lines first, and use the keywords that appear there to know what to google for. Otherwise give the log entirely to people who may ask for it.
-
-##### Shared NTFS partition with Windows
-
-If you simply used a shared NTFS partition with windows and making Steam (Linux) discover it without further tweaks, you most probably will run into problems.
-
-Like this one with `IPHLPAPI.DLL` (which I ran into)
-```
-24337.090:0124:0128:err:module:import_dll Library IPHLPAPI.DLL (which is needed by L"E:\\SteamLibrary\\steamapps\\common\\Horizon Zero Dawn\\HorizonZeroDawn.exe") not found
-```
-
-The fix is to [delete the prefix](#troubleshooting-first-thing-to-try) then to follow [Proton's documentation on the matter](https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows) which involves having the path `/SteamLibrary/steamapps/compatdata` symlink to a folder outside of the NTFS partition, to a folder within a Linux filesystem (Btrfs, EXT4, ...etc ).
-
-**Note:**
-- To avoid having problems when using an NTFS partition on Linux, use `ntfs3` as a filesystem type in your [/etc/fstab](https://wiki.archlinux.org/title/Fstab) file to use [ntfs3 kernel driver](https://wiki.archlinux.org/title/NTFS) (instead of `ntfs` which uses [ntfs-3g userspace driver](https://en.wikipedia.org/wiki/NTFS-3G)) with the mount option `windows_names` ([described here](https://www.kernel.org/doc/html/latest/filesystems/ntfs3.html)). With that, creating the prefix `/SteamLibrary/steamapps/compatdata` within the NTFS partition will fail.
-- If you get an `rm: traversal failed` when trying to delete the prefix (or something else within the NTFS partition). That means your NTFS partition got corrupted and you will need to use Windows to scan and fix errors in the filesystem. Unfortunately Linux has no tool to fix NTFS filesystems.
 
 
 ## Performance overlays
