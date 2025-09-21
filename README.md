@@ -213,6 +213,11 @@ If the games crashes after doing all this, you can either try other git commits 
 
 First, try to get the latest kernel your distro ships, it often comes with performance improvements (it contains the base updates for the amd gpu driver for example).
 
+Recommendations:
+* [Kernel of CachyOS](https://wiki.cachyos.org/features/kernel/) has performance specific patches and is built with native for your CPU.
+* [Linux-zen](https://github.com/zen-kernel/zen-kernel/wiki/Detailed-Feature-List) is a good choice, but streaming in discord didn't work well, since it is in the background
+* Just use the default kernel your distro ships
+
 ### CPU mitigations
 
 As you may know, the kernel has various protection mechanisms from malicious program-execution based attacks, the likes of [Spectre and Meltdown](https://en.wikipedia.org/wiki/Meltdown_(security_vulnerability)). These protections/mitigations come with [an extra overhead on the CPU](https://www.phoronix.com/scan.php?page=article&item=3-years-specmelt&num=9). (Un)fortunately, it is possible to disable ALL these mitigations, at the expense of security. Although if you use X11 then you are just adding an extra cherry on top of how unsecure your setup is haha. Since any running application can catch your keyboard and what's displayed on your monitor.
