@@ -254,6 +254,8 @@ For GNOME users, there's a status indicator shell [extension](https://extensions
 
 ### AMD Ryzen: the `cpuset` trick
 
+**Note**: This is not necessary and might even have very bad side effects! Current schedulers handle this automatically. [GameMode](#gamemode) also does have configs for this.
+
 #### A small intro to CPU cache
 The cache is the closest memory to the CPU, and data from RAM needs to go through the cache first before being processed by the CPU. The CPU doesn't read from RAM directly. This cache memory is very small (at maximum few hundred megabytes as of current CPUs) and this leads to some wait time in the CPU: when some data needs to be processed but isn't already in cache (a "cache miss"), it needs to be loaded from RAM. When the cache is "full", because it will always be, some "old" data in cache is synced back in RAM then replaced by some other data from RAM: this takes time.
 
