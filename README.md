@@ -75,7 +75,23 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
 
 ## Linux distribution
 
-I have seen many reddit posts asking which linux distributions is "best" for gaming. My thoughts on the matter is that, to get the best performance, one simply needs the latest updates. All linux distributions provide the sames packages and provide updates. Some provide them faster than others. So any distribution that updates its packages the soonest after upstream (aka the original developers), is good in my opinion. Some distributions can take longer, sometimes 6 months after, for big projects (which is acceptable too, since one would get the updates without the initial bugs).
+I have seen many reddit posts asking which linux distributions is "best" for gaming. My thoughts on the matter is that, to get the best performance, one simply needs the latest updates. All linux distributions provide the sames packages and provide updates. Some provide them faster than others. So any distribution that updates its packages the soonest after upstream (aka the original developers), is good in my opinion. Some distributions can take longer, sometimes 6 months after, for big projects (which is acceptable too, since one would get the updates without the initial bugs).  
+
+If you have a GPU from a latest generation, you should use the newest kernel.  
+That's one of the reasons for me to suggest [Arch](https://archlinux.org/) with `archinstall` to make the installation very easy.  
+
+Now, [CachyOS](https://cachyos.org/) exists... So that's my recommendation. 
+
+> CachyOS does compile packages with the x86-64-v3, x86-64-v4 and Zen4 instruction set and LTO to provide a higher performance. Core packages also get PGO or BOLT optimization.
+
+and important for nvidia users:  
+> CachyOS includes a custom hardware detection tool that automatically identifies and installs the necessary drivers and packages for your system. This eliminates the need for manual driver searching, saving you time and effort after installation.
+
+You can also setup the important things on any(?) distro, like
+* Install the [CachyOS kernel](https://wiki.cachyos.org/features/kernel/)
+* Use [proton-cachyos](https://wiki.cachyos.org/configuration/gaming/) (and many more things)
+* Use a different [scheduler](https://wiki.cachyos.org/configuration/sched-ext/)
+* Add [CachyOS repos](https://wiki.cachyos.org/features/optimized_repos/#adding-our-repositories-to-an-existing-arch-linux-install) to Arch installs
 
 ## Self-compiling
 
