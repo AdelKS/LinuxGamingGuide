@@ -95,6 +95,7 @@ You can also setup the important things on any(?) distro, like
 
 ## Self-compiling
 
+... is not really necessary, but just in case:
 Compiling is the process of transforming human written code (like C/C++/Rust/... etc) to machine runnable programs (the `.exe` files on Windows, on Linux they usually have no extension :P). Compiling is actually done by a program, a compiler, on linux it's `gcc` or `clang`. There is not a unique way to translate/compile code to machine runnable programs, the compiler has lots of freedom on how to implement that, and we can influence them by telling them to try "harder" to optimize the machine code, by giving them the so called "flags": a set of command line options given to the compiler, an example is
 ```shell
 gcc main.c -O2 -march=native -pipe
