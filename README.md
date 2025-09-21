@@ -4,7 +4,8 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
 
 ## Table of Content
 
-Click the "menu" button ↗️
+Click the "menu" button ↗️  
+Really, this is a really long file, use the index.
 
 
 ## Linux distribution
