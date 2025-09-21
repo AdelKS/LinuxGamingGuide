@@ -228,10 +228,7 @@ You can disable this protection with the following kernel parameter `clearcpuid=
 
 ### Threading synchronization
 
-you may have heard about `esync`, `fsync` or `futex2` threading synchronisation kernel syscalls. They have been developed by CodeWeavers and Collabora.  
-Generally, you want to use `fsync`. `ntsync` is mostly [not faster](https://discuss.cachyos.org/t/proton-cachyos-ntsync-and-fsync-comparison-update/7932/11). `fsync` doesn't need to be explicitly installed, it's in Proton.  
-
-Chronologically, here's what happened
+you may have heard about `esync`, `fsync` or `futex2` threading synchronisation kernel syscalls. They have been developed by CodeWeavers and Collabora. Chronologically, here's what happened
 - `esync` is the oldest implementation and available in any non ancient kernel in any distro, since it uses the kernel's `eventfd` [system call](https://man7.org/linux/man-pages/man2/eventfd.2.html). Issues arise in some distros when a game opens a lot of the so called "file descriptors"
 - `FUTEX_WAIT_MULTIPLE`, a special additional flag on the `futex` [system call](https://man7.org/linux/man-pages/man2/futex.2.html) was developed. It was referred to in wine as `fsync` (that we will also call `fsync1`). This work did not get upstreamed in the linux kernel (out-of-tree).
 - `futex_waitv` implementing  a new system call
