@@ -34,7 +34,7 @@ Steam installs Proton for you. Only other Proton versions you want to use need t
 With a Nvidia GPU, you need install the correct drivers, [see here](#nvidia) (except on CachyOS).
 
 
-## Game / "Wine prefix" manager
+### Game / "Wine prefix" manager
 
 To run games on Linux, wine creates a so-called "prefix" folder with an arbitrary user chosen name, let's say `game-prefix`. It contains all the configuration specific to wine and a folder structure, within the `drive_c` subfolder, that follows Windows' structure: you can find e.g. `Program Files` or `windows/system32` subfolders in it. The DLLs in the latter folder are actually created by wine, through reverse engineering. From a game's/window's app perspective, these DLLs to behave just like windows, and wine takes care of the rest (by implementing system calls itself, in the wineserver I believe, or redirecting to the linux kernel, correct me if I am wrong please).
 
@@ -46,10 +46,10 @@ Usually, one creates one prefix per game/app, as sometimes each game has some qu
 - May have built-in support for extra tools like FPS counters (see [Performance overlays](#performance-overlays)), or other kinds of stuff (see e.g. [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt))
 
 
-### Steam
+#### Steam
 Valve's official closed source game manager handles Linux natively and offers to run windows specific games with Steam's own builds of `proton`. It also accepts custom proton builds like e.g. `proton-tkg` ([wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) repo) or GloriousEggroll's [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) prebuilds.
 
-#### SteamTinkerLaunch
+##### SteamTinkerLaunch
 
 From [its Github page]((SteamTinkerLaunch))
 > [Steam Tinker Launch](SteamTinkerLaunch) is a versatile Linux wrapper tool for use with the Steam client which allows for easy graphical configuration of game tools, such as GameScope, MangoHud, modding tools and a bunch more. It supports both games using Proton and native Linux games, and works on both X11 and Wayland.  
@@ -59,10 +59,10 @@ It's a lil weird at first, but will help you a lot!
 Make sure to follow these [instructions](https://github.com/sonic2kk/steamtinkerlaunch/wiki/Steam-Compatibility-Tool#command-line-usage).
 
 
-### Lutris
+#### Lutris
 [Lutris](https://lutris.net/) is one of these Generic open source game managers, it offers a [database](https://lutris.net/games) of scripts to automatically install various games and the quirks and/or extra configuration (e.g. extra fonts) needed to run them. It also enables you to give it your own compiled wine version and that's why I am using it currently. It is however lagging a bit behind in integrating the new tools that are being developped (e.g. `latencyflex`) and offering newer versions of runtime components (`Wine`, `dxvk`, ...). To see the toggles Lutris offers, install a game, then click `Configure` > `Runner options` tab.
 
-### Bottles
+#### Bottles
 [Bottles](https://usebottles.com/) is a modern take on generic open source game managers, it has a more intuitive configuration UI, ships the latest builds of `wine`/`dxvk`, and tries to implement integration with all the latest other tools. I could however not find how to make it use my own compiled wine version.
 
 ### Heroic Games Launcher
