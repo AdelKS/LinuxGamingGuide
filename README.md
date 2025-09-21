@@ -313,9 +313,14 @@ Then also open another shell, and do `lstopo`, you should get separate results:
 I did [this benchmark](#overwatch-cpuset) on Overwatch, the conclusions are the following:
 - After a fresh restart, I already have a small number of processes (around 300), and most of them are sleeping, which means that Overwatch basically already has the entirety of the CPU for itself. Doing the cpuset trick reduced the performance: I think it's because Overwatch works optimally in more than 4 cores.
 - Playing while doing another heavy workload, like stream with software encoding, works better with the cpuset trick.
+
+
 ## Wine
 
-Wine is a program that enables running windows executables on Linux. Through Wine, windows executables run natively on your linux machine (**W**ine **I**s **N**ot an **E**mulator xD), Wine will be there to remap all Windows specific behavior of the program to something Linux can handle, `DXVK` for example replaces the part of Wine that maps `DirectX` (Windows specific) calls of executables to Vulkan calls (That Linux can handle). Tweaking Wine can have quite the impact on games, both positive and negative.
+Wine is a program that enables running windows executables on Linux. Through Wine, windows executables run natively on your linux machine (**W**ine **I**s **N**ot an **E**mulator xD), Wine will be there to remap all Windows specific behavior of the program to something Linux can handle, `DXVK` and `VKD3D` for example replaces the part of Wine that maps `DirectX` (Windows specific) calls of executables to Vulkan calls (That Linux can handle). Tweaking Wine can have quite the impact on games, both positive and negative.
+
+Proton extends Wine and makes it possible to game without any tinkering. You should always use Proton. Wine only on edge cases.
+
 
 #### Environment variables
 
