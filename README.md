@@ -202,9 +202,9 @@ A nice documentation is given by, once again, Arch's documentation: https://wiki
 
 * "Very old" GPUs: the opensource driver is `radeon` and you only have that as an option, along with AMD's closed source driver I believe. But you are out of luck for running DXVK, since both driver's don't implement Vulkan.
 * "Old" GPUs: GCN1 and GCN2 are now supported by the newer "amdgpu" driver and you switch to it to win a few frames.
-* New GPUs: the base driver is `amdgpu`, and is shipped and updated with the linux Kernel, stacks on top of it three different drivers:
+* New GPUs: the base driver is `amdgpu`, and is shipped and updated with the linux Kernel. Stacks on top of it three different drivers:
   * Mesa: the open source graphics stack that handles AMD, Intel, Qualcomm ...etc GPUs. The AMD OpenGL driver is called RadeonSI Gallium3D and is the best you can get. The Vulkan driver is called RADV
-  * amdvlk: AMD's official open source Vulkan-only driver, I suppose the rest (OpenGL) is left to mesa. link here: https://github.com/GPUOpen-Drivers/AMDVLK
+  * amdvlk: [Discontinued](https://www.gamingonlinux.com/2025/09/amdvlk-has-been-discontinued-as-amd-are-throwing-their-full-support-behind-radv/)
   * amdgpu PRO: AMD's official closed source driver, that has its own Vulkan and OpenGL implementation.
 
 #### RADV
