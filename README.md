@@ -380,7 +380,11 @@ Valve's official closed source game manager handles Linux natively and offers to
 #### SteamTinkerLaunch
 
 From [its Github page]((SteamTinkerLaunch))
-> [Steam Tinker Launch](SteamTinkerLaunch) is a versatile Linux wrapper tool for use with the Steam client which allows for easy graphical configuration of game tools, such as GameScope, MangoHud, modding tools and a bunch more. It supports both games using Proton and native Linux games, and works on both X11 and Wayland.
+> [Steam Tinker Launch](SteamTinkerLaunch) is a versatile Linux wrapper tool for use with the Steam client which allows for easy graphical configuration of game tools, such as GameScope, MangoHud, modding tools and a bunch more. It supports both games using Proton and native Linux games, and works on both X11 and Wayland.  
+
+STL can be globally set in steam and lets you configure Proton, DXVK/VK3D, GameMode, MangoHud and many other things per game before the game starts. It makes *everything* so much easier and lets you run GameMode with every game without needing to fiddle with the start parameters of every game!  
+It's a lil weird at first, but will help you a lot!  
+Make sure to follow these [instructions](https://github.com/sonic2kk/steamtinkerlaunch/wiki/Steam-Compatibility-Tool#command-line-usage).
 
 #### Knowledge Base
 
