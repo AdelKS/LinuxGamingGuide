@@ -82,6 +82,29 @@ You can check whether or not gamemode is running with the command `gamemoded -s`
 For GNOME users, there's a status indicator shell [extension](https://extensions.gnome.org/extension/7074/gamemode-shell-extension/) that show a notification and a tray icon when gamemode is running.  
 
 
+### Example(s)
+
+On my setup, everything starts with [STL](#steamtinkerlaunch) being [globally](https://github.com/sonic2kk/steamtinkerlaunch/wiki/Steam-Compatibility-Tool#global-usage) set, therefore STL is started with every game I start through Steam. In STL I enabled [GameMode](#gamemode) and [MangoHUD](#mangohud), what makes the command in the `gamemode.ini` run for all games I start and have the overlay on all games.  
+```ini
+[custom]
+start=dunstify -a "GameMode" "Started" "Use Ctrl+Alt+Y to save clips"
+    /home/yama/scripts/gamemode.sh on
+
+end=dunstify -a "GameMode" "Ended" "Reverting..."
+    /home/yama/scripts/gamemode.sh off
+```
+In `scripts/gamemode.sh` I write every command I want to run before a game run and after a game is closed. These things could be
+* change resolution/refreshrate/display position/VRR
+* change display settings like brightness `ddcutil setvcp 10 90 -n 412NTNH8B575`
+* disable notifications
+* start [gsr](#gpu-screen-recorder) to save replays
+* change powerprofile for CPU or GPU
+
+Have a look on [gamemode.sh](./scripts/gamemode.sh) and [perf_mode.sh](./scripts/perf_mode.sh).  
+
+To run `perf_mode.sh` with `sudo`, more setup in `visudo` is needed: `yama ALL=NOPASSWD: /home/yama/scripts/perf_mode.sh`
+
+
 ## DXVK
 
 This is the library that maps DirectX 8-11 (Windows) to Vulkan (Multi-platform and open source) so games that are meant for Windows work on Linux. It's better than wine's built-in mapper called WineD3D.  
