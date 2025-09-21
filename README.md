@@ -95,7 +95,7 @@ You can also setup the important things on any(?) distro, like
 
 ## Self-compiling
 
-... is not really necessary, but just in case:
+... is not really necessary, but just in case:  
 Compiling is the process of transforming human written code (like C/C++/Rust/... etc) to machine runnable programs (the `.exe` files on Windows, on Linux they usually have no extension :P). Compiling is actually done by a program, a compiler, on linux it's `gcc` or `clang`. There is not a unique way to translate/compile code to machine runnable programs, the compiler has lots of freedom on how to implement that, and we can influence them by telling them to try "harder" to optimize the machine code, by giving them the so called "flags": a set of command line options given to the compiler, an example is
 ```shell
 gcc main.c -O2 -march=native -pipe
@@ -150,7 +150,7 @@ It is recommended to try them in the following order, if one fails (for whatever
 
 ## DXVK
 
-This is the library that maps DirectX (Windows) to Vulkan (Multi-platform and open source) so games that are meant for Windows work on Linux. It's better than wine's built-in mapper called WineD3D. Lutris provides a version already.
+This is the library that maps DirectX 8-11 (Windows) to Vulkan (Multi-platform and open source) so games that are meant for Windows work on Linux. It's better than wine's built-in mapper called WineD3D. Lutris provides a version already.
 
 You can compile your own latest one with some "better" compiler optimizations if you wish, and that's what I am doing but I have no idea about the possible FPS benefits of doing that. To do so you will need to put what DXVK's compile script gives you in `~/.local/share/lutris/runtime/dxvk/`. Link here: https://github.com/doitsujin/dxvk
 
@@ -176,6 +176,10 @@ Where you can replace `... TO BE FILLED ...` with `BASE + GRAPHITE + MISC + LTO3
 **Note:** you need to respect the syntax of the `build-winXX.txt` files. Flags are quoted and separated with comas _e.g._ `c_args=['-O2', '-march=native']`.
 
 These flag changes may improve performance or not, the best is to test with and without and see for oneself. If regressions happen or it doesn't want to compile you can try [other flags](#flags-to-try).
+
+## VKD3D
+
+Since DXVK only works for DirectX 8-11, [VKD3D](https://github.com/HansKristian-Work/vkd3d-proton) is for DirectX 12.
 
 ## GPU
 
