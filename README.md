@@ -610,6 +610,14 @@ To enable it:
    - press the "save" button that is right next to "stop replay buffer"
    - trigger the keyboard shortcut for "save replay"
 
+### gpu-screen-recorder
+
+[gsr](https://git.dec05eba.com/gpu-screen-recorder/) is a cli, GUI and overlay tool for recording, replay and streaming efficiently with the GPU.  
+All packages are officially only available in the [AUR](https://aur.archlinux.org/packages/gpu-screen-recorder). CachyOS builds are available, too.  
+
+You can run this command with [GameMode](#gamemode) to be able to save replays with a hotkey. Needs more prep on wayland.  
+`gpu-screen-recorder -w DP-1 -f 60 -q medium -r 20 -k av1 -bm vbr -c webm -ac opus -a "$(pactl get-default-sink).monitor" -o /tmp -v no -sc scripts/clip_upload.sh  > /tmp/gamemode.log 2>&1`
+
 ## Sound tweaks with Pipewire/Pulseaudio
 
 This section is about some tweaks one can do with [Pulseaudio](https://www.freedesktop.org/wiki/Software/PulseAudio/) or [Pipewire](https://pipewire.org/) (will replace Pulseaudio and offers more features).
