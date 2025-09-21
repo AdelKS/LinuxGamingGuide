@@ -240,11 +240,16 @@ Using a self-compiled kernel can bring some gaming improvements. Ready to use pr
 
 For self-compiling a kernel, there is a git repository called [linux-tkg](https://github.com/Frogging-Family/linux-tkg) that provides a script to compile the linux Kernel from source (takes about ~30mins, but can be stripped down with `modprobed-db`) with some customization options e.g. changing/tweaking the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([EEVDF](https://en.wikipedia.org/wiki/Earliest_eligible_virtual_deadline_first_scheduling) is the default) ; along with other patches that help getting better performance in games. You can also provide your own patches if you want, giving this tool a lot of flexibilty. `linux-tkg` needs to be compiled on your own machine, where you can use compiler optimizations such as `-O3` and `-march=native` (which is really an `mtune=native` than anything else, SIMD instructions are explicitly disabled by design), LTO can be used with Clang (PGO may come ?), with an interactive script and a config file, I worked on the script that installs `linux-tkg` on non-Arch distros.
 
-### Game mode
+### GameMode
 
-It's a small program that puts your computer in performance mode: as far as I know it puts the frequency scaling algorithm to `performance` and changes the scheduling priority of the game. It's available in most distro's repositories and I believe it helps in giving consistent FPS. Lutris uses it automatically if it's detected, otherwise you need to go, for any game in Lutris, to "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it). Link here: https://github.com/FeralInteractive/gamemode.
+[GameMode](https://github.com/FeralInteractive/gamemode) puts your computer in performance mode ([config](https://github.com/FeralInteractive/gamemode/blob/master/example/gamemode.ini)): as far as I know it puts the frequency scaling algorithm to `performance` and changes the scheduling priority of the game. It's available in most distro's repositories and I believe it helps in giving consistent FPS. Of course, also read the [Arch Wiki](https://wiki.archlinux.org/title/GameMode) on GameMode.    
 
-You can check whether or not gamemode is running with the command `gamemoded -s`. For GNOME users, there's a status indicator shell extension that show a notification and a tray icon when gamemode is running: https://extensions.gnome.org/extension/1852/gamemode/
+Read [here how to use](https://wiki.archlinux.org/title/GameMode#Usage). But, if you setup [SteamTinkerLaunch](#steamtinkerlaunch) (which you really should!), you can enable GameMode on the global config to have it on all games.  
+Lutris uses it automatically if it's detected, otherwise you need to go, for any game in Lutris, to "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it).  
+
+You can check whether or not gamemode is running with the command `gamemoded -s`.  
+[Waybar](https://github.com/Alexays/Waybar/wiki/Module:-Gamemode) can be setup to show the state of GameMode.  
+For GNOME users, there's a status indicator shell [extension](https://extensions.gnome.org/extension/7074/gamemode-shell-extension/) that show a notification and a tray icon when gamemode is running.  
 
 
 ### AMD Ryzen: the `cpuset` trick
