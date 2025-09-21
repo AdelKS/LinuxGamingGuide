@@ -315,69 +315,27 @@ I did [this benchmark](#overwatch-cpuset) on Overwatch, the conclusions are the 
 - Playing while doing another heavy workload, like stream with software encoding, works better with the cpuset trick.
 
 
-## Wine
+## Proton
+
+Proton extends Wine and makes it possible to game without any tinkering.  
+
+You should always use Proton. If that doesn't work, try [Proton-GE](#proton-ge). Wine is only needed on edge cases.
+
+### Wine
 
 Wine is a program that enables running windows executables on Linux. Through Wine, windows executables run natively on your linux machine (**W**ine **I**s **N**ot an **E**mulator xD), Wine will be there to remap all Windows specific behavior of the program to something Linux can handle, `DXVK` and `VKD3D` for example replaces the part of Wine that maps `DirectX` (Windows specific) calls of executables to Vulkan calls (That Linux can handle). Tweaking Wine can have quite the impact on games, both positive and negative.
 
-Proton extends Wine and makes it possible to game without any tinkering. You should always use Proton. Wine only on edge cases.
+### Proton-GE
 
+Some games won't run with Proton, so try them out with [Proton-GE](https://github.com/GloriousEggroll/proton-ge-custom). They do have some fixes before Proton does.
 
-#### Environment variables
+### fsync or ntsync?
 
-Some [wine environment variables](https://wiki.winehq.org/Wine-Staging_Environment_Variables#Shared_Memory) can be set that can help with performance, given that they can break games, they can be added on a per-game basis as usual in Lutris. The variables are the following:
+Generally, you want to use `fsync`. `ntsync` is mostly [not faster](https://discuss.cachyos.org/t/proton-cachyos-ntsync-and-fsync-comparison-update/7932/11). `fsync` doesn't need to be explicitly installed, it's in Proton.
 
-```shell
-STAGING_SHARED_MEMORY=1
-STAGING_WRITECOPY=1
-```
-### Threading synchronisation
-
-To leverage the kernel's threading synchronisation primitives (see [Kernel: threading synchronization](#threading-synchronization)) in windows apps/gaes, wine has to be the middle-man in between.
-#### Esync-Fsync
-To be able to handle `fsync/futex2`, you will need a patched version of wine. To enable it, you need to set the following environment variable
-```shell
-WINEFSYNC=1
-WINEESYNC=1
-```
-Where `WINEESYNC=1` is here as a fallback if ever `fsync` doesn't work.
-
-To know wether `esync` or `fsync` are running. You can try running your game/launcher from the command line and you should see one of the following in the logs:
-- `esync`:
-  ```shell
-  [...]
-  esync: up and running
-  [...]
-  ```
-- `fsync`:
-  ```shell
-  [...]
-  fsync: up and running
-  [...]
-  ```
-
-#### Fastsync
-
-To be able to use `fastsync`, you need the following, **in this order**
-1. Be running a `winesync` enabled kernel, more information [in this section](#threading-synchronization)
-2. Have a custom wine built with `winesync` support (e.g. `wine-tkg` offers it). This may mean `fsync` support needs to be disabled.
-3. Disable all environment variables related to `esync/fsync` (and also from lutris' game options):
-    ```shell
-    WINEESYNC=0
-    WINEFSYNC=0
-    ```
-To know if fastsync is correctly working, you may run your game/launcher from the command line once and look for the following lines:
-```shell
-wineserver: using server-side synchronization.
-wine: using fast synchronization.
-```
-This command should also return few executables
-```shell
-lsof /dev/winesync
-```
-**Note:** even with this, sometimes `fastsync` did not correctly work for me... `fastsync` should have a similar performance to `fsync/futex2` so far, so if it doesn't work for you, switch back to `fsync/futex2` then try again a little bit later.
 
 ### Wine-tkg
-[wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) is a set of scripts that clone and compile `wine`'s source code, on your own machine, with extra patches that offer better performance and better game compatibility. One of the interesting offered extra features are additional [threading synchronization](#threading-synchronization) primitives that work with the corresponding patched `linux-tkg` kernel. One can use `Esync+Fsync+Futex2` or `fastsync` (with its corresponding kernel module `winesync`).
+[wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) is a set of scripts that clone and compile `wine` and `proton`, on your own machine, with extra patches that offer better performance and better game compatibility. One of the interesting offered extra features are additional threading synchronization primitives that work with the corresponding patched `linux-tkg` kernel. One can use `Esync+Fsync+Futex2` or `fastsync` (with its corresponding kernel module `winesync`).
 
 #### compiler optimizations
 
@@ -394,11 +352,12 @@ _CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 ```
 Where you can change `... EDIT HERE ...` with flags [from here](#flags-to-try): note that LTO nor PGO works with wine, you can at most use the `BASE + GRAPHITE + MISC` flags
 
+
 ## Game / "Wine prefix" manager
 
 To run games on Linux, wine creates a so-called "prefix" folder with an arbitrary user chosen name, let's say `game-prefix`. It contains all the configuration specific to wine and a folder structure, within the `drive_c` subfolder, that follows Windows' structure: you can find e.g. `Program Files` or `windows/system32` subfolders in it. The DLLs in the latter folder are actually created by wine, through reverse engineering. From a game's/window's app perspective, these DLLs to behave just like windows, and wine takes care of the rest (by implementing system calls itself, in the wineserver I believe, or redirecting to the linux kernel, correct me if I am wrong please).
 
-Usually, one creates one prefix per game/app, as sometimes each game has some quirks that  wine doesn't handle well by default for which a tweak is needed. But that tweaks would break other games apps. And that's where a "game manager" / "wine prefix manager" comes into play to avoid tedious and repetitive manual configurations:
+Usually, one creates one prefix per game/app, as sometimes each game has some quirks that wine doesn't handle well by default for which a tweak is needed. But that tweaks would break other games apps. And that's where a "game manager" / "wine prefix manager" comes into play to avoid tedious and repetitive manual configurations:
 - Automatically creates prefixes for each of your game
 - Ships various version of Wine to work with the various versions of your games
 - Bundles various DXVK versions to chose from
@@ -416,7 +375,7 @@ Usually, one creates one prefix per game/app, as sometimes each game has some qu
 [Heroic Games Launcher](https://heroicgameslauncher.com) is an opensource game manager for games you own on [GOG](gog.com) or [Epic Games](https://store.epicgames.com). I have not tried it at all so that's all I can say x)
 
 ### Steam
-Valve's official closed source game manager handles Linux natively and offers to run windows specific games with Steam's own builds of `proton-wine`. It also accepts custom proton builds like e.g. `proton-tkg` ([wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) repo) or GloriousEggroll's [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) prebuilds.
+Valve's official closed source game manager handles Linux natively and offers to run windows specific games with Steam's own builds of `proton`. It also accepts custom proton builds like e.g. `proton-tkg` ([wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) repo) or GloriousEggroll's [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) prebuilds.
 
 #### SteamTinkerLaunch
 
