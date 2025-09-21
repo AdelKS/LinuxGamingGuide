@@ -432,6 +432,8 @@ Overclocking is possible on Linux, please refer to the Archlinux wiki on [Improv
 ### RAM
 
 I have found a super nice [guide on Github](https://github.com/integralfx/MemTestHelper/blob/oc-guide/DDR4%20OC%20Guide.md) on the matter.
+
+
 ## Input lag / latency: benchmark at home
 I have always had a wired gaming mouse, and always had sometimes this issue where the cable gets entangled when I am playing my FPS game. So I started looking into wirless ones, and this got me interested in mouse latencies: do wireless mice have higher input lag ? This question generalizes to mice and keyboards in general, and also to games.
 
@@ -463,7 +465,7 @@ Now we have enough information to define an approximate upper-bound and lower-bo
 
 
 An important note:
-- If you are testing the device itself, do NOT test on a game: a game adds input lag on top of the one the keyboard/mouse has. I found out that testing on the mouse cursor on the desktop is way better ! Preferably with the compositor disabled.
+- If you are testing the device itself, do NOT test on a game: a game adds input lag on top of the one the keyboard/mouse has. I found out that testing on the mouse cursor on the desktop is way better! Preferably with the compositor disabled.
 
 Once you have an estimation of the latency of your device, you can start benchmarking game related input lag!
 
@@ -476,31 +478,34 @@ However, you may find it that the delay of start of movement you measure is lowe
 
 Some benchmarks following this procedure are following in the [benchmarks/mice](#mice) section.
 
+
 ## X11/Wayland
 
-Wayland is the successor to X11, and is now mature and supported enough for X11 to be phased out, and that's what most linux distros are starting to consider.
+Wayland is the successor to X11, and is now mature and supported enough for X11 to be phased out, and that's what most linux distros already did.
 
 - Wayland
-  - As of KDE 6 and Gnome 46, gaming on wayland just works without any downside (?).
+  - As of KDE Plasma 6 and Gnome 46, gaming on wayland just works without any downside (?).
     - Games however still use XWayland (a "small" X server within the Wayland session to play the game) by default
       - Proton (e.g. in Steam) doesn't support wayland at all for now, so it will use XWayland.
       - Starting wine 9.22, native wayland is supported by simply starting the game with the environment variable `DISPLAY` unset / empty. YMMV
   - VRR is supported out of the box can be toggled using the GUI settings app
-  - HDR is supported
+  - HDR is supported and the game needs to run with gamescope inside of Plasma
 
 - X11, some recommendations:
   - The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering).
     - It may be argued that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag.
-      - However, with high refresh rate monitors (e.g. 240Hz), image update smoothness is noticeable vs the theoretically added input lag. Try and see !
+      - However, with high refresh rate monitors (e.g. 240Hz), image update smoothness is noticeable vs the theoretically added input lag. Try and see!
       - This option entirely removes screen tearing with anything: for example scrolling on Firefox, on compositor-less DEs like LXDE, becomes super smooth.
   - If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
+
 
 ## Performance overlays
 
 Performance overlays are small "widgets" that stack on top of your game view and show performance statistics (framerate, temperatures, frame times, CPU/RAM usages... etc). Two possibilities:
 
-* MangoHud: It is available in the repositories of most linux distros, to activate it, you only need to add the environment variable `MANGOHUD=1`, and the stats you want to see in `MANGOHUD_CONFIG`. The interesting part of MangoHud is that it can also bechmark games: Record the entirety of the frame times, calculate frametime percentiles...etc Ideal to do benchmarks with. More information here: https://github.com/flightlessmango/MangoHud. It can be configured via a GUI with GOverlay - https://github.com/benjamimgois/goverlay
+* MangoHud: It is available in the repositories of most linux distros, to activate it, you only need to add the environment variable `MANGOHUD=1` (or [STL](#steamtinkerlaunch)), and the stats you want to see in `MANGOHUD_CONFIG`. The interesting part of MangoHud is that it can also bechmark games: Record the entirety of the frame times, calculate frametime percentiles, etc. Ideal to do benchmarks with. More information here: https://github.com/flightlessmango/MangoHud. It can be configured via a GUI with GOverlay - https://github.com/benjamimgois/goverlay
 * DXVK has its own HUD and can be enabled by setting the variable `DXVK_HUD`, the possible values are explained in [its repository](https://github.com/doitsujin/dxvk)
+
 
 ## Streaming - Saving replays
 
