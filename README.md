@@ -507,7 +507,7 @@ Performance overlays are small "widgets" that stack on top of your game view and
 * DXVK has its own HUD and can be enabled by setting the variable `DXVK_HUD`, the possible values are explained in [its repository](https://github.com/doitsujin/dxvk)
 
 
-## Streaming - Saving replays
+## Streaming / Saving replays
 
 ### OBS
 
@@ -544,6 +544,9 @@ And you will see a `game capture` as a new source entry. It works great and fixe
 
 #### Encoders
 
+Use VAAPI where possible (`ffmpeg-vaapi` in OBS).  
+
+In depth in case you are interested:  
 With AMD GPUs, one can use `ffmpeg-vaapi` to leverage the GPU for encoding, which is offered out of the box. `ffmpeg-amf` contains additions from AMD's [AMF](https://github.com/GPUOpen-LibrariesAndSDKs/AMF) library, but [it needs some work](https://www.reddit.com/r/linux_gaming/comments/qwqxwd/how_to_enable_amd_amf_encoding_in_obs/) : to install `amf-headers`, `ffmpeg` with `amf` enabled, `amdgpu-pro-vulkan` and `amdgpu-pro-amf` packages. Archlinux and Gentoo have that in place, I did the Gentoo work :D.
 
 Nvidia has been reported to work nicely on linux and on windows with their new `nvenc` encoder.
