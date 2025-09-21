@@ -821,6 +821,15 @@ It is recommended to try them in the following order, if one fails (for whatever
 
 
 ## Misc
+
+### Software
+
+* [HeadsetControl](https://github.com/Sapd/HeadsetControl/) with [Game-Audio](https://github.com/Sapd/HeadsetControl/discussions/311) volume knob
+* [Artemis-RGB](https://artemis-rgb.com/) and [OpenRGB](https://openrgb.org/)
+* [CoolerControl](https://gitlab.com/coolercontrol/coolercontrol) for fan curves
+
+### Misc²
+
 * Asus ROG laptop 2022 and BIOS updates: if you get the error `Selected file is not a proper bios` with EZ Flash in the BIOS menu. You need a USB stick that's USB3, with a GPT partition table, with secure boot disabled in the BIOS (so you need to put secure boot back to setup mode after the update, and re-enroll your keys).
 * There is very nice documentation on the [Archlinux wiki about improving performance](https://wiki.archlinux.org/index.php/Improving_performance)
 * Firefox on Wayland with high refresh rate monitors: [smooth scrolling](https://www.reddit.com/r/linux/comments/l1re17/psa_by_default_firefox_on_linux_doesnt_match_with/)
