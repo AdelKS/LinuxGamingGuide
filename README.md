@@ -331,7 +331,7 @@ sudo systemctl enable --now scx_loader.service
 Put this line on autostart: `scxctl start --sched lavd`
 
 Thats it. That would run `lavd` in *Autopilot*. But you can have more control with letting [GameMode](#gamemode) change the scheduler modes:  
-Powersave: `scxctl switch --sched lavd -m powersave`
+Powersave: `scxctl switch --sched lavd -m powersave`  
 Performance: `scxctl switch --sched lavd -m gaming`
 
 
