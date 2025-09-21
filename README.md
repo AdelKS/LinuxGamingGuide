@@ -153,7 +153,7 @@ It is recommended to try them in the following order, if one fails (for whatever
 This is the library that maps DirectX 8-11 (Windows) to Vulkan (Multi-platform and open source) so games that are meant for Windows work on Linux. It's better than wine's built-in mapper called WineD3D.  
 This is built in Proton and you don't need to install it!  
 
-You can compile your own latest one with some "better" compiler optimizations if you wish, and that's what I am doing but I have no idea about the possible FPS benefits of doing that. To do so you will need to put what DXVK's compile script gives you in `~/.local/share/lutris/runtime/dxvk/`. Link here: https://github.com/doitsujin/dxvk
+You can compile your own latest one with some "better" compiler optimizations (`proton-cachyos` is shipped that way) if you wish, and that's what I am doing but I have no idea about the possible FPS benefits of doing that. To do so you will need to put what DXVK's compile script gives you in `~/.local/share/lutris/runtime/dxvk/`. Link here: https://github.com/doitsujin/dxvk
 
 ```shell
 git clone https://github.com/doitsujin/dxvk.git
