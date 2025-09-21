@@ -27,6 +27,11 @@ You can also setup the important things on any(?) distro, like
 * Use a different [scheduler](https://wiki.cachyos.org/configuration/sched-ext/)
 * Add [CachyOS repos](https://wiki.cachyos.org/features/optimized_repos/#adding-our-repositories-to-an-existing-arch-linux-install) to Arch installs
 
+## Setup
+
+You only need `mesa` and `steam` to be able to game. Everything else in this guide is optional.  
+Steam installs Proton for you. Only other Proton versions you want to use need to explicitly installed.
+
 ## Self-compiling
 
 ... is not really necessary, but just in case:  
