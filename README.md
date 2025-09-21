@@ -84,7 +84,7 @@ For GNOME users, there's a status indicator shell [extension](https://extensions
 
 ### Example(s)
 
-On my setup, everything starts with [STL](#steamtinkerlaunch) being [globally](https://github.com/sonic2kk/steamtinkerlaunch/wiki/Steam-Compatibility-Tool#global-usage) set, therefore STL is started with every game I start through Steam. In STL I enabled [GameMode](#gamemode) and [MangoHUD](#mangohud), what makes the command in the `gamemode.ini` run for all games I start and have the overlay on all games.  
+On my setup, everything starts with [STL](#steamtinkerlaunch) being [globally](https://github.com/sonic2kk/steamtinkerlaunch/wiki/Steam-Compatibility-Tool#global-usage) set, therefore STL is started with every game I start through Steam. In STL I enabled [GameMode](#gamemode) and [MangoHUD](#performance-overlays), what makes the command in the `gamemode.ini` run for all games I start and have the overlay on all games.  
 ```ini
 [custom]
 start=dunstify -a "GameMode" "Started" "Use Ctrl+Alt+Y to save clips"
@@ -93,12 +93,13 @@ start=dunstify -a "GameMode" "Started" "Use Ctrl+Alt+Y to save clips"
 end=dunstify -a "GameMode" "Ended" "Reverting..."
     /home/yama/scripts/gamemode.sh off
 ```
-In `scripts/gamemode.sh` I write every command I want to run before a game run and after a game is closed. These things could be
+In `scripts/gamemode.sh` I write every command I want to run before a game starts and after a game is closed. These things could be
 * change resolution/refreshrate/display position/VRR
 * change display settings like brightness `ddcutil setvcp 10 90 -n 412NTNH8B575`
 * disable notifications
 * start [gsr](#gpu-screen-recorder) to save replays
 * change powerprofile for CPU or GPU
+* change [scheduler](#scheduler) mode
 
 Have a look on [gamemode.sh](./scripts/gamemode.sh) and [perf_mode.sh](./scripts/perf_mode.sh).  
 
@@ -313,6 +314,26 @@ Recommendations:
 * [Kernel of CachyOS](https://wiki.cachyos.org/features/kernel/) has performance specific patches and is built with native for your CPU.
 * [Linux-zen](https://github.com/zen-kernel/zen-kernel/wiki/Detailed-Feature-List) is a good choice, but streaming in discord didn't work well, since it is in the background
 * Just use the default kernel your distro ships
+
+
+### Scheduler
+
+Read more on [CachyOS Wiki](https://wiki.cachyos.org/configuration/sched-ext/).
+
+Quick steps
+```sh
+sudo pacman -S scx-scheds
+sudo systemctl disable --now ananicy-cpp
+sudo systemctl disable --now scx.service
+sudo systemctl enable --now scx_loader.service
+```
+
+Put this line on autostart: `scxctl start --sched lavd`
+
+Thats it. That would run `lavd` in *Autopilot*. But you can have more control with letting [GameMode](#gamemode) change the scheduler modes:  
+Powersave: `scxctl switch --sched lavd -m powersave`
+Performance: `scxctl switch --sched lavd -m gaming`
+
 
 ### CPU mitigations
 
