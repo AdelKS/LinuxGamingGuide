@@ -65,7 +65,7 @@ Make sure to follow these [instructions](https://github.com/sonic2kk/steamtinker
 #### Bottles
 [Bottles](https://usebottles.com/) is a modern take on generic open source game managers, it has a more intuitive configuration UI, ships the latest builds of `wine`/`dxvk`, and tries to implement integration with all the latest other tools. I could however not find how to make it use my own compiled wine version.
 
-### Heroic Games Launcher
+#### Heroic Games Launcher
 [Heroic Games Launcher](https://heroicgameslauncher.com) is an opensource game manager for games you own on [GOG](gog.com) or [Epic Games](https://store.epicgames.com). I have not tried it at all so that's all I can say x)
 
 
