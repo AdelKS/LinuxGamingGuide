@@ -34,6 +34,53 @@ Steam installs Proton for you. Only other Proton versions you want to use need t
 With a Nvidia GPU, you need install the correct drivers, [see here](#nvidia) (except on CachyOS).
 
 
+## Game / "Wine prefix" manager
+
+To run games on Linux, wine creates a so-called "prefix" folder with an arbitrary user chosen name, let's say `game-prefix`. It contains all the configuration specific to wine and a folder structure, within the `drive_c` subfolder, that follows Windows' structure: you can find e.g. `Program Files` or `windows/system32` subfolders in it. The DLLs in the latter folder are actually created by wine, through reverse engineering. From a game's/window's app perspective, these DLLs to behave just like windows, and wine takes care of the rest (by implementing system calls itself, in the wineserver I believe, or redirecting to the linux kernel, correct me if I am wrong please).
+
+Usually, one creates one prefix per game/app, as sometimes each game has some quirks that wine doesn't handle well by default for which a tweak is needed. But that tweaks would break other games apps. And that's where a "game manager" / "wine prefix manager" comes into play to avoid tedious and repetitive manual configurations:
+- Automatically creates prefixes for each of your game
+- Ships various version of Wine to work with the various versions of your games
+- Bundles various DXVK versions to chose from
+- Offers various options that can be toggled (`fsync`, `dxvk-nvapi/dlss`, `fsr`, `latencyflex`...)
+- May have built-in support for extra tools like FPS counters (see [Performance overlays](#performance-overlays)), or other kinds of stuff (see e.g. [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt))
+
+
+### Steam
+Valve's official closed source game manager handles Linux natively and offers to run windows specific games with Steam's own builds of `proton`. It also accepts custom proton builds like e.g. `proton-tkg` ([wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) repo) or GloriousEggroll's [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) prebuilds.
+
+#### SteamTinkerLaunch
+
+From [its Github page]((SteamTinkerLaunch))
+> [Steam Tinker Launch](SteamTinkerLaunch) is a versatile Linux wrapper tool for use with the Steam client which allows for easy graphical configuration of game tools, such as GameScope, MangoHud, modding tools and a bunch more. It supports both games using Proton and native Linux games, and works on both X11 and Wayland.  
+
+STL can be globally set in steam and lets you configure Proton, DXVK/VK3D, GameMode, MangoHud and many other things per game before the game starts. It makes *everything* so much easier and lets you run GameMode with every game without needing to fiddle with the start parameters of every game!  
+It's a lil weird at first, but will help you a lot!  
+Make sure to follow these [instructions](https://github.com/sonic2kk/steamtinkerlaunch/wiki/Steam-Compatibility-Tool#command-line-usage).
+
+
+### Lutris
+[Lutris](https://lutris.net/) is one of these Generic open source game managers, it offers a [database](https://lutris.net/games) of scripts to automatically install various games and the quirks and/or extra configuration (e.g. extra fonts) needed to run them. It also enables you to give it your own compiled wine version and that's why I am using it currently. It is however lagging a bit behind in integrating the new tools that are being developped (e.g. `latencyflex`) and offering newer versions of runtime components (`Wine`, `dxvk`, ...). To see the toggles Lutris offers, install a game, then click `Configure` > `Runner options` tab.
+
+### Bottles
+[Bottles](https://usebottles.com/) is a modern take on generic open source game managers, it has a more intuitive configuration UI, ships the latest builds of `wine`/`dxvk`, and tries to implement integration with all the latest other tools. I could however not find how to make it use my own compiled wine version.
+
+### Heroic Games Launcher
+[Heroic Games Launcher](https://heroicgameslauncher.com) is an opensource game manager for games you own on [GOG](gog.com) or [Epic Games](https://store.epicgames.com). I have not tried it at all so that's all I can say x)
+
+
+### GameMode
+
+[GameMode](https://github.com/FeralInteractive/gamemode) puts your computer in performance mode ([config](https://github.com/FeralInteractive/gamemode/blob/master/example/gamemode.ini)): as far as I know it puts the frequency scaling algorithm to `performance` and changes the scheduling priority of the game. It's available in most distro's repositories and I believe it helps in giving consistent FPS. Of course, also read the [Arch Wiki](https://wiki.archlinux.org/title/GameMode) on GameMode.    
+
+Read [here how to use](https://wiki.archlinux.org/title/GameMode#Usage). But, if you setup [SteamTinkerLaunch](#steamtinkerlaunch) (which you really should!), you can enable GameMode on the global config to have it on all games.  
+Lutris uses it automatically if it's detected, otherwise you need to go, for any game in Lutris, to "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it).  
+
+You can check whether or not gamemode is running with the command `gamemoded -s`.  
+[Waybar](https://github.com/Alexays/Waybar/wiki/Module:-Gamemode) can be setup to show the state of GameMode.  
+For GNOME users, there's a status indicator shell [extension](https://extensions.gnome.org/extension/7074/gamemode-shell-extension/) that show a notification and a tray icon when gamemode is running.  
+
+
 ## DXVK
 
 This is the library that maps DirectX 8-11 (Windows) to Vulkan (Multi-platform and open source) so games that are meant for Windows work on Linux. It's better than wine's built-in mapper called WineD3D.  
@@ -186,17 +233,6 @@ Using a self-compiled kernel can bring some gaming improvements. Ready to use pr
 
 For self-compiling a kernel, there is a git repository called [linux-tkg](https://github.com/Frogging-Family/linux-tkg) that provides a script to compile the linux Kernel from source (takes about ~30mins, but can be stripped down with `modprobed-db`) with some customization options e.g. changing/tweaking the default [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)) ([EEVDF](https://en.wikipedia.org/wiki/Earliest_eligible_virtual_deadline_first_scheduling) is the default) ; along with other patches that help getting better performance in games. You can also provide your own patches if you want, giving this tool a lot of flexibilty. `linux-tkg` needs to be compiled on your own machine, where you can use compiler optimizations such as `-O3` and `-march=native` (which is really an `mtune=native` than anything else, SIMD instructions are explicitly disabled by design), LTO can be used with Clang (PGO may come ?), with an interactive script and a config file, I worked on the script that installs `linux-tkg` on non-Arch distros.
 
-### GameMode
-
-[GameMode](https://github.com/FeralInteractive/gamemode) puts your computer in performance mode ([config](https://github.com/FeralInteractive/gamemode/blob/master/example/gamemode.ini)): as far as I know it puts the frequency scaling algorithm to `performance` and changes the scheduling priority of the game. It's available in most distro's repositories and I believe it helps in giving consistent FPS. Of course, also read the [Arch Wiki](https://wiki.archlinux.org/title/GameMode) on GameMode.    
-
-Read [here how to use](https://wiki.archlinux.org/title/GameMode#Usage). But, if you setup [SteamTinkerLaunch](#steamtinkerlaunch) (which you really should!), you can enable GameMode on the global config to have it on all games.  
-Lutris uses it automatically if it's detected, otherwise you need to go, for any game in Lutris, to "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it).  
-
-You can check whether or not gamemode is running with the command `gamemoded -s`.  
-[Waybar](https://github.com/Alexays/Waybar/wiki/Module:-Gamemode) can be setup to show the state of GameMode.  
-For GNOME users, there's a status indicator shell [extension](https://extensions.gnome.org/extension/7074/gamemode-shell-extension/) that show a notification and a tray icon when gamemode is running.  
-
 
 ### AMD Ryzen: the `cpuset` trick
 
@@ -298,39 +334,6 @@ _CROSS_LD_FLAGS="-Wl,-O1,--sort-common,--as-needed"
 ```
 Where you can change `... EDIT HERE ...` with flags [from here](#flags-to-try): note that LTO nor PGO works with wine, you can at most use the `BASE + GRAPHITE + MISC` flags
 
-
-## Game / "Wine prefix" manager
-
-To run games on Linux, wine creates a so-called "prefix" folder with an arbitrary user chosen name, let's say `game-prefix`. It contains all the configuration specific to wine and a folder structure, within the `drive_c` subfolder, that follows Windows' structure: you can find e.g. `Program Files` or `windows/system32` subfolders in it. The DLLs in the latter folder are actually created by wine, through reverse engineering. From a game's/window's app perspective, these DLLs to behave just like windows, and wine takes care of the rest (by implementing system calls itself, in the wineserver I believe, or redirecting to the linux kernel, correct me if I am wrong please).
-
-Usually, one creates one prefix per game/app, as sometimes each game has some quirks that wine doesn't handle well by default for which a tweak is needed. But that tweaks would break other games apps. And that's where a "game manager" / "wine prefix manager" comes into play to avoid tedious and repetitive manual configurations:
-- Automatically creates prefixes for each of your game
-- Ships various version of Wine to work with the various versions of your games
-- Bundles various DXVK versions to chose from
-- Offers various options that can be toggled (`fsync`, `dxvk-nvapi/dlss`, `fsr`, `latencyflex`...)
-- May have built-in support for extra tools like FPS counters (see [Performance overlays](#performance-overlays)), or other kinds of stuff (see e.g. [Game render tweaks: vkBasalt](#game-render-tweaks-vkbasalt))
-
-
-### Lutris
-[Lutris](https://lutris.net/) is one of these Generic open source game managers, it offers a [database](https://lutris.net/games) of scripts to automatically install various games and the quirks and/or extra configuration (e.g. extra fonts) needed to run them. It also enables you to give it your own compiled wine version and that's why I am using it currently. It is however lagging a bit behind in integrating the new tools that are being developped (e.g. `latencyflex`) and offering newer versions of runtime components (`Wine`, `dxvk`, ...). To see the toggles Lutris offers, install a game, then click `Configure` > `Runner options` tab.
-
-### Bottles
-[Bottles](https://usebottles.com/) is a modern take on generic open source game managers, it has a more intuitive configuration UI, ships the latest builds of `wine`/`dxvk`, and tries to implement integration with all the latest other tools. I could however not find how to make it use my own compiled wine version.
-
-### Heroic Games Launcher
-[Heroic Games Launcher](https://heroicgameslauncher.com) is an opensource game manager for games you own on [GOG](gog.com) or [Epic Games](https://store.epicgames.com). I have not tried it at all so that's all I can say x)
-
-### Steam
-Valve's official closed source game manager handles Linux natively and offers to run windows specific games with Steam's own builds of `proton`. It also accepts custom proton builds like e.g. `proton-tkg` ([wine-tkg](https://github.com/Frogging-Family/wine-tkg-git) repo) or GloriousEggroll's [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) prebuilds.
-
-#### SteamTinkerLaunch
-
-From [its Github page]((SteamTinkerLaunch))
-> [Steam Tinker Launch](SteamTinkerLaunch) is a versatile Linux wrapper tool for use with the Steam client which allows for easy graphical configuration of game tools, such as GameScope, MangoHud, modding tools and a bunch more. It supports both games using Proton and native Linux games, and works on both X11 and Wayland.  
-
-STL can be globally set in steam and lets you configure Proton, DXVK/VK3D, GameMode, MangoHud and many other things per game before the game starts. It makes *everything* so much easier and lets you run GameMode with every game without needing to fiddle with the start parameters of every game!  
-It's a lil weird at first, but will help you a lot!  
-Make sure to follow these [instructions](https://github.com/sonic2kk/steamtinkerlaunch/wiki/Steam-Compatibility-Tool#command-line-usage).
 
 #### Knowledge Base
 
