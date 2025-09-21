@@ -494,7 +494,10 @@ To enable it:
 All packages are officially only available in the [AUR](https://aur.archlinux.org/packages/gpu-screen-recorder). CachyOS builds are available, too.  
 
 You can run this command with [GameMode](#gamemode) to be able to save replays with a hotkey. Needs more prep on wayland.  
-`gpu-screen-recorder -w DP-1 -f 60 -q medium -r 20 -k av1 -bm vbr -c webm -ac opus -a "$(pactl get-default-sink).monitor" -o /tmp -v no -sc scripts/clip_upload.sh  > /tmp/gamemode.log 2>&1`
+`gpu-screen-recorder -w DP-1 -f 60 -q medium -r 20 -k av1 -bm vbr -c webm -ac opus -a "$(pactl get-default-sink).monitor" -o /tmp -v no -sc scripts/clip_upload.sh  > /tmp/gamemode.log 2>&1`  
+
+Useful examples are [here](https://git.dec05eba.com/gpu-screen-recorder/tree/scripts).
+
 
 ## Sound tweaks with Pipewire/Pulseaudio
 
