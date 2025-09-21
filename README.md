@@ -30,7 +30,8 @@ You can also setup the important things on any(?) distro, like
 ## Setup
 
 You only need `mesa` and `steam` to be able to game. Everything else in this guide is optional.  
-Steam installs Proton for you. Only other Proton versions you want to use need to explicitly installed.
+Steam installs Proton for you. Only other Proton versions you want to use need to be explicitly installed.
+With a Nvidia GPU, you need install the correct drivers, [see here](#nvidia) (except on CachyOS).
 
 ## Self-compiling
 
