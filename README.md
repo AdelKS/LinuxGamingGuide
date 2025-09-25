@@ -18,6 +18,9 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Saving replays](#saving-replays)
       - [OBS: replay Buffer](#obs-replay-buffer)
       - [gpu-screen-recorder](#gpu-screen-recorder)
+    - [Linux distribution recommendation](#linux-distribution-recommendation)
+      - [CachyOS](#cachyos)
+      - [Archlinux](#archlinux)
   - [Advanced topics for those interested](#advanced-topics-for-those-interested)
     - [Self-compiling](#self-compiling)
       - [Flags to try](#flags-to-try)
@@ -170,6 +173,37 @@ gpu-screen-recorder -w DP-1 -f 60 -q medium -r 20 -k av1 -bm vbr -c webm -ac opu
 ```
 
 Useful examples are [here](https://git.dec05eba.com/gpu-screen-recorder/tree/scripts).
+
+### Linux distribution recommendation
+
+If you are hesitating on what Linux distribution to use. Here's this guide's recommendation:
+
+1. [CachyOS](https://cachyos.org/)
+2. [Archlinux](https://archlinux.org/)
+
+The reasons for the recommendation:
+
+- To get the best performance, one simply needs the latest updates, as soon as possible.
+- Cutting-edge new gaming tools are shipped on those distributions first
+
+#### CachyOS
+
+- Based on Archlinux
+- Rolling-release distro: packages continuously get updated.
+- Ships package updates just few days after they get released. While remaining perfectly stable.
+- Has a specific [Gaming guide](https://wiki.cachyos.org/configuration/gaming/)
+- [Many kernels to chose from](https://wiki.cachyos.org/features/kernel/)
+
+> CachyOS does compile packages with the x86-64-v3, x86-64-v4 and Zen4 instruction set and LTO to provide a higher performance. Core packages also get PGO or BOLT optimization.
+
+and important for nvidia users:
+> CachyOS includes a custom hardware detection tool that automatically identifies and installs the necessary drivers and packages for your system. This eliminates the need for manual driver searching, saving you time and effort after installation.
+
+#### Archlinux
+
+- Rolling-release distro: packages continuously get updated.
+- Ships package updates just few days after they get released. While remaining perfectly stable.
+- Can use the [archinstall](https://wiki.archlinux.org/title/Archinstall) TUI tool for a more user-friendly install.
 
 ## Advanced topics for those interested
 
