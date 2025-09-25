@@ -17,6 +17,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
       - [Software encoding on AMD Ryzen CPUs](#software-encoding-on-amd-ryzen-cpus)
     - [Saving replays](#saving-replays)
       - [OBS: replay Buffer](#obs-replay-buffer)
+      - [gpu-screen-recorder](#gpu-screen-recorder)
   - [Advanced topics for those interested](#advanced-topics-for-those-interested)
     - [Self-compiling](#self-compiling)
       - [Flags to try](#flags-to-try)
@@ -157,6 +158,18 @@ To enable it:
 3. While "replay buffer" is started and running, you can either
    - press the "save" button that is right next to "stop replay buffer"
    - trigger the keyboard shortcut for "save replay"
+
+#### gpu-screen-recorder
+
+[gpu-screen-recorder](https://git.dec05eba.com/gpu-screen-recorder/tree/README.md) is a cli, GUI and overlay tool for recording, replay and streaming efficiently with the GPU.
+
+You can run this command with [GameMode](#gamemode) to be able to save replays with a hotkey. Needs more prep on wayland.
+
+```shell
+gpu-screen-recorder -w DP-1 -f 60 -q medium -r 20 -k av1 -bm vbr -c webm -ac opus -a "$(pactl get-default-sink).monitor" -o /tmp -v no -sc scripts/clip_upload.sh  > /tmp/gamemode.log 2>&1
+```
+
+Useful examples are [here](https://git.dec05eba.com/gpu-screen-recorder/tree/scripts).
 
 ## Advanced topics for those interested
 
