@@ -117,9 +117,23 @@ Make sure to follow these [instructions](https://github.com/sonic2kk/steamtinker
 
 ### Game mode
 
-It's a small program that puts your computer in performance mode: as far as I know it puts the frequency scaling algorithm to `performance` and changes the scheduling priority of the game. It's available in most distro's repositories and I believe it helps in giving consistent FPS. Lutris uses it automatically if it's detected, otherwise you need to go, for any game in Lutris, to "Configure" > "System Options" > "Environment variables" and add `LD_PRELOAD="$GAMEMODE_PATH/libgamemodeauto.so.0"` where you should replace `$GAMEMODE_PATH` with the actual path (you can do a `locate libgamemodeauto.so.0` on your terminal to find it). Link here: https://github.com/FeralInteractive/gamemode.
+[GameMode](https://github.com/FeralInteractive/gamemode) is wrapper script that puts your computer in performance mode:
 
-You can check whether or not gamemode is running with the command `gamemoded -s`. For GNOME users, there's a status indicator shell extension that show a notification and a tray icon when gamemode is running: https://extensions.gnome.org/extension/1852/gamemode/
+- Changes the CPU frequency scaling to `performance`
+- Can change the game's processes priority
+- Can change the GPU's power profile
+- ([see config](https://github.com/FeralInteractive/gamemode/blob/master/example/gamemode.ini)) to see what it can offer
+
+How to use:
+
+- Archwiki entry on [GameMode](https://wiki.archlinux.org/title/GameMode)
+- [SteamTinkerLaunch](#steamtinkerlaunch) can be set to use it
+- [Lutris](#lutris) uses it automatically if it's detected
+
+Is it running ?
+
+- Run the command `gamemoded -s`.
+- [Waybar](https://github.com/Alexays/Waybar/wiki/Module:-Gamemode) can be setup to show the state of GameMode.
 
 ### streaming: OBS
 
