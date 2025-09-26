@@ -79,9 +79,10 @@ Gaming on Linux has never been easier
 1. Chose your Linux distribution
 2. Install your GPU drivers
    - AMD
-     - Install `mesa`, which ships the `RADV` vulkan driver
+     - Needs `mesa`, which ships the `RADV` vulkan driver. Probably already part of the base distro
    - Nvidia
-     - Install Nvidia's "open" driver
+     - RTX 2000 and newer: install Nvidia's "open" driver
+     - Older GPUs: use Nvidia's "closed" driver
 3. Install the Steam client (prefer a distro that ships it so dependencies get properly pulled)
    - If the games you want to run isn't in Steam, see [Prefix managers](#game--wine-prefix-manager)
 4. Game on!
