@@ -36,7 +36,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
       - [AMD](#amd)
         - [RADV: Self-compile](#radv-self-compile)
     - [Kernel](#kernel)
-      - [Command line options](#command-line-options)
+      - [CPU mitigations](#cpu-mitigations)
       - [Threading synchronization](#threading-synchronization)
       - [Custom kernels](#custom-kernels)
         - [Compiling your own: linux-tkg](#compiling-your-own-linux-tkg)
@@ -424,17 +424,13 @@ If the games crashes after doing all this, you can either try other git commits 
 
 ### Kernel
 
-#### Command line options
+#### CPU mitigations
 
-As you may know, the kernel has various protection mechanisms from malicious program-execution based attacks, the likes of [Spectre and Meltdown](https://en.wikipedia.org/wiki/Meltdown_(security_vulnerability)). These protections/mitigations come with [an extra overhead on the CPU](https://www.phoronix.com/scan.php?page=article&item=3-years-specmelt&num=9). (Un)fortunately, it is possible to disable ALL these mitigations, at the expense of security. Although if you use X11 then you are just adding an extra cherry on top of how unsecure your setup is haha. Since any running application can catch your keyboard and what's displayed on your monitor.
+The kernel has various protection mechanisms from malicious program-execution based attacks, that are mostly [Side Channel Attacks](https://en.wikipedia.org/wiki/Side-channel_attack) like [Transient execution vulnerability](https://en.wikipedia.org/wiki/Transient_execution_CPU_vulnerability), which are about a legitimate code leaking data to a malicious code that is running on the same core.
 
-Okay, how to disable all mitigations ? Fortunately it's super simple: add `mitigations=off` command line to your [kernel parameters](https://wiki.archlinux.org/index.php/Kernel_parameters).
+These protections/mitigations sometimes come with an extra overhead on the CPU (see [1](https://www.phoronix.com/scan.php?page=article&item=3-years-specmelt&num=9), [2](https://www.phoronix.com/review/retbleed-benchmark), [3](https://www.phoronix.com/review/alder-lake-mitigations), [4](https://www.phoronix.com/review/amd-inception-benchmarks)) and can be disabled by adding `mitigations=off` to your [kernel boot parameters](https://wiki.archlinux.org/index.php/Kernel_parameters) or by [builting](#compiling-your-own-linux-tkg) a kernel without the mitigation code paths.
 
-I ran across another protection that got added in the kernel that disables a certain set of cpu instructions from user space programs (`umip`), instructions from this set is used for example in Overwatch some other games. That protection broke those games then the kernel got [a patch that emulates those instructions](https://github.com/torvalds/linux/commit/1e5db223696afa55e6a038fac638f759e1fdcc01) with a certain overhead with a kernel message like this one:
-```shell
-kernel: umip: Overwatch.exe[5970] ip:140621a9a sp:21dea0: For now, expensive software emulation returns the result.
-```
-You can disable this protection with the following kernel parameter `clearcpuid=514`
+_Personal opinion:_ for regular desktop use, if you get to the point that you are running malicious code, your system is probably already compromised and the said malicious code doesn't even need to use such contrived vulnerabilites to obtain sensitive data. Therefore, using a desktop with mitigations disabled doesn't seem that bad. The mitigations or more for servers running e.g. VMs for different customers and making sure their data remains confidential. Of course, I may be entirely wrong.
 
 #### Threading synchronization
 
