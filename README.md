@@ -439,16 +439,38 @@ You can disable this protection with the following kernel parameter `clearcpuid=
 #### Threading synchronization
 
 you may have heard about `esync`, `fsync` or `futex2` threading synchronisation kernel syscalls. They have been developed by CodeWeavers and Collabora. Chronologically, here's what happened
-- `esync` is the oldest implementation and available in any non ancient kernel in any distro, since it uses the kernel's `eventfd` [system call](https://man7.org/linux/man-pages/man2/eventfd.2.html). Issues arise in some distros when a game opens a lot of the so called "file descriptors"
-- `FUTEX_WAIT_MULTIPLE`, a special additional flag on the `futex` [system call](https://man7.org/linux/man-pages/man2/futex.2.html) was developed. It was referred to in wine as `fsync` (that we will also call `fsync1`). This work did not get upstreamed in the linux kernel (out-of-tree).
-- `futex_waitv` implementing  a new system call
-  - Initially called `futex_wait()`: `linux-tkg` and `wine-tkg` were offering support for this work under the `futex2` naming.
-  - The system call then [got upstreamed](https://www.kernel.org/doc/html/latest/userspace-api/futex2.html) in kernel `5.16` with a slightly different name : `futex_waitv()` for the system call, and `futex2` as a feature. It is still referred to as `fsync` in wine (so basically an `fsync2`). Which leads to some confusions...
 
-`ntsync` (also previously called `winesync`) is a new proposal of synchronization subsystem, similar to `futex` and `eventfd`, aimed to serve exclusively for mapping Windows API sync mechanisms. developed by wine developers. This implementation is kind of on hold since the upstreaming of `futex_waitv`. `ntsync` is a kernel module that communicates with the `ntsync` counterpart (also previously called `fastsync`) in (a patched) wine. To have the `ntsync`:
-- The DKMS route
-  - Archlinux: you need to install the following package from the AUR: `ntsync`
-- Use [linux-tkg](#compiling-your-own-linux-tkg) with `_ntsync="true"` in its customization file.
+- `esync`
+  - Oldest implementation
+  - Uses the kernel's `eventfd` [system call](https://man7.org/linux/man-pages/man2/eventfd.2.html).
+    - Issues arise in some distros when a game opens a lot of "file descriptors" (the maximum amount can be increased)
+  - Support matrix:
+    - Any Linux kernel with `eventfd` support
+    - Upstream Wine:
+      - `>= 10.15`: used as fallback if `ntsync` isn't available
+      - Otherwise used by default
+    - Proton: used as fallback if `fsync` isn't available
+- `FUTEX_WAIT_MULTIPLE`,
+  - Works witn an additional flag on the `futex` [system call](https://man7.org/linux/man-pages/man2/futex.2.html).
+  - It was referred to in wine as `fsync` (that we will also call `fsync1`).
+  - This work did not get upstreamed in the linux kernel (out-of-tree) nor in wine and now part of the past.
+- `futex_waitv` / `fsync` / `futex2` implementing  a new system call [futex_waitv()](https://www.kernel.org/doc/html/latest/userspace-api/futex2.html)
+  - Still referred to as `fsync` in wine (so basically an `fsync2`). Which led to some confusions
+  - Support matrix:
+    - Linux >= `5.16`
+    - Upstream Wine: never
+    - Proton
+- `ntsync` (also previously called `winesync`)
+  - latest proposal of synchronization subsystem that mimicks Windows' behavior the closest
+  - Similar to `futex` and `eventfd`, aimed to serve exclusively for mapping Windows API sync mechanisms.
+  - Same performance as `fsync` but with broader compatibility with Windows apps
+  - Support matrix:
+    - Linux kernel >= 6.14
+    - Upstream Wine >= 10.15 (enabled by default)
+    - Proton
+      - Official: not yet
+      - [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) >= 10-10 (enabled by default)
+      - [proton-tkg](https://github.com/Frogging-Family/wine-tkg-git) (enabled by default if compiled with support enabled)
 
 #### Custom kernels
 
