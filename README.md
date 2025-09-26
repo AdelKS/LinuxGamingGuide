@@ -21,6 +21,9 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Linux distribution recommendation](#linux-distribution-recommendation)
       - [CachyOS](#cachyos)
       - [Archlinux](#archlinux)
+    - [Headset Control](#headset-control)
+    - [CoolerControl](#coolercontrol)
+    - [RGB Control](#rgb-control)
   - [Advanced topics for those interested](#advanced-topics-for-those-interested)
     - [Self-compiling](#self-compiling)
       - [Flags to try](#flags-to-try)
@@ -207,6 +210,19 @@ and important for nvidia users:
 - Rolling-release distro: packages continuously get updated.
 - Ships package updates just few days after they get released. While remaining perfectly stable.
 - Can use the [archinstall](https://wiki.archlinux.org/title/Archinstall) TUI tool for a more user-friendly install.
+
+### Headset Control
+
+[HeadsetControl](https://github.com/Sapd/HeadsetControl/) helps configuring some gaming headsets that have a battery, adjustable side-tone, LEDs...
+
+### CoolerControl
+
+[CoolerControl](https://gitlab.com/coolercontrol/coolercontrol) is a GUI app for system monitoring and fan curve configuration.
+
+### RGB Control
+
+- [Artemis](https://artemis-rgb.com/)
+- [OpenRGB](https://openrgb.org/)
 
 ## Advanced topics for those interested
 
