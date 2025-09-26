@@ -105,9 +105,11 @@ Performance overlays are small "widgets" that stack on top of your game view and
 
 ### SteamTinkerLaunch
 
-If you end up frequently changing launch options in your Steam games, consider [Steam Tinker Launch](https://github.com/sonic2kk/steamtinkerlaunch)
+[Steam Tinker Launch](https://github.com/sonic2kk/steamtinkerlaunch) opens a window after starting a game from Steam that offers adding in various tweaks before actually starting the game.
 
 > Steam Tinker Launch is a versatile Linux wrapper tool for use with the Steam client which allows for easy graphical configuration of game tools, such as GameScope, MangoHud, modding tools and a bunch more. It supports both games using Proton and native Linux games, and works on both X11 and Wayland.
+
+Make sure to follow these [instructions](https://github.com/sonic2kk/steamtinkerlaunch/wiki/Steam-Compatibility-Tool#command-line-usage).
 
 ### Game mode
 
