@@ -443,9 +443,37 @@ If the games crashes after doing all this, you can either try other git commits 
 
 The kernel has various protection mechanisms from malicious program-execution based attacks, that are mostly [Side Channel Attacks](https://en.wikipedia.org/wiki/Side-channel_attack) like [Transient execution vulnerability](https://en.wikipedia.org/wiki/Transient_execution_CPU_vulnerability), which are about a legitimate code leaking data to a malicious code that is running on the same core.
 
-These protections/mitigations sometimes come with an extra overhead on the CPU (see [1](https://www.phoronix.com/scan.php?page=article&item=3-years-specmelt&num=9), [2](https://www.phoronix.com/review/retbleed-benchmark), [3](https://www.phoronix.com/review/alder-lake-mitigations), [4](https://www.phoronix.com/review/amd-inception-benchmarks)) and can be disabled by adding `mitigations=off` to your [kernel boot parameters](https://wiki.archlinux.org/index.php/Kernel_parameters) or by [builting](#compiling-your-own-linux-tkg) a kernel without the mitigation code paths.
+These protections/mitigations sometimes come with an extra overhead on the CPU (see [1](https://www.phoronix.com/scan.php?page=article&item=3-years-specmelt&num=9), [2](https://www.phoronix.com/review/retbleed-benchmark), [3](https://www.phoronix.com/review/alder-lake-mitigations), [4](https://www.phoronix.com/review/amd-inception-benchmarks), [5](https://www.phoronix.com/news/AMD-Zen-4-Mitigations-Off), [6](https://www.phoronix.com/review/amd-zen5-mitigations-off)) and can be disabled by adding `mitigations=off` to your [kernel boot parameters](https://wiki.archlinux.org/index.php/Kernel_parameters) or by [building](#compiling-your-own-linux-tkg) a kernel without the mitigation code paths.
 
-_Personal opinion:_ for regular desktop use, if you get to the point that you are running malicious code, your system is probably already compromised and the said malicious code doesn't even need to use such contrived vulnerabilites to obtain sensitive data. Therefore, using a desktop with mitigations disabled doesn't seem that bad. The mitigations or more for servers running e.g. VMs for different customers and making sure their data remains confidential. Of course, I may be entirely wrong.
+To know what vulnerabilites your CPU is affected by, use `lscpu`
+
+```shell
+$ lscpu # for a Zen5 CPU
+# [... snip ...]
+Vulnerabilities:
+  Gather data sampling:      Not affected
+  Ghostwrite:                Not affected
+  Indirect target selection: Not affected
+  Itlb multihit:             Not affected
+  L1tf:                      Not affected
+  Mds:                       Not affected
+  Meltdown:                  Not affected
+  Mmio stale data:           Not affected
+  Old microcode:             Not affected
+  Reg file data sampling:    Not affected
+  Retbleed:                  Not affected
+  Spec rstack overflow:      Vulnerable
+  Spec store bypass:         Vulnerable
+  Spectre v1:                Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers
+  Spectre v2:                Vulnerable; IBPB: disabled; STIBP: disabled; PBRSB-eIBRS: Not affected; BHI: Not affected
+  Srbds:                     Not affected
+  Tsa:                       Not affected
+  Tsx async abort:           Not affected
+  Vmscape:                   Vulnerable
+###
+```
+
+_Personal (potentially very wrong) opinion:_ for regular desktop use, if you get to the point that you are running malicious code, your system is probably already compromised and the said malicious code doesn't even need to use such contrived vulnerabilites to obtain sensitive data. Therefore, using a desktop with mitigations disabled doesn't seem that bad. The mitigations or more for servers running e.g. VMs for different customers and making sure their data remains confidential. This may render your browser [vulnerable to side channel attacks](https://www.spookjs.com/) from infected/untrustworthy websites that can steal information available within the browser at least.
 
 #### Threading synchronization
 
