@@ -63,6 +63,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
       - [RAM](#ram)
     - [Input lag / latency: benchmark at home](#input-lag--latency-benchmark-at-home)
     - [X11/Wayland](#x11wayland)
+      - [KDE](#kde)
     - [Sound tweaks with Pipewire/Pulseaudio](#sound-tweaks-with-pipewirepulseaudio)
       - [Stream only the game sounds](#stream-only-the-game-sounds)
       - [Improve the sound of your headset](#improve-the-sound-of-your-headset)
@@ -796,6 +797,19 @@ Wayland is the successor to X11, and is now mature and supported enough for X11 
       - However, with high refresh rate monitors (e.g. 240Hz), image update smoothness is noticeable vs the theoretically added input lag. Try and see !
       - This option entirely removes screen tearing with anything: for example scrolling on Firefox, on compositor-less DEs like LXDE, becomes super smooth.
   - If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
+
+#### KDE
+
+To hit "Direct scanout", i.e. bypassing the compositor entirely, for better input lag and less strain on a potential iGPU driving the monitor
+(see [this bug report](https://bugs.kde.org/show_bug.cgi?id=510847) and [this one](https://bugs.kde.org/show_bug.cgi?id=510579)),
+these conditions need to be met:
+
+- No color profile set (i.e. set to "None" in the settings)
+- HDR is disabled
+- Night light is disabled
+- Default kwin effects are set
+
+To confirm that "direct scanout" is happening, you can open "Kwin debug console" > "Effects" tab (rightmost one) > Load "showcompositing" : this will show "compositing" in the top right of the screen unless direct scanout happens.
 
 ### Sound tweaks with Pipewire/Pulseaudio
 
