@@ -62,7 +62,9 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Overclocking](#overclocking)
       - [RAM](#ram)
     - [Input lag / latency: benchmark at home](#input-lag--latency-benchmark-at-home)
-    - [X11/Wayland](#x11wayland)
+    - [Display server](#display-server)
+      - [Wayland](#wayland)
+      - [X11](#x11)
       - [KDE](#kde)
     - [Sound tweaks with Pipewire/Pulseaudio](#sound-tweaks-with-pipewirepulseaudio)
       - [Stream only the game sounds](#stream-only-the-game-sounds)
@@ -807,24 +809,36 @@ However, you may find it that the delay of start of movement you measure is lowe
 
 Some benchmarks following this procedure are following in the [benchmarks/mice](#mice) section.
 
-### X11/Wayland
+### Display server
 
-Wayland is the successor to X11, and is now mature and supported enough for X11 to be phased out, and that's what most linux distros are starting to consider.
+[X11](https://fr.wikipedia.org/wiki/X_Window_System) and [Wayland](https://fr.wikipedia.org/wiki/Wayland) are [display server communications protocols](https://en.wikipedia.org/wiki/Windowing_system#Display_server_communications_protocols) with a [display server](https://en.wikipedia.org/wiki/Windowing_system#Display_server). Wayland (2008) is the successor to X11 (1984) with a more modern, more secure design.
 
-- Wayland
-  - As of KDE 6 and Gnome 46, gaming on wayland just works without any downside (except maybe a slightly higher input lag, to be confirmed with a latency benchmark).
-    - Games however still use XWayland (a "small" X server within the Wayland session to play the game) by default
-      - Proton (e.g. in Steam) doesn't support wayland at all for now, so it will use XWayland.
-      - Starting wine 9.22, native wayland is supported by simply starting the game with the environment variable `DISPLAY` unset / empty. YMMV
-  - VRR is supported out of the box can be toggled using the GUI settings app
-  - HDR is supported
+X11 has only one reference implementation that's still being used, Xorg. Whereas Wayland has various implementations, e.g. in each major DE has its own.
 
-- X11, some recommendations:
-  - The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering).
-    - It may be argued that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag.
-      - However, with high refresh rate monitors (e.g. 240Hz), image update smoothness is noticeable vs the theoretically added input lag. Try and see !
-      - This option entirely removes screen tearing with anything: for example scrolling on Firefox, on compositor-less DEs like LXDE, becomes super smooth.
-  - If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
+#### Wayland
+
+As of KDE 6 and Gnome 46, gaming on wayland just works without any downside (except maybe a slightly higher input lag, to be confirmed with a latency benchmark).
+
+Games however still use XWayland (a "small" X server within the Wayland session to play the game) by default, to enable native wayland:
+
+- Non-proton Wine
+  - Set `DISPLAY=""` [environment variable](#environment-variables)
+- Proton
+  - Unspported on Steam's Proton releases
+  - Custom proton releases (e.g. `proton-ge`, `proton-cachyos`, `proton-tkg`) support it, set `PROTON_ENABLE_WAYLAND=1` [environment variable](#environment-variables)
+- HDR is supported but [needs to be configured](https://wiki.archlinux.org/title/HDR)
+
+My subjective experience with enabling Proton native-wayland in Arc Raiders is a much lower input lag.
+
+#### X11
+
+Some config recommendations:
+
+- The `TearFree` option,  to enable it on `AMDGPU`, [follow this](https://wiki.archlinux.org/title/AMDGPU#Tear_free_rendering).
+  - It may be argued that it highers the input lag, I think that it's theoretically right and we want the lowest felt input lag.
+    - However, with high refresh rate monitors (e.g. 240Hz), image update smoothness is noticeable vs the theoretically added input lag. Try and see !
+    - This option entirely removes screen tearing with anything: for example scrolling on Firefox, on compositor-less DEs like LXDE, becomes super smooth.
+- If you have a FreeSync/Gsync monitor and a GPU that supports it, [follow this documentation](https://wiki.archlinux.org/title/Variable_refresh_rate) on how to enable it on Linux. Reviews of monitors seem to show that enabling this actually adds input lag, but once again, it's better than tearing.
 
 #### KDE
 
