@@ -38,6 +38,7 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
     - [Kernel](#kernel)
       - [CPU mitigations](#cpu-mitigations)
       - [Threading synchronization](#threading-synchronization)
+      - [x2APIC](#x2apic)
       - [Custom kernels](#custom-kernels)
         - [Compiling your own: linux-tkg](#compiling-your-own-linux-tkg)
     - [AMD Ryzen CPU cache topology](#amd-ryzen-cpu-cache-topology)
@@ -512,6 +513,26 @@ you may have heard about `esync`, `fsync` or `futex2` threading synchronisation 
       - Official: not yet
       - [proton-ge-custom](https://github.com/GloriousEggroll/proton-ge-custom) >= 10-10 (enabled by default)
       - [proton-tkg](https://github.com/Frogging-Family/wine-tkg-git) (enabled by default if compiled with support enabled)
+
+#### x2APIC
+
+[x2APIC](https://en.wikipedia.org/wiki/Advanced_Programmable_Interrupt_Controller#X2APIC) is the modern successor of the legacy local APIC (the per-core interrupt controller) for handling interrupts and may improve performance.
+
+On AMD Ryzen it's actually not enabled by default. To enable it:
+
+1. Add `x2apic_phys` to your [kernel boot parameters](https://wiki.archlinux.org/index.php/Kernel_parameters)
+   - otherwise booting will probably hang with the console showing `x2apic: IRQ remapping doesn't support X2APIC mode` somewhere during boot
+     after `x2apic` is enabled in the next step.
+2. Go to BIOS: `AMD CBS > CPU Opitons > Local APIC mode` and select `x2apic`
+
+To check whether x2APIC is currently active:
+
+```shell
+dmesg | grep -i x2apic
+
+x2apic: enabled by BIOS, switching to x2apic ops
+APIC: Switched APIC routing to: physical x2apic
+```
 
 #### Custom kernels
 
