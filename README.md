@@ -60,8 +60,9 @@ This is some kind of guide/compilation of things, that I got to do/learn about w
         - [Troubleshooting: first thing to try](#troubleshooting-first-thing-to-try)
         - [Troubleshooting: getting logs](#troubleshooting-getting-logs)
         - [Shared NTFS partition with Windows](#shared-ntfs-partition-with-windows)
-    - [Overclocking](#overclocking)
-      - [RAM](#ram)
+    - [Hardware](#hardware)
+      - [What's a good PSU](#whats-a-good-psu)
+      - [RAM Overclocking](#ram-overclocking)
     - [Input lag / latency: benchmark at home](#input-lag--latency-benchmark-at-home)
     - [Display server](#display-server)
       - [Wayland](#wayland)
@@ -776,9 +777,14 @@ The fix is to [delete the prefix](#troubleshooting-first-thing-to-try) then to f
 - To avoid having problems when using an NTFS partition on Linux, use `ntfs3` as a filesystem type in your [/etc/fstab](https://wiki.archlinux.org/title/Fstab) file to use [ntfs3 kernel driver](https://wiki.archlinux.org/title/NTFS) (instead of `ntfs` which uses [ntfs-3g userspace driver](https://en.wikipedia.org/wiki/NTFS-3G)) with the mount option `windows_names` ([described here](https://www.kernel.org/doc/html/latest/filesystems/ntfs3.html)). With that, creating the prefix `/SteamLibrary/steamapps/compatdata` within the NTFS partition will fail.
 - If you get an `rm: traversal failed` when trying to delete the prefix (or something else within the NTFS partition). That means your NTFS partition got corrupted and you will need to use Windows to scan and fix errors in the filesystem. Unfortunately Linux has no tool to fix NTFS filesystems.
 
-### Overclocking
+### Hardware
 
-#### RAM
+#### What's a good PSU
+
+Turns out the [80+](https://en.wikipedia.org/wiki/80_Plus) rating doesn't fully capture the quality of a Power Supply Unit,
+see here for explanations and a list of recommended ones based tech specs: https://psutierlist.org
+
+#### RAM Overclocking
 
 [DDR4 overclocking guide](https://github.com/integralfx/MemTestHelper/blob/oc-guide/DDR4%20OC%20Guide.md)
 
